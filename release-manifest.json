@@ -1094,20 +1094,20 @@
     },
     {
       "path": "tools/test_verify_bridge.py",
-      "sha256": "f004f88b916800fc44ba6cb2fbd18ca81b2317b24808ac78ff9a84eb2b4a7dc0",
-      "bytes": 6736
+      "sha256": "3904ca2bb16b00ef834ff4d0dd4b04302360880356647e3cae5a37487086efc4",
+      "bytes": 6930
     },
     {
       "path": "tools/verify_bridge.py",
-      "sha256": "2254dfc5d354c654914a6f62cd7a3dfbc868a1640586af843be7f9a682f79925",
-      "bytes": 14678
+      "sha256": "348cd8066d501385be4be72c6698203f09b8597cc502448e798992aba2daa896",
+      "bytes": 14690
     }
   ],
   "fileCount": 220,
-  "totalBytes": 3304459,
+  "totalBytes": 3304665,
   "issues": [],
   "licensePresent": true,
-  "published": false,
+  "published": true,
   "releaseReady": false,
   "remainingGates": [
     "actual GitHub CI",
@@ -1138,7 +1138,11 @@
     "publicClientShim": "published pure transport compatibility shim; public selection tested",
     "limitations": [
       "four conditional ResolverPerformanceTests assertions require an additional loadable framework assembly and were not exercised"
-    ]
+    ],
+    "supplementalToolingValidation": {
+      "tests": 114,
+      "scope": "Windows short/long path canonicalization in verification output guard; game runtime unchanged"
+    }
   },
   "acceptance": {
     "priorDshLifecycleScope": "manual source replacement and upgrade; not a clean installation",
