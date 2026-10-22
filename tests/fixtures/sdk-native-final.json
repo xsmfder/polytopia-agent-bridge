@@ -1,0 +1,30 @@
+{
+  "schema": "native-final-1",
+  "episodeId": "ep-fixture-perfection",
+  "controlledPlayerId": 1,
+  "mode": "Perfection",
+  "gameType": "SinglePlayer",
+  "finalTurn": 30,
+  "final": true,
+  "complete": true,
+  "controlledPlayerWon": false,
+  "winnerId": 2,
+  "authority": "natural GameManager.MatchEnded; EndMatchReaction ScoreDetails; ResultScreen GetRating(localPlayerIsWinner)",
+  "scores": {
+    "scoreDetails": {
+      "territoryScore": 750,
+      "cultureScore": 400,
+      "cityScore": 205,
+      "techScore": 2600,
+      "totalScore": 3955,
+      "difficultyBonusMultiplier": 0.20000000298023224,
+      "difficultyBonus": 791,
+      "TotalScoreIncludingBonus": 4746,
+      "scoreUnit": "points",
+      "difficultyBonusMultiplierUnit": "dimensionless native bonus multiplier"
+    },
+    "playerRating": null,
+    "totalUnit": "points",
+    "nativeFinalTotal": 4746
+  }
+}

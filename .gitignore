@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.dll
+*.exe
+*.pdb
+*.log
+*.jsonl
+*.zip
+*.tmp
+cmd.jsonl
+out.jsonl
+bridge-ready.json
+controlled-seat.json
+match-active.json
+sessions/
+lifecycle-receipts/
+results/
+launches/
+deployments/
+verification-runs/
+# Short local verification outputs used in README examples.
+/v[0-9]*/
+releases/
+repairs/
+campaigns/
+shots/
+analysis/

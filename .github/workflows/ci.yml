@@ -1,0 +1,32 @@
+name: SDK and tooling
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: SDK and transport regression
+        run: python -m unittest discover -s tests -p "test*.py" -v
+      - name: Frozen receipt recovery
+        run: python tests/fixtures/recovery/test_settled_unknown.py
+      - name: Deployment and source tooling regression
+        run: python -m unittest discover -s tools -p "test*.py" -v
+      - name: Source inventory
+        run: python tools/prepare_release.py

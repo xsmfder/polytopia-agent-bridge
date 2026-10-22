@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "schema": "unit-actions-1",
+  "status": "ok",
+  "myTurn": true,
+  "authority": "CommandUtils.GetUnitActions(GameState, PlayerState, TileData, includeUnavailable:false)",
+  "units": [
+    {
+      "unitId": "6",
+      "coords": "(10,7)",
+      "status": "ok",
+      "actions": [
+        {
+          "actionId": "Capture",
+          "commandType": "Capture",
+          "executable": true,
+          "nativeValid": true,
+          "parameters": {
+            "Coordinates": "(10,7)",
+            "UnitId": 6
+          },
+          "actionName": "capture",
+          "kind": null,
+          "cost": null,
+          "targetMode": "native-bound-parameters",
+          "targets": null,
+          "actionConsumption": null,
+          "consumptionStatus": "observe native moved/attacked/effects after settlement"
+        },
+        {
+          "actionId": "Recover",
+          "commandType": "Recover",
+          "executable": true,
+          "nativeValid": true,
+          "parameters": {
+            "Coordinates": "(10,7)"
+          },
+          "actionName": "recover",
+          "kind": null,
+          "cost": null,
+          "targetMode": "native-bound-parameters",
+          "targets": null,
+          "healAmountRaw": 20,
+          "healAmountAuthority": "ActionUtils.GetHealAmount(GameState, TileData); final HP remains authoritative",
+          "actionConsumption": null,
+          "consumptionStatus": "observe native moved/attacked/effects after settlement"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1173 @@
+{
+  "schema": "bridge-source-review-1",
+  "ok": true,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "12e0f8edbda615d971d584bb581b5e881f271b1f42fe1636aa862f566e0fd319",
+      "bytes": 872
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "e109dcb32ccb19cfbad4aa115dbf78062418a05cfea90f3007fe46afe7b235b5",
+      "bytes": 342
+    },
+    {
+      "path": "CHANGELOG.en.md",
+      "sha256": "0b2ec46b15bc0ebd261ab6b21ac2a1f03dc315b15c41e155a8a1e0c05de23855",
+      "bytes": 1315
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "6b6a2378ab55b4278c6c13b4c20079003b368c38c9159ef186777097b1fa3dff",
+      "bytes": 1029
+    },
+    {
+      "path": "COMPATIBILITY.en.md",
+      "sha256": "ccad8736f2782a7a37766d0817e224b3f16ce4727d57592638bb5faacb53ba6c",
+      "bytes": 17602
+    },
+    {
+      "path": "COMPATIBILITY.md",
+      "sha256": "fea87bb604c09d9e393d74e0be3fa5d60498fb0b4117be16f8562d5707d28476",
+      "bytes": 18041
+    },
+    {
+      "path": "CONTRIBUTING.en.md",
+      "sha256": "e9d69ccbd27a4550667de28db31c3b1f08d95374ea75b142e8416aa2492191f2",
+      "bytes": 1517
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "6bf50a4220aabf32d4acc23d9f78597d096246c90bd8fc8ccafe171a15f13df3",
+      "bytes": 1266
+    },
+    {
+      "path": "INSTALL.en.md",
+      "sha256": "5dc625475297e68e2bc77be66dc1cab0f03ffb2dcb55946e2c46a4e7b752bba8",
+      "bytes": 9687
+    },
+    {
+      "path": "INSTALL.md",
+      "sha256": "d6944a588fd87fc42bd05b4f586fec6305043601128890c31b75bee5caca4a48",
+      "bytes": 9022
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "121786f7c0a5c8f5dd5d597cb647a66913265c95e196ea69cf18479a42300f48",
+      "bytes": 1119
+    },
+    {
+      "path": "README.en.md",
+      "sha256": "60b2db849388d75f0b7f68ab369e712f71456d3ff86e433601428484ed31c464",
+      "bytes": 8718
+    },
+    {
+      "path": "README.md",
+      "sha256": "ae229e714a237451697ea95586bb75e8e03d6976ce30330276a517a2c9815c77",
+      "bytes": 7961
+    },
+    {
+      "path": "RELEASE_CHECKLIST.en.md",
+      "sha256": "1f64fc426130deb7f72749e3fc9f3e021dc5a99aa952505bbcff0b9861d7d582",
+      "bytes": 4425
+    },
+    {
+      "path": "RELEASE_CHECKLIST.md",
+      "sha256": "fc67203a50bed65f30a4030b99d4e7502bfef7f01575712430c71c7fabde6e1f",
+      "bytes": 4871
+    },
+    {
+      "path": "SOURCE_PROVENANCE.en.md",
+      "sha256": "0faab82a35b932f3afef220ecd49ed0d918c78559fa29309b813599fab44fe4b",
+      "bytes": 3456
+    },
+    {
+      "path": "SOURCE_PROVENANCE.md",
+      "sha256": "81be9e9ee9d289bfc9409d339826471489786156b920a59956abaffa506caa11",
+      "bytes": 2903
+    },
+    {
+      "path": "USAGE.en.md",
+      "sha256": "83194957a6a16060d23219026028cae4379d45ef0c5803200b732ad9455e0a3b",
+      "bytes": 9200
+    },
+    {
+      "path": "USAGE.md",
+      "sha256": "8935daf04e803e2a2dbce46973e6d4c8b0e4c4b2a204c7df0b40488ae43e0867",
+      "bytes": 8703
+    },
+    {
+      "path": "agentcli.py",
+      "sha256": "b28e023edf7c85b83fc87c49bc76c0045b393b79d700bc11e072cd4c9b06d462",
+      "bytes": 13085
+    },
+    {
+      "path": "bridge_transport.py",
+      "sha256": "0686719183d18f1c24188cfeba55cea02ba231f179213f6f7facfbeb60d64bb8",
+      "bytes": 22296
+    },
+    {
+      "path": "client.py",
+      "sha256": "60398b2ea96ebfef2fb179aa9676b608af2417412a4c876f49f441e5b02fc844",
+      "bytes": 129
+    },
+    {
+      "path": "deploy.ps1",
+      "sha256": "95de71b2bbb38eebfb2e9b87cd115626de6c6d628fca447a84cea6628eba4887",
+      "bytes": 662
+    },
+    {
+      "path": "observation.py",
+      "sha256": "aa25d2ed03fd57f6c40f241cc2de0eecfb96da2daa3b5ea348a2254b2ea47dab",
+      "bytes": 49791
+    },
+    {
+      "path": "sdk.py",
+      "sha256": "05aaab400bef322559610a9ca3f74846b1ad4fc8a8c6eb66c402a5fd89e762b8",
+      "bytes": 90835
+    },
+    {
+      "path": "sdk_candidates.py",
+      "sha256": "85a47b040ad1e61edf19b4e77a1311ce46139ebe6ac56a05f22ace82313a392c",
+      "bytes": 677
+    },
+    {
+      "path": "sdk_lifecycle.py",
+      "sha256": "6df7f39407e0a3ffa350ac0d0169c708dc570a097721f362865cad440ea9e9db",
+      "bytes": 6583
+    },
+    {
+      "path": "sdk_memory.py",
+      "sha256": "6f4d3adf1298cd03d54518687d04a64f5fa0e76d12b4839c01d097dc6a766899",
+      "bytes": 9522
+    },
+    {
+      "path": "sdk_state.py",
+      "sha256": "e04d64fecbd8747a378494f5565f1069e1c0385251b7dc7831c78c3c8c247183",
+      "bytes": 3608
+    },
+    {
+      "path": "sdk_values.py",
+      "sha256": "dbe077bf8ca50a2294c6023b7df09e0657205c15173f8bf25f3e8f618bd95b43",
+      "bytes": 1673
+    },
+    {
+      "path": "sightings.py",
+      "sha256": "43b8eff705c53fa8161adf3b9b0a9bea5147e16d1201a42333b21e8476480423",
+      "bytes": 10029
+    },
+    {
+      "path": "src/BattlePreviewReader.cs",
+      "sha256": "43d00388d2fd96e8ea7edf5b695d35ac778f115c6070fcbad60ba85b7d1e28fe",
+      "bytes": 10849
+    },
+    {
+      "path": "src/BattlePreviewSnapshot.cs",
+      "sha256": "950f5c8c24abdad870c1154607766b6e06c417c815f733950cf9108742d0959d",
+      "bytes": 38320
+    },
+    {
+      "path": "src/BridgeActionReplyRuntime.cs",
+      "sha256": "ffd099cd398515843c28839ceac4af8551792d0b473b1b34272a2756a5babdb4",
+      "bytes": 3700
+    },
+    {
+      "path": "src/BridgeAreaSettlementRuntime.cs",
+      "sha256": "c9d3f7cb1775485eb5ad51cc3157f2af5ab3f9bb4937c365447859900993eb05",
+      "bytes": 8461
+    },
+    {
+      "path": "src/BridgeBuildingRuntime.cs",
+      "sha256": "f27f40c2bcb0150e24b1c4d277a99c4a0e3e11ada9abc8b41e1fe41744015e31",
+      "bytes": 8296
+    },
+    {
+      "path": "src/BridgeCityRewardEffects.cs",
+      "sha256": "d18a6b127fbe8780ad534d1a8d4b10d8a9cb6df8d2fd859c33c9f64d0eb8e477",
+      "bytes": 7941
+    },
+    {
+      "path": "src/BridgeCollectionRuntime.cs",
+      "sha256": "9f9b1c5b9a2adaffda4cde1c39f08df37dc78427971def7355613f24c5a59946",
+      "bytes": 5341
+    },
+    {
+      "path": "src/BridgeCombatRuntime.cs",
+      "sha256": "e3bc7275253a467b212cfb9b61534c37fb7c464dbe9c47013ba642a6c8ddd64c",
+      "bytes": 112914
+    },
+    {
+      "path": "src/BridgeCommandInvocation.cs",
+      "sha256": "d38bbe01fcd1897c66ee78d0a07f21dc7f7f1fcf36dbe636fd532a99d3c93a34",
+      "bytes": 5055
+    },
+    {
+      "path": "src/BridgeCoordinateRuntime.cs",
+      "sha256": "70540ed6f3f9c7cf25adb1ff07b516e83bc95c27032e6fdd46a34058266fbb9a",
+      "bytes": 5033
+    },
+    {
+      "path": "src/BridgeDiplomacyDetails.cs",
+      "sha256": "bbca0097324f12ffc8896ecf9c3ea725dd551157450993a0c56ac0ad60897a41",
+      "bytes": 13479
+    },
+    {
+      "path": "src/BridgeDiplomacyMenuRuntime.cs",
+      "sha256": "22101da401035e4ec120a1bfc88d12a1569e838564387daefdebfa022382570b",
+      "bytes": 6149
+    },
+    {
+      "path": "src/BridgeDiplomacyUiRuntime.cs",
+      "sha256": "3ba5da350763ea6624f50df5b96af7ce2b3c024dfb366f6f146df11a260ca8e7",
+      "bytes": 5279
+    },
+    {
+      "path": "src/BridgeEventCoverage.cs",
+      "sha256": "b830d1eaad3d9fe018d71004c4f62c66ba9224b8b89bffc43df5c0ced63b64cc",
+      "bytes": 5129
+    },
+    {
+      "path": "src/BridgeFrameTimingRuntime.cs",
+      "sha256": "61cb4c941b6d5580e44aaaf2087f8e31c80d809a5ab5d5865955feea06a08aba",
+      "bytes": 3174
+    },
+    {
+      "path": "src/BridgeGameLifecycleRuntime.cs",
+      "sha256": "a180bee5d3dfc7613af1574c9223237d9f81e3af066fdb91f96f1540f4bda47f",
+      "bytes": 18048
+    },
+    {
+      "path": "src/BridgeHotseatResumeRuntime.cs",
+      "sha256": "d1bd949ca33c2e692dacba56fb6fbe3174d60383aecd38d280cace1a49486bf5",
+      "bytes": 21227
+    },
+    {
+      "path": "src/BridgeHotseatRuntime.cs",
+      "sha256": "7a681903bd0af29cbd84bbf65329ab4b884d593ff024c57cfd8f2c97ee1c9fc6",
+      "bytes": 15760
+    },
+    {
+      "path": "src/BridgeIconRewardRuntime.cs",
+      "sha256": "397befb619b0f22653ea6718fbf08f54ed2e9ad40d637b3eafed99a8a6f33da0",
+      "bytes": 3289
+    },
+    {
+      "path": "src/BridgeLifecycleRuntime.cs",
+      "sha256": "c4289c644c5438c28f6986b23656d8cece36ee70b93fba0506cf8e1d93a717ca",
+      "bytes": 2975
+    },
+    {
+      "path": "src/BridgeMod.cs",
+      "sha256": "aaa84514e91e78e74ba271476520a4831eee126ce00f70fcaf24c532706dab4a",
+      "bytes": 466154
+    },
+    {
+      "path": "src/BridgeNativeCastRuntime.cs",
+      "sha256": "2b615acef882e4e2a9506393910096df3171b1d7f9fa232e09a47a3d384feea5",
+      "bytes": 4247
+    },
+    {
+      "path": "src/BridgeNativeExecutionTiming.cs",
+      "sha256": "4c3f61db2ce9cd42ddd066dcf494b881178278fe7aeaccfcae5014a2245f5bb0",
+      "bytes": 5504
+    },
+    {
+      "path": "src/BridgePerformanceRuntime.cs",
+      "sha256": "3ae85dbc3efb99576599fcda8335fbf1826507e874520c8b936fab8173b7990e",
+      "bytes": 19703
+    },
+    {
+      "path": "src/BridgePopupReadRuntime.cs",
+      "sha256": "1ca7f7352c1cd60c858ee8436588d0c65a03444e3785d410eafbaf4631b0360b",
+      "bytes": 7853
+    },
+    {
+      "path": "src/BridgePopupRuntime.cs",
+      "sha256": "a997342a1b9d32e7d1acfae8fb3072af483decc0286d5448937b68467c5f19f0",
+      "bytes": 9354
+    },
+    {
+      "path": "src/BridgePreviewRuntime.cs",
+      "sha256": "69b7c5f407844ed277681a07e0853dc7b605a430282aeabd94be696f391bdb9b",
+      "bytes": 4358
+    },
+    {
+      "path": "src/BridgeProtocol.cs",
+      "sha256": "31ea1e0304b132917d359d5c926f92461035954d1ffd61f5040719af1dfa2b40",
+      "bytes": 13755
+    },
+    {
+      "path": "src/BridgePublicDisplayRuntime.cs",
+      "sha256": "148631fbfd9f693085e2f35694562549e6eea608a51ad24050776b5a9b02373d",
+      "bytes": 30060
+    },
+    {
+      "path": "src/BridgePublicRuntime.cs",
+      "sha256": "94902edcb25b48d27018dde48a52d2efd9ac74a2435413e1cbdd5467253f6b31",
+      "bytes": 51958
+    },
+    {
+      "path": "src/BridgeReadDiagnostics.cs",
+      "sha256": "41f0c9a104abbe03f03d68169adf7f71505b710bb70b55920aceec6ac19d3b16",
+      "bytes": 7339
+    },
+    {
+      "path": "src/BridgeReadPhaseRuntime.cs",
+      "sha256": "8da9913d69dcba787e0da156f233e20ff05bebad63853542ba7da16d5c7d16ca",
+      "bytes": 3873
+    },
+    {
+      "path": "src/BridgeReadPreparation.cs",
+      "sha256": "6b28b0530cd04aa36f9f8dcc7897a0c8870b67a8ad427087e56e97af7194c1dd",
+      "bytes": 4278
+    },
+    {
+      "path": "src/BridgeReflectionRuntime.cs",
+      "sha256": "9c3e6d3c6c6070feaf7fbfd00cb88cbe316b4d728ffaa4ed3197aca0e6d111e4",
+      "bytes": 33259
+    },
+    {
+      "path": "src/BridgeRequestContext.cs",
+      "sha256": "465f75eddb29543581e933de3127ea19314a7902d73250ba1ebe4f756e92fbd1",
+      "bytes": 7973
+    },
+    {
+      "path": "src/BridgeResolverRuntime.cs",
+      "sha256": "2a7924530fdf6b3ee03f3802f14024e682bf3fbbc7a4c23af2345f73a1fcea4f",
+      "bytes": 20484
+    },
+    {
+      "path": "src/BridgeResultsRuntime.cs",
+      "sha256": "9712edf9fac717298a90b7719bc6039b5835fec112393c4528c4e362432b7c5d",
+      "bytes": 20597
+    },
+    {
+      "path": "src/BridgeRewardUiRuntime.cs",
+      "sha256": "337667cb9e1e5f72be849825d39f9fcb40b4fcce6a0b3c30d5e3ca0eee46792c",
+      "bytes": 3925
+    },
+    {
+      "path": "src/BridgeRuinsEffects.cs",
+      "sha256": "54a06ec132db2432d62661e732853f77fd1bb1431907b52d09b15996de276289",
+      "bytes": 6733
+    },
+    {
+      "path": "src/BridgeRuinsExplorer.cs",
+      "sha256": "dfa28f801521e20cd0da2bc33d3221b05a6943db0c8a177f4f4f9f4397ed78e7",
+      "bytes": 6167
+    },
+    {
+      "path": "src/BridgeRuinsRuntime.cs",
+      "sha256": "a1f9e3f7738462f6be9da2a59599881d70d5f68b84aa84effd6c0a46c69b287b",
+      "bytes": 14542
+    },
+    {
+      "path": "src/BridgeScalarRuntime.cs",
+      "sha256": "b30d6a58112c3ec83ce17386f3c98d4011fcc58394f7e22b477d978b020115e4",
+      "bytes": 1512
+    },
+    {
+      "path": "src/BridgeSetupAdminRuntime.cs",
+      "sha256": "d0df44977954cf5817f47af7a85b22c143a300b5daec98e69a3ff5a8133014a3",
+      "bytes": 23582
+    },
+    {
+      "path": "src/BridgeSetupRuntime.cs",
+      "sha256": "185e82edff022b5e559d504a1ee0ce950e12c921551cafdc7d721742f49f45aa",
+      "bytes": 6550
+    },
+    {
+      "path": "src/BridgeStartupRuntime.cs",
+      "sha256": "9c187bfec2b0eed734358be2906d486a875346b7f0c7144009c63dbcb9d7f090",
+      "bytes": 4365
+    },
+    {
+      "path": "src/BridgeTransportRuntime.cs",
+      "sha256": "7d5df30ada0180ebacbeca9a7127c0c6c34dbf2e0bb4d9b7c9933ee12e598806",
+      "bytes": 24814
+    },
+    {
+      "path": "src/BridgeUnitPanelRuntime.cs",
+      "sha256": "6e2766f9e5ff6780a4726ad4ddf92e2e154d55d1071db3012334c2249e855926",
+      "bytes": 11661
+    },
+    {
+      "path": "src/BridgeUnitRuntime.cs",
+      "sha256": "8c181238edfb05601a6a86a47dda122052dacf334279980429d57de16a8d7820",
+      "bytes": 44222
+    },
+    {
+      "path": "src/BridgeUnitVisualRuntime.cs",
+      "sha256": "794d272514bd5cc8e376ceabac3761a570462a7973162e0fdbc460283610f5c5",
+      "bytes": 11790
+    },
+    {
+      "path": "src/BridgeVisibilityMetadataRuntime.cs",
+      "sha256": "5a3be0d90c0731e0a0654406d827ac9f7df87dad7036a56d82c5fda757fc1884",
+      "bytes": 2837
+    },
+    {
+      "path": "src/BridgeVisibilityRuntime.cs",
+      "sha256": "543444ac75179f21a54060656a064370795cc8e06183a641d4f699d594ba3d86",
+      "bytes": 1079
+    },
+    {
+      "path": "src/BridgeVisibleHintsRuntime.cs",
+      "sha256": "2aeeacd1f7173ea33b34f61de23f860bb0b43a6693e878a434b2144ceed46068",
+      "bytes": 4131
+    },
+    {
+      "path": "src/CityOptionsSnapshot.cs",
+      "sha256": "c2e026c5587f2e1fc53a4de69d182a95fd4ddd1fb1499ac09210bb4b14cba7c7",
+      "bytes": 130043
+    },
+    {
+      "path": "src/PublicMarkerHooks.cs",
+      "sha256": "60fa388d8d1b547e6d31e606bf011c6600ecb400fe6690a5a0eee97b2e466000",
+      "bytes": 37137
+    },
+    {
+      "path": "src/PublicMarkerReader.cs",
+      "sha256": "1f880b87778beab45b950e59f03c3611fd760e1ea752344edf376c9a762f5770",
+      "bytes": 31819
+    },
+    {
+      "path": "start_ai_match.py",
+      "sha256": "2719bb1c24a798f60388f34be1b3ba5ea209d955be8288970bf5d5e86e681071",
+      "bytes": 646
+    },
+    {
+      "path": "test_observation.py",
+      "sha256": "6639371d61a32bf5a169361099aa8f68efbb4a8b17d550466f414d3ea6bed192",
+      "bytes": 36727
+    },
+    {
+      "path": "tests/ActionReplyTests.cs",
+      "sha256": "6a32fcaeef50a1f5042c239e51d575e7a01088de2ffe5e6447f3799def346e73",
+      "bytes": 8110
+    },
+    {
+      "path": "tests/AreaSettlementTests.cs",
+      "sha256": "43d83bac190216e580abc61fcecd9f95b433b9c4e219caa5094eac6c2972ff99",
+      "bytes": 12179
+    },
+    {
+      "path": "tests/AssemblyCatalogTests.cs",
+      "sha256": "648cd054a8df891b207a57bf1f0ac9a85de8d824ad58af50ed54a7ba99e29f05",
+      "bytes": 7427
+    },
+    {
+      "path": "tests/AttackReaderMemberTests.cs",
+      "sha256": "9f36766db29c67c26561af62bcef072875e13b910ca2cdc483259b8535fe4291",
+      "bytes": 1921
+    },
+    {
+      "path": "tests/AttackSettlementTests.cs",
+      "sha256": "3473f5159c48172a3613decef14e8481888e4278b02d9655227cf413918f0ef7",
+      "bytes": 15032
+    },
+    {
+      "path": "tests/BlockingPopupSettlementTests.cs",
+      "sha256": "0075133038a10370e2e0524653bb99d15b574709fbb8ca031a462a2c7afa7023",
+      "bytes": 3110
+    },
+    {
+      "path": "tests/CandidateDiscoveryTests.cs",
+      "sha256": "2a136bfe1e4c02b876806e4015b25b4fbbe55a3256108a62c339a036ce394f04",
+      "bytes": 8012
+    },
+    {
+      "path": "tests/CityCandidateSemanticsTests.cs",
+      "sha256": "cdb789f2f4c13bcefc14af39d41d7751dc22ad139a08ff7ede89adeeb3856c33",
+      "bytes": 14510
+    },
+    {
+      "path": "tests/CityResultReadTests.cs",
+      "sha256": "0c3719bada93fa0af8d6ecf2b48fda7eb635973dfa99a0a9527c9b628f900316",
+      "bytes": 13648
+    },
+    {
+      "path": "tests/CityRewardEffectsTests.cs",
+      "sha256": "255ecf1502c18a77fbb5ba9fa0685dcd01138184fc0723351e3f789e7718942a",
+      "bytes": 17523
+    },
+    {
+      "path": "tests/CombatRuntimeTests.cs",
+      "sha256": "bfcd58ca7fd235d51d47d19386679c9f506741f9e10932020ad9f340338e3eaa",
+      "bytes": 55002
+    },
+    {
+      "path": "tests/CombatScalarTests.cs",
+      "sha256": "512eac7b279634028b8c5a2d69f88cfb89ba777809c5cb4ac08b306d4cd5f1ae",
+      "bytes": 3284
+    },
+    {
+      "path": "tests/CommandInvocationTests.cs",
+      "sha256": "c2d05efd9ce289cb4b2f1fbb5f4efc72205f61eb5e8f28eff6a48ed421c25965",
+      "bytes": 13825
+    },
+    {
+      "path": "tests/CompositePreviewTests.cs",
+      "sha256": "20329326ea391503d0fc011393bc0e42a83395f888918ba44c00a295b66649da",
+      "bytes": 15096
+    },
+    {
+      "path": "tests/CurrentPlayerIdentityTests.cs",
+      "sha256": "846d3d443f182e3264e3739436982cf0f1457992727ffa4c7da6928eeabc5083",
+      "bytes": 3670
+    },
+    {
+      "path": "tests/DiplomacyMenuTests.cs",
+      "sha256": "c59ee6b1f4a9f1c893252ea6a8d12216597a730a52a15bd23c2b0ed83f4f534d",
+      "bytes": 8160
+    },
+    {
+      "path": "tests/DiplomacySettlementTests.cs",
+      "sha256": "a8306d25977403e5b0441be4e916dec0c18b6de6d1f561b986fd5fc8a8f0bcab",
+      "bytes": 8414
+    },
+    {
+      "path": "tests/ForestActionTests.cs",
+      "sha256": "d89fdc93b55b6280c7adc8ee2fee6026b1c373ff1effd000402ace6634256e0e",
+      "bytes": 4330
+    },
+    {
+      "path": "tests/FormatterTests.cs",
+      "sha256": "d50761624943320259fc8d687bbb7cc606f32380ec5247775d023c322f7c2b83",
+      "bytes": 59256
+    },
+    {
+      "path": "tests/FrameTimingTests.cs",
+      "sha256": "e22c17d1bc7a4d5cd0d13a2a12ab00c642551eb3b57fe261eec5b4fc5fb2d2cb",
+      "bytes": 5378
+    },
+    {
+      "path": "tests/GameLifecycleTests.cs",
+      "sha256": "ab2b6e91847272a133e6e5b5303b9c0efacb3f80a9b94376f8abba32f2e69a8a",
+      "bytes": 9503
+    },
+    {
+      "path": "tests/HotseatBoundaryTests.cs",
+      "sha256": "103bd783ac617fa17fee56bc3c2ac243b016bb631b1171e25c1810d5f750024f",
+      "bytes": 13056
+    },
+    {
+      "path": "tests/HotseatEndTurnSettlementTests.cs",
+      "sha256": "09632b2d2718f2b74a0aeaf03d7af79f965211089a3832e5170a76eab5ef41b4",
+      "bytes": 9643
+    },
+    {
+      "path": "tests/HotseatResumeTests.cs",
+      "sha256": "a5877b3450b8a5d16d63a3b7241b29fe0a076ec7d9b27c96a4c9757978500a28",
+      "bytes": 23906
+    },
+    {
+      "path": "tests/HotseatRuntimeTests.cs",
+      "sha256": "a50e39229f6a60d7698e2674f798d173b8980b96a41804e321fd6306dcf1b209",
+      "bytes": 15941
+    },
+    {
+      "path": "tests/IconRewardTests.cs",
+      "sha256": "25e912f3657a900ad39c94106bc8e2a309a0c5ee4a21fc4a51b85605f5437638",
+      "bytes": 6180
+    },
+    {
+      "path": "tests/InboxDispatchBudgetTests.cs",
+      "sha256": "1fc2a6ee9e1c211a36081dd6b7c8f83545f922756a6c366e6cb6c612552035fd",
+      "bytes": 11290
+    },
+    {
+      "path": "tests/IntegratedFeaturesTests.cs",
+      "sha256": "b69361ee0f78b9da902340b96801f635b6aa99372ddf26c0f535ccf0063fcb9d",
+      "bytes": 18582
+    },
+    {
+      "path": "tests/InvisibleHintJournalTests.cs",
+      "sha256": "ba706a8eb825d95caa40b44f672f2a8f5276643ed9fd352bf589fdff8c37c84f",
+      "bytes": 8479
+    },
+    {
+      "path": "tests/InvocationBindingTests.cs",
+      "sha256": "a80beb5ab80fc71dc1144660f9a48e535639e04e3713c32e3b27bac0bf3270b1",
+      "bytes": 6915
+    },
+    {
+      "path": "tests/LeaderboardNavigationTests.cs",
+      "sha256": "889b63525398247ac6f22eb26f2a5bb03ea0337adb6ae8cd909fd531d6fcc170",
+      "bytes": 18578
+    },
+    {
+      "path": "tests/LifecycleRuntimeTests.cs",
+      "sha256": "abf7bcc43acffe0ac2e2b8e20e9b72d0fc113b60fee1453d96c7f535945af09a",
+      "bytes": 14733
+    },
+    {
+      "path": "tests/MenuGrowthReadTests.cs",
+      "sha256": "266361aa88a3c89210b330eaefeecddae5bc5ab13dd8d54daab0ebef707f879a",
+      "bytes": 8880
+    },
+    {
+      "path": "tests/NativeCastTests.cs",
+      "sha256": "da9f22551e3066bf914dce1c0d4788942da6946fcec54f8c3d548ea59a91142d",
+      "bytes": 9596
+    },
+    {
+      "path": "tests/NativeExecutionTimingTests.cs",
+      "sha256": "7213841a0c9cd5e50406bf109407ab9a4f660a50ecb7b3a1047fb63c8e33cdce",
+      "bytes": 6352
+    },
+    {
+      "path": "tests/NativeMemberReadTests.cs",
+      "sha256": "d12feb5e8c3489ab538bdb238798aacda36e4439cc44fb193249a9c22d925d8f",
+      "bytes": 6033
+    },
+    {
+      "path": "tests/NativeMethodPlanTests.cs",
+      "sha256": "3d434bb69e80b5844d960d4616e623a5e852fcd9d5c8607c19eed9ed50ebc83a",
+      "bytes": 6291
+    },
+    {
+      "path": "tests/NativePointerIdentityTests.cs",
+      "sha256": "525a3ca56ba08fee2b2109daf12122bb5181156e78cc250d39afa36109cb4eb4",
+      "bytes": 4245
+    },
+    {
+      "path": "tests/ObservationReadPerformanceTests.cs",
+      "sha256": "3191698cbf7869328d35d49594472ff20528a448b19265add0a9aeb8974a0987",
+      "bytes": 11630
+    },
+    {
+      "path": "tests/OwnedTechReadTests.cs",
+      "sha256": "a0e9cd695c550cf4b5dc61d837e149c0fd25cefa1faf4e286bc3dab621199cfa",
+      "bytes": 3669
+    },
+    {
+      "path": "tests/PeaceResponseDisplayTests.cs",
+      "sha256": "39c186f9f30ba1cbfff4440d2e52ca04372521a036c4da96ddd95b519734ad2d",
+      "bytes": 5969
+    },
+    {
+      "path": "tests/PerformanceRuntimeTests.cs",
+      "sha256": "1586cb93e25f34a2ea9a14dbbe360eb4b123c7963cc826ea5f6e1de9d8e29563",
+      "bytes": 14928
+    },
+    {
+      "path": "tests/PlayerActionStateTests.cs",
+      "sha256": "c7cc7b321657c5da65c35bba8594f92513c7964edc027286f0c4f1d9f4d14830",
+      "bytes": 4611
+    },
+    {
+      "path": "tests/PopupChoiceTests.cs",
+      "sha256": "66a0894fc8d7297817dfd213cb7439f9878f9a3500ce3fe7d0409cc8071ee665",
+      "bytes": 9036
+    },
+    {
+      "path": "tests/PopupReadTests.cs",
+      "sha256": "ae1c20b4e3936458a62d2e305aa01d4d68d4a2ccf9a878bf90631e1a7e6cc6c3",
+      "bytes": 5679
+    },
+    {
+      "path": "tests/PreviewAdapterTests.cs",
+      "sha256": "a6527973662f1439873cbf9e934a2fc03cfbf62ef15ded2a5a51f1c1f601311b",
+      "bytes": 4408
+    },
+    {
+      "path": "tests/ProtocolRepairTests.cs",
+      "sha256": "9f163ea75cccb41551feb4711ffa0db0502d94eb42e5c7b42725b7c5c7bf1aba",
+      "bytes": 10073
+    },
+    {
+      "path": "tests/PublicCityRuntimeTests.cs",
+      "sha256": "c12c270428581fa13caa801dd2090b67eb8a360a463968f38255349b59da1122",
+      "bytes": 15065
+    },
+    {
+      "path": "tests/PublicDisplayTests.cs",
+      "sha256": "b25736893cfc39ee42a88ff3b4cb1ff393372158444d08f495d79fb4ea512929",
+      "bytes": 15034
+    },
+    {
+      "path": "tests/PublicMarkerIntegrationTests.cs",
+      "sha256": "70a38af4f8491aa723c67e1feecd1f508ce949458d5857c549f7e1e3eeebe96a",
+      "bytes": 34909
+    },
+    {
+      "path": "tests/PublicMarkerReaderTests.cs",
+      "sha256": "4679783af170b222a527b69c8b3d1a98b7d0390484fa106cf97f68e2879b8354",
+      "bytes": 17271
+    },
+    {
+      "path": "tests/PublicReadTests.cs",
+      "sha256": "c634c413255e1267f8cc1949410c7bc6fe6a9e69dc6fbd5aa3c496d2ff3042bb",
+      "bytes": 8945
+    },
+    {
+      "path": "tests/RawActionCoordinateTests.cs",
+      "sha256": "757d6a0c6bf895cfce757d19755bf30eff7e7b1fa67812e4016d288282be2484",
+      "bytes": 28245
+    },
+    {
+      "path": "tests/ReadFailureDiagnosticsTests.cs",
+      "sha256": "0cc70ddbe1a9a6c0d853dd844c7995eb8a40712079e270b86e3892e915b3ac72",
+      "bytes": 12079
+    },
+    {
+      "path": "tests/ReadPhaseTests.cs",
+      "sha256": "50366c7baf89950f2f4cf614d308f8bab9cb288899fbf8a6753c2d6f3850725d",
+      "bytes": 4269
+    },
+    {
+      "path": "tests/ReadPreparationTests.cs",
+      "sha256": "ff71106484349c11b68f749a9d7951b6d2525326b829453ef66f52baa28144e6",
+      "bytes": 4111
+    },
+    {
+      "path": "tests/RecapSamplingTests.cs",
+      "sha256": "ec5941507b8cedb1c3fd26a6d72bed74cd2f7b68ebd5e509e2d93d07415c1478",
+      "bytes": 10473
+    },
+    {
+      "path": "tests/ReflectionBindingTests.cs",
+      "sha256": "bc899b1df8f9c7c0b0a575b82a3de06d6d991d5de098415b09e7101cea0d21d8",
+      "bytes": 11292
+    },
+    {
+      "path": "tests/ReflectionPerformanceTests.cs",
+      "sha256": "165200a24c1a33ced4e319959575d72a4f97f15fb0894e7c9fe31ce7ff58e510",
+      "bytes": 17705
+    },
+    {
+      "path": "tests/RelationInfoReadTests.cs",
+      "sha256": "01bf703c3144c9ca6a2bb5fb10c87512f608e360ca8746184defd6fab030657b",
+      "bytes": 5781
+    },
+    {
+      "path": "tests/ReplyDeliveryDiagnosticsTests.cs",
+      "sha256": "134f5884da0906a14fc2ed79789d22563fbe5dfde06ad084f480a53fbf0b14e8",
+      "bytes": 5002
+    },
+    {
+      "path": "tests/RequestContextTests.cs",
+      "sha256": "c8d36d55576b5f22a3609982e463be04ab415d2cda2834a79e9d7e4bd2c0e36c",
+      "bytes": 6908
+    },
+    {
+      "path": "tests/RequestFailureTests.cs",
+      "sha256": "71cb40bd430d2a00c6bb2fa13780f2c1c404be9eea47dcd5cc98635784f57a6e",
+      "bytes": 6927
+    },
+    {
+      "path": "tests/ResolverPerformanceTests.cs",
+      "sha256": "a130cb03cecca82d8b4501509ca47f0e7224bac5e1534e5c21a186d3783c5317",
+      "bytes": 28763
+    },
+    {
+      "path": "tests/RewardOfferReadTests.cs",
+      "sha256": "2dde69f62bf7948d9c0afb4c9800220e626d2fe01fcc9b92d70af8d462968772",
+      "bytes": 7196
+    },
+    {
+      "path": "tests/RuinsCurrencyTests.cs",
+      "sha256": "3150071f375323e5d79f81c352969e01f8302c4298294ad3d0fbcaf40b2277d7",
+      "bytes": 9783
+    },
+    {
+      "path": "tests/RuinsEffectsTests.cs",
+      "sha256": "ab016b4d1e6594432aa824592b3688460a5a5991596beab4f9be81fb40d3575f",
+      "bytes": 13235
+    },
+    {
+      "path": "tests/RuinsExplorerTests.cs",
+      "sha256": "9460d9b0eadc3fc844ec1b798577db08b0c8afee87edfba21e3785a69403ca5d",
+      "bytes": 9378
+    },
+    {
+      "path": "tests/RuinsSettlementTests.cs",
+      "sha256": "de8da1421ae03ff253f93bd9e5cd85e520a713830433b766f17c9da5ffb0fd46",
+      "bytes": 8790
+    },
+    {
+      "path": "tests/RuinsTechTests.cs",
+      "sha256": "291bff7904659b34bfe1a97266d5e2d5b140a9ca6267bcd11ebd3e01b0e8acfc",
+      "bytes": 11270
+    },
+    {
+      "path": "tests/SetupAdminTests.cs",
+      "sha256": "dd0280dcbf311bf24b1aee34a5146ce1bf67f60e11bcca5aeb924df2d89b3b52",
+      "bytes": 21127
+    },
+    {
+      "path": "tests/StartupMetadataTests.cs",
+      "sha256": "7e8d7ad8f0491778061b221ccdfc0edcb38c7283c0145fbeeb82198bc25215c3",
+      "bytes": 3419
+    },
+    {
+      "path": "tests/StartupUiTests.cs",
+      "sha256": "ac3d70ed5b580676c2d76721772d250bda76c7df64e750e3628b3b8b8dc6d6bc",
+      "bytes": 6404
+    },
+    {
+      "path": "tests/StaticAliasReadTests.cs",
+      "sha256": "cc21963e6fcf3798a73302544def02376348f4317ef4dc27aaceaa9ee8e8a7a5",
+      "bytes": 9453
+    },
+    {
+      "path": "tests/TaskDisplayTests.cs",
+      "sha256": "7080eae5617d488f261452f4198912a4e50052acfcf1283a76a5949525db40ec",
+      "bytes": 4865
+    },
+    {
+      "path": "tests/TaskStateTests.cs",
+      "sha256": "e3e6b7446c306c61e1637c5565dbbc96f9344a6450c89997fd15de34173b0bda",
+      "bytes": 7871
+    },
+    {
+      "path": "tests/TrainAttributionTests.cs",
+      "sha256": "18aa2ba55ab5648a0c2e97d2f70ad2b0f2625fa81272ff8da58be1e24f32b963",
+      "bytes": 4663
+    },
+    {
+      "path": "tests/TransportBacklogTests.cs",
+      "sha256": "eed230ff05788985890f564179aa7d8d7460b7c7e3f958aa872b80cea40f2f2c",
+      "bytes": 3777
+    },
+    {
+      "path": "tests/TransportPerformanceTests.cs",
+      "sha256": "3b0d0110f7366072188d9c382c80d145b682b291d6aa3fda296fff8e5123168b",
+      "bytes": 31869
+    },
+    {
+      "path": "tests/TransportRuntimeTests.cs",
+      "sha256": "72961a207d5f92b9f76786d385a4152295fa97192272456db349f8186394c5ea",
+      "bytes": 2678
+    },
+    {
+      "path": "tests/TribeInfoViewTests.cs",
+      "sha256": "d9d62bbd4d145aa710369575ec0ba818f3f9a20d2cb8477e0c2a2e8a6789b3c2",
+      "bytes": 12552
+    },
+    {
+      "path": "tests/UnitCollectionTests.cs",
+      "sha256": "30671135c448da58389c18e203f93e6da8a51e5d3dc0b03a348d5ea1a5ac6f24",
+      "bytes": 10400
+    },
+    {
+      "path": "tests/UnitCommandValidationTests.cs",
+      "sha256": "e1cf89aa2766e8f73d9afa741719632f1be7c1d59bd1fde8242cd42138e462dd",
+      "bytes": 6017
+    },
+    {
+      "path": "tests/UnitPanelTests.cs",
+      "sha256": "df85255d5299920fa1cda0bc1907378302a68f4c50c67308b4c6822a55205c27",
+      "bytes": 21380
+    },
+    {
+      "path": "tests/UnitRuntimeTests.cs",
+      "sha256": "49fb050414aa0e9c6bc79fec97f7f1667eb287dd03df79144cd5936185ee4e20",
+      "bytes": 20934
+    },
+    {
+      "path": "tests/UnitVisualEffectsTests.cs",
+      "sha256": "48c03e39a62c8cbc73afd5bfd3dc505f417a6dd6770b18838b0206fbfe9e591b",
+      "bytes": 11889
+    },
+    {
+      "path": "tests/ValueSemanticsTests.cs",
+      "sha256": "63b3b6e41c01278bee53ff950c43a2e1a98c7f314bb698f2b465c5e6550ced76",
+      "bytes": 3918
+    },
+    {
+      "path": "tests/VisibilityMetadataTests.cs",
+      "sha256": "6db5737ecc8cc7fe3c7cd1b57e7526e637b366a642960ddd8092859bb0725088",
+      "bytes": 5688
+    },
+    {
+      "path": "tests/VisibleHintsTests.cs",
+      "sha256": "bf0759d093e8f641bb0dbeb8dfdf9de03d191170b33a3d2563a4612c8014beac",
+      "bytes": 6091
+    },
+    {
+      "path": "tests/VisibleTileSourceTests.cs",
+      "sha256": "0e4e4f42b92a79af77ed1eba6ef6a576068335aa228a233e3d2336ffc9697248",
+      "bytes": 3047
+    },
+    {
+      "path": "tests/fixtures/attack-settlement-20261011.json",
+      "sha256": "fe59644df897ab5b83cd66ecf995fff956a47ed6dcb42d9972695709e3b6cda7",
+      "bytes": 24681
+    },
+    {
+      "path": "tests/fixtures/recovery/attacker-disappeared-ticket34.json",
+      "sha256": "eb6f407c12e8d116a4e6ca4a8c7e53ef3304e2da768397dd2a8afd242125c8ee",
+      "bytes": 2323
+    },
+    {
+      "path": "tests/fixtures/recovery/test_settled_unknown.py",
+      "sha256": "e24ea38999de91b513d7e3bdef21453aefd75401791180ed8a839ab3762f9b2f",
+      "bytes": 2460
+    },
+    {
+      "path": "tests/fixtures/sdk-native-final.json",
+      "sha256": "6fd8190125d20dfb2d211aa1e60cd75a2ae301677207d22425a5045efff4d138",
+      "bytes": 909
+    },
+    {
+      "path": "tests/fixtures/sdk-native-unit-menu.json",
+      "sha256": "6fdf9a3f16dd7adb21bbca24867dd61d4ac85f006b2f7c56fc4eb5dcb215507d",
+      "bytes": 1560
+    },
+    {
+      "path": "tests/test_agentcli_session.py",
+      "sha256": "59f19d06449647f6c4564c08e776267d7bffa780a6006f5e379a2b04da802cd4",
+      "bytes": 13568
+    },
+    {
+      "path": "tests/test_bridge_transport.py",
+      "sha256": "b585f1636dcf775ade3e71a8f58de06bacd8b1802530904b34eeab0ea5b49803",
+      "bytes": 34496
+    },
+    {
+      "path": "tests/test_candidate_projection.py",
+      "sha256": "7912cc55ca512454783814fe596365c7cdcb65a97891b4f2c91bdbc1ed1b8981",
+      "bytes": 7260
+    },
+    {
+      "path": "tests/test_client_session_bind.py",
+      "sha256": "80ff604aa6c48ea5cf8e152c0f543fd25010ca73bf2e3774c023aea4b2c5f00a",
+      "bytes": 5589
+    },
+    {
+      "path": "tests/test_enemy_public_info.py",
+      "sha256": "2dd99438ca1fa097776417d044685129177d7d2b65ece5ec08c9f9fb4d70a5d5",
+      "bytes": 18697
+    },
+    {
+      "path": "tests/test_longrun_transport.py",
+      "sha256": "60c26dc10616ce683e076a0205cdea722fe273dfbd425c308543a6ef05bbd2bd",
+      "bytes": 7152
+    },
+    {
+      "path": "tests/test_public_channel_projection.py",
+      "sha256": "88e7e8cc4afb9a06a9b3893d306000824357c482c23dd80a9a6db2cee5c84ea4",
+      "bytes": 3255
+    },
+    {
+      "path": "tests/test_sdk.py",
+      "sha256": "5505aacf0214040b3b32495716816a86809b6843987179d13b34d5c8f8753285",
+      "bytes": 59649
+    },
+    {
+      "path": "tests/test_sdk_dispatch_recovery.py",
+      "sha256": "bf6ad28aee67e60f09f4512ed90ec2d22fff12c98151456bb879142355bbbadd",
+      "bytes": 23214
+    },
+    {
+      "path": "tests/test_sdk_leaderboard_view.py",
+      "sha256": "5a7036eb00e2435ff1043a4718fa4f6a33ec53a228b54c892b1ffeb38e777018",
+      "bytes": 16866
+    },
+    {
+      "path": "tests/test_sdk_lifecycle.py",
+      "sha256": "b92a177f2029e50c7b894292b35d780bdb4ea182e2ace24b00eb2c4ed3c701e2",
+      "bytes": 8976
+    },
+    {
+      "path": "tests/test_sdk_memory.py",
+      "sha256": "8940d6a5a39160bef5a3662abb59e4d2ca0503d4eb81a1dc31543913bc3bad18",
+      "bytes": 9204
+    },
+    {
+      "path": "tests/test_sdk_memory_state.py",
+      "sha256": "c3233137de193eca13497b6110b6a68bb6415d9cfea5f854ec2b8c6a60768194",
+      "bytes": 8259
+    },
+    {
+      "path": "tests/test_sdk_modal_settlement.py",
+      "sha256": "88e65f66ddb1d0324e2c84aa30669b99e0175c3d9ab3348d8ea2f15bff3cb313",
+      "bytes": 4028
+    },
+    {
+      "path": "tests/test_sdk_observation.py",
+      "sha256": "4f2568207c57558e4be584e42d4512f7527e3a0349129afeef339ad0b5d4d36f",
+      "bytes": 6918
+    },
+    {
+      "path": "tests/test_sdk_peace_resolution.py",
+      "sha256": "9bd5ec79bfb7ed795706e6906c884e2afdcc69778b9a81eaed9aecc161c36062",
+      "bytes": 7919
+    },
+    {
+      "path": "tests/test_sdk_preview.py",
+      "sha256": "45a5eb00bae59fd46b329a4a4ac53a3c2eb3d246b0a9243aea306739e97e2ed9",
+      "bytes": 5840
+    },
+    {
+      "path": "tests/test_sdk_queries.py",
+      "sha256": "e73af42d1612a5de208eb9b2fea3422ddc040e781f4f94cf0d182646c036329f",
+      "bytes": 13682
+    },
+    {
+      "path": "tests/test_sdk_receipt_consistency.py",
+      "sha256": "3b96ccee961bdd355177f3758e78047e47eae9fbe3134505ab42779316a392fc",
+      "bytes": 3113
+    },
+    {
+      "path": "tests/test_sdk_setup.py",
+      "sha256": "79cdd626fe77dc4ff0db2a2c11a1dbd3d76511f6cf9ed7cfcfa69f237a8178e7",
+      "bytes": 32582
+    },
+    {
+      "path": "tests/test_sdk_state.py",
+      "sha256": "3defa5a71c6c55ba1f37ce6538523d190143c1409a83d197fa36dfb88f39102a",
+      "bytes": 20477
+    },
+    {
+      "path": "tests/test_sdk_targeted_execution.py",
+      "sha256": "9e2e7d9a432f78a455ce4f330bee700a3d7afa3f79c3070cde4e2ccf404f1d7e",
+      "bytes": 15945
+    },
+    {
+      "path": "tests/test_sdk_tribe_view.py",
+      "sha256": "d77d4a580fa5fec20eb45c6baf494f3e14f55da99df05adbe36f46428b75ebf7",
+      "bytes": 9474
+    },
+    {
+      "path": "tests/test_sdk_ui_recovery.py",
+      "sha256": "5b279194fcd9d0947dbc31af8119fd251a82ad0e5462e67a573dcae85784935b",
+      "bytes": 10323
+    },
+    {
+      "path": "tests/test_sdk_wait_limits.py",
+      "sha256": "3807dac1f58a6a5e53b9df9794519264bc14fa897037a525121dcbf52066a28a",
+      "bytes": 4841
+    },
+    {
+      "path": "tests/test_value_semantics.py",
+      "sha256": "b1803bc8fd52523694b81194653cda0c950e50d5dc690b020b2ae78cd0ed3ab6",
+      "bytes": 9400
+    },
+    {
+      "path": "tools/archive_bridge.py",
+      "sha256": "f746f6bfe8c79aabcb1915712ead43a3047e343491185b861d5dafc42bf3b7de",
+      "bytes": 13131
+    },
+    {
+      "path": "tools/deploy_bridge.py",
+      "sha256": "3a06b7157fc25f04cf0c8a6f2976b92634487430025fa3e714330f9d8f36fb6c",
+      "bytes": 20103
+    },
+    {
+      "path": "tools/prepare_release.py",
+      "sha256": "5cb519d9acbac07c420224ab7958e101b13f0f6acd25240cb8195bb70e86ac11",
+      "bytes": 6237
+    },
+    {
+      "path": "tools/start_bridge.py",
+      "sha256": "fbc511ce4c1d77dd750add80ad4102528c68ab4eac4a0536849e26e1ce7409cc",
+      "bytes": 11884
+    },
+    {
+      "path": "tools/test_archive_bridge.py",
+      "sha256": "45d9e3aec7ba3e6220c7871a6d9d465c994e85a918cc1e9f058aa7bbf615639e",
+      "bytes": 19008
+    },
+    {
+      "path": "tools/test_deploy_bridge.py",
+      "sha256": "6702d4f9fc5f8c4ae732caab4a7af1cc60e7c16e85f6149c9c7595fe999ce366",
+      "bytes": 21924
+    },
+    {
+      "path": "tools/test_prepare_release.py",
+      "sha256": "f3547c7cd8abee8cdb2abb1f46348c3be49d5ca5706e8b36396e34309acdd1f1",
+      "bytes": 5322
+    },
+    {
+      "path": "tools/test_retired_entries.py",
+      "sha256": "bfc2af8f8835ef4a265544f05851db5f77d312eec41349caae7a63ed290fa108",
+      "bytes": 4087
+    },
+    {
+      "path": "tools/test_start_bridge.py",
+      "sha256": "316a0b2ed451c30ec7751814cc024adbee677c18372eb964a5b729f6661984f7",
+      "bytes": 14544
+    },
+    {
+      "path": "tools/test_verify_bridge.py",
+      "sha256": "f004f88b916800fc44ba6cb2fbd18ca81b2317b24808ac78ff9a84eb2b4a7dc0",
+      "bytes": 6736
+    },
+    {
+      "path": "tools/verify_bridge.py",
+      "sha256": "2254dfc5d354c654914a6f62cd7a3dfbc868a1640586af843be7f9a682f79925",
+      "bytes": 14678
+    }
+  ],
+  "fileCount": 220,
+  "totalBytes": 3303269,
+  "issues": [],
+  "licensePresent": true,
+  "published": false,
+  "releaseReady": false,
+  "remainingGates": [
+    "actual GitHub CI",
+    "public version/tag and formal Release"
+  ],
+  "excluded": [
+    "game binaries/assets and decompiled dumps",
+    "runtime queues/logs/saves/configuration",
+    "private repairs/campaigns and native dependencies",
+    "desktop screenshot/input helpers"
+  ],
+  "license": "MIT",
+  "localValidation": {
+    "counts": {
+      "csharpSuites": 90,
+      "csharpAssertions": 3303,
+      "python": 459,
+      "campaignRecovery": 5,
+      "verificationTool": 114
+    },
+    "verificationSha256": "f977a672a770733648999a11a48a1e6ce485d1fa1f9501af40c2a07349880944",
+    "publicSelectionTests": {
+      "python": 459,
+      "recovery": 5,
+      "tooling": 114
+    },
+    "nativeSourceInputsUnchanged": true,
+    "publicClientShim": "published pure transport compatibility shim; public selection tested",
+    "limitations": [
+      "four conditional ResolverPerformanceTests assertions require an additional loadable framework assembly and were not exercised"
+    ]
+  },
+  "acceptance": {
+    "priorDshLifecycleScope": "manual source replacement and upgrade; not a clean installation",
+    "priorReportSha256": "07cd42c4fb365bc1b70afa0a4c976b1ea3909471f7c743929ea7983a9d91889d",
+    "delayedQuitRecovery": "confirmed after original process exit with initial quitScheduled=false; one submission; save confirmed",
+    "candidateDllSha256": "f70a57b4c1e3051b915d5adae618b2d1fa46a002a7c9b71ade7b3629d4ae07ff",
+    "hotseatSaveUnchanged": true
+  },
+  "documentation": {
+    "languages": [
+      "zh-CN",
+      "en"
+    ],
+    "pairs": [
+      "README.md",
+      "CONTRIBUTING.md",
+      "RELEASE_CHECKLIST.md",
+      "COMPATIBILITY.md",
+      "CHANGELOG.md",
+      "INSTALL.md",
+      "USAGE.md",
+      "SOURCE_PROVENANCE.md"
+    ]
+  },
+  "coverageLimitations": [
+    "current candidate not installed again from zero",
+    "new formal hotseat management entry points not live retested",
+    "other machines and fully disconnected first installation not verified",
+    "process exit cause not independently diagnosed"
+  ],
+  "repository": "https://github.com/xsmfder/polytopia-agent-bridge"
+}
