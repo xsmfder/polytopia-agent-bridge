@@ -76,6 +76,14 @@ Choose a current candidate with `eligible=true`. `submitted` or `accepted` means
 
 The diagnostic channel is not a remote permission sandbox. Do not expose it directly as a network service.
 
+## Contributors and acknowledgments
+
+- **xsmfder**: project direction, requirements and information-visibility boundaries, human-assisted hotseat testing, and final acceptance.
+- **Codex (OpenAI)**: bridge, SDK, and CLI design and implementation; action receipts and recovery; code integration, regression, maintenance, and release preparation.
+- **DSH agent**: collaborative development; independent installation and live-game acceptance; reproduction and reporting of save/restore, rollback/reinstall, and lifecycle issues.
+
+The project was developed through collaboration between a human maintainer and AI agents. These acknowledgments document their actual contributions.
+
 ## Repository and development
 
 - `src/`: in-game bridge, projections, native commands, and settlement.

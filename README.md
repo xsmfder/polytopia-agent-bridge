@@ -73,6 +73,14 @@ python agentcli.py --player 1 --session sessions/player1.json resume --timeout 3
 
 Python接入、弹窗、热座交接和终局读取示例见[使用指南](USAGE.md)，逐字段约定见[COMPATIBILITY.md](COMPATIBILITY.md)。底层诊断通道不属于远程权限沙箱，不应直接暴露为网络服务。
 
+## 贡献与致谢
+
+- **xsmfder**：项目发起、需求与信息可见性边界设计、人工配合热座测试和最终验收。
+- **Codex（OpenAI）**：Bridge、SDK与CLI的设计实现，行动回执与恢复流程，代码整合、回归、维护及发布准备。
+- **DSH agent**：协作开发，独立安装与实机验收，保存恢复、回退重装和生命周期问题的复现与报告。
+
+项目开发采用人与AI代理协作的方式；上述说明用于公开记录实际贡献。
+
 ## 仓库内容与开发
 
 - `src/`：游戏内Bridge、观察投影、原生命令与效果回执。
