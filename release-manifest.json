@@ -69,13 +69,13 @@
     },
     {
       "path": "RELEASE_CHECKLIST.en.md",
-      "sha256": "1f64fc426130deb7f72749e3fc9f3e021dc5a99aa952505bbcff0b9861d7d582",
-      "bytes": 4425
+      "sha256": "f68d567978b42f881f49918a10d95b909066af900cffbd008bcd007b32ed150c",
+      "bytes": 4950
     },
     {
       "path": "RELEASE_CHECKLIST.md",
-      "sha256": "fc67203a50bed65f30a4030b99d4e7502bfef7f01575712430c71c7fabde6e1f",
-      "bytes": 4871
+      "sha256": "b31c1238b4028d9c3d12e2243da5cb98827bd3a24aba7754a201496d75902cd6",
+      "bytes": 5372
     },
     {
       "path": "SOURCE_PROVENANCE.en.md",
@@ -1104,14 +1104,14 @@
     }
   ],
   "fileCount": 220,
-  "totalBytes": 3304665,
+  "totalBytes": 3305691,
   "issues": [],
   "licensePresent": true,
   "published": true,
   "releaseReady": false,
   "remainingGates": [
-    "actual GitHub CI",
-    "public version/tag and formal Release"
+    "public version/tag and formal Release",
+    "applicable repository protection settings"
   ],
   "excluded": [
     "game binaries/assets and decompiled dumps",
@@ -1173,5 +1173,16 @@
     "other machines and fully disconnected first installation not verified",
     "process exit cause not independently diagnosed"
   ],
-  "repository": "https://github.com/xsmfder/polytopia-agent-bridge"
+  "repository": "https://github.com/xsmfder/polytopia-agent-bridge",
+  "githubCi": {
+    "conclusion": "success",
+    "commit": "cfe55d7ad2bb798968a97095018304e4cb8d0441",
+    "runUrl": "https://github.com/xsmfder/polytopia-agent-bridge/actions/runs/39733774017",
+    "pythonVersions": [
+      "3.10",
+      "3.11",
+      "3.13"
+    ],
+    "scope": "SDK, frozen recovery, tooling, source inventory; no game or native build in cloud"
+  }
 }
