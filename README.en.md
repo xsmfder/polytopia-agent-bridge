@@ -4,6 +4,8 @@
 
 [Repository](https://github.com/xsmfder/polytopia-agent-bridge) · [Issues](https://github.com/xsmfder/polytopia-agent-bridge/issues) · [CI](https://github.com/xsmfder/polytopia-agent-bridge/actions)
 
+Current candidate: **0.1.0-beta.1**, the first public beta. The API may change in later 0.x versions; see the [prerelease page](https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1) for downloads and status.
+
 A structured local interface for observing and playing **The Battle of Polytopia** from an external program. It consists of an in-game C# mod, a Python SDK, and a JSON CLI. Communication uses local file queues; the game keeps its normal visible window.
 
 The agent decides where to move, what to research or build, and when to attack or negotiate. The bridge reads player-accessible information, discovers current native actions, submits commands, and reports their actual effects. It includes no combat policy, trained model, or model API calls.

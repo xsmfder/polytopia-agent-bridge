@@ -1,0 +1,60 @@
+name: Publish beta source
+
+on:
+  push:
+    tags: ['v*-beta.*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beta-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m unittest discover -s tests -p "test*.py" -v
+      - run: python tests/fixtures/recovery/test_settled_unknown.py
+      - run: python -m unittest discover -s tools -p "test*.py" -v
+      - run: python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --out dist/check
+
+  publish:
+    needs: checks
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Build frozen source archive
+        run: python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --out dist/release
+      - name: Upload draft, verify downloaded assets, and publish prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" dist/release/polytopia-agent-bridge-source.zip dist/release/polytopia-agent-bridge-source.zip.sha256 --draft --prerelease --latest=false --verify-tag --title "$env:GITHUB_REF_NAME - First public beta" --notes-file dist/release/release-notes.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release download "$env:GITHUB_REF_NAME" --dir dist/downloaded --pattern 'polytopia-agent-bridge-source.zip*'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --verify-directory dist/downloaded
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release edit "$env:GITHUB_REF_NAME" --draft=false --prerelease --latest=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

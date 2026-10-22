@@ -4,6 +4,8 @@
 
 [GitHub仓库](https://github.com/xsmfder/polytopia-agent-bridge) · [问题反馈](https://github.com/xsmfder/polytopia-agent-bridge/issues) · [CI](https://github.com/xsmfder/polytopia-agent-bridge/actions)
 
+当前候选版本：**0.1.0-beta.1**。这是首个公开Beta，接口可能在后续0.x版本调整；下载与状态见[预发布页面](https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1)。
+
 让外部程序通过结构化接口观察和操作《The Battle of Polytopia》的本地对局。项目由游戏内C# Mod、Python SDK和命令行工具组成，通过本地文件队列通信，游戏保留正常可见窗口。
 
 Agent负责根据观察决定移动、攻击、研究、建设和外交；Bridge负责读取游戏提供的信息、发现当前合法动作、提交命令并报告实际结果。项目不包含自动作战策略、训练模型或模型API调用。

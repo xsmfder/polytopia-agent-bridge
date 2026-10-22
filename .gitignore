@@ -21,6 +21,7 @@ verification-runs/
 # Short local verification outputs used in README examples.
 /v[0-9]*/
 releases/
+dist/
 repairs/
 campaigns/
 shots/

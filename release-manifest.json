@@ -3,24 +3,34 @@
   "ok": true,
   "files": [
     {
+      "path": ".gitattributes",
+      "sha256": "a9f294b0783aeba1b5e42942b20c97046c85384e21ae8c74b9f1d2ef005bce70",
+      "bytes": 86
+    },
+    {
       "path": ".github/workflows/ci.yml",
       "sha256": "12e0f8edbda615d971d584bb581b5e881f271b1f42fe1636aa862f566e0fd319",
       "bytes": 872
     },
     {
+      "path": ".github/workflows/prerelease.yml",
+      "sha256": "8563325f3a13e92c01caa438bfb8f742e510e69dcf6babc232f6898da48e90d2",
+      "bytes": 2286
+    },
+    {
       "path": ".gitignore",
-      "sha256": "e109dcb32ccb19cfbad4aa115dbf78062418a05cfea90f3007fe46afe7b235b5",
-      "bytes": 342
+      "sha256": "d41ea8e170ce4c4f360994be3cf575aba8bbad2b79c40f7efd973e6ba199aabd",
+      "bytes": 348
     },
     {
       "path": "CHANGELOG.en.md",
-      "sha256": "0b2ec46b15bc0ebd261ab6b21ac2a1f03dc315b15c41e155a8a1e0c05de23855",
-      "bytes": 1315
+      "sha256": "07d31fc07b76012505d62e0a0b7c76bb8c15e5d73aa6ab61ba228206b894bc89",
+      "bytes": 2506
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "6b6a2378ab55b4278c6c13b4c20079003b368c38c9159ef186777097b1fa3dff",
-      "bytes": 1029
+      "sha256": "242a257b615af9d3b4a727181dc165647a62f69764d373738054e8b94687c9b6",
+      "bytes": 2062
     },
     {
       "path": "COMPATIBILITY.en.md",
@@ -34,13 +44,13 @@
     },
     {
       "path": "CONTRIBUTING.en.md",
-      "sha256": "e9d69ccbd27a4550667de28db31c3b1f08d95374ea75b142e8416aa2492191f2",
-      "bytes": 1517
+      "sha256": "a716e4233af4400655e5edc5b37deb00edb751d5c1d44c5a4202de848606a232",
+      "bytes": 1941
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "6bf50a4220aabf32d4acc23d9f78597d096246c90bd8fc8ccafe171a15f13df3",
-      "bytes": 1266
+      "sha256": "95ce39284087e4c141ac69ac608ed4685e8a9fa45531fc551b848179e7fad0a7",
+      "bytes": 1654
     },
     {
       "path": "INSTALL.en.md",
@@ -59,23 +69,23 @@
     },
     {
       "path": "README.en.md",
-      "sha256": "a3d630d4d85b64d41ca3e2cd2a1041a1bdb2f3f793aed31304b4926276bcd866",
-      "bytes": 9395
+      "sha256": "aa9b97c9a57a9232b3406b419977dced552406a0fe4536f72b9290ce5b80fc6a",
+      "bytes": 9628
     },
     {
       "path": "README.md",
-      "sha256": "ef3b395547d426173ba3beaab85df49d765a9594868a3c4ace04ee03d48e0f38",
-      "bytes": 8474
+      "sha256": "c5e56e9a7e379de7d20b14f20e588317f71075ab038fe0e22cb0b00cf3c2b34e",
+      "bytes": 8698
     },
     {
       "path": "RELEASE_CHECKLIST.en.md",
-      "sha256": "f68d567978b42f881f49918a10d95b909066af900cffbd008bcd007b32ed150c",
-      "bytes": 4950
+      "sha256": "6cc0f0650ab8d1d286eff9da301da8aee27eda8887b57af6620ba21a86490a78",
+      "bytes": 5219
     },
     {
       "path": "RELEASE_CHECKLIST.md",
-      "sha256": "b31c1238b4028d9c3d12e2243da5cb98827bd3a24aba7754a201496d75902cd6",
-      "bytes": 5372
+      "sha256": "b61af14659338403ce31a23b6b1090c88b7a37b473603e5883f99e5bb4e9113c",
+      "bytes": 5655
     },
     {
       "path": "SOURCE_PROVENANCE.en.md",
@@ -1058,9 +1068,14 @@
       "bytes": 20103
     },
     {
+      "path": "tools/package_prerelease.py",
+      "sha256": "634f4e7a60442b40f2b40c1b2c3fea2492ef60f993fed1cd5d0525e78fea8020",
+      "bytes": 5469
+    },
+    {
       "path": "tools/prepare_release.py",
-      "sha256": "5cb519d9acbac07c420224ab7958e101b13f0f6acd25240cb8195bb70e86ac11",
-      "bytes": 6237
+      "sha256": "5dd5813c4d3c8890f1a1a1d0d12be8cee5443011ad9941d779a4fce9a9c38316",
+      "bytes": 6291
     },
     {
       "path": "tools/start_bridge.py",
@@ -1076,6 +1091,11 @@
       "path": "tools/test_deploy_bridge.py",
       "sha256": "6702d4f9fc5f8c4ae732caab4a7af1cc60e7c16e85f6149c9c7595fe999ce366",
       "bytes": 21924
+    },
+    {
+      "path": "tools/test_package_prerelease.py",
+      "sha256": "469e230db0bb7c0f9680f7bb9511fcdf8924136348261a6e0b3e89c8628bda2a",
+      "bytes": 2729
     },
     {
       "path": "tools/test_prepare_release.py",
@@ -1103,14 +1123,14 @@
       "bytes": 14690
     }
   ],
-  "fileCount": 220,
-  "totalBytes": 3305691,
+  "fileCount": 224,
+  "totalBytes": 3320366,
   "issues": [],
   "licensePresent": true,
   "published": true,
   "releaseReady": false,
   "remainingGates": [
-    "public version/tag and formal Release",
+    "beta tag and prerelease publication",
     "applicable repository protection settings"
   ],
   "excluded": [
@@ -1142,6 +1162,10 @@
     "supplementalToolingValidation": {
       "tests": 114,
       "scope": "Windows short/long path canonicalization in verification output guard; game runtime unchanged"
+    },
+    "betaPackaging": {
+      "toolTests": 117,
+      "scope": "source-only deterministic ZIP, manifest and tag matching, downloaded asset byte verification"
     }
   },
   "acceptance": {
@@ -1184,5 +1208,12 @@
       "3.13"
     ],
     "scope": "SDK, frozen recovery, tooling, source inventory; no game or native build in cloud"
+  },
+  "version": "0.1.0-beta.1",
+  "prerelease": true,
+  "release": {
+    "tag": "v0.1.0-beta.1",
+    "status": "prepared",
+    "url": "https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1"
   }
 }

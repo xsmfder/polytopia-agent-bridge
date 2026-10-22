@@ -22,11 +22,11 @@
 ## 发布前外部步骤
 
 - [x] 仓库地址为[xsmfder/polytopia-agent-bridge](https://github.com/xsmfder/polytopia-agent-bridge)，贡献/问题渠道与最终公开选集已确认，MIT保留初始仓库版权声明。
-- [ ] 确认正式发行版本号与tag。
+- [x] 确定首个预发布版本`0.1.0-beta.1`及目标tag `v0.1.0-beta.1`；作为Beta，不承诺稳定接口。
 - [x] 在实际GitHub仓库执行CI：[cfe55d7运行](https://github.com/xsmfder/polytopia-agent-bridge/actions/runs/39733774017)的Windows/Python 3.10、3.11、3.13全部通过SDK、冻结恢复、工具及源码清单检查。首次运行发现Windows短路径与完整路径比较不一致，已修正验证输出目录边界并保留失败记录。
 - [ ] 按仓库权限配置适用的密钥扫描/推送保护。
 - [x] 公开源码已推送main，保留初始MIT提交；中英文README注明维护者、Codex（OpenAI）与DSH agent的贡献。本地同名源码包附精确SHA256与范围清单。
-- [ ] 确定正式发行候选版本并创建tag/Release；源码推送不等于正式发行。
+- [ ] 推送冻结候选的tag，由发布工作流测试、打包、核对下载附件并创建Pre-release；实际状态以预发布页面及对应Actions记录为准。
 
 ## 已有验证的含义
 
@@ -36,4 +36,4 @@
 
 源码许可与外部依赖许可分别处理。参考[GitHub仓库许可说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)。
 
-源码已上传到上述公开仓库；正式tag和Release尚未创建。CI运行记录与本地实机证据分别保留，不互相替代。
+源码已上传到上述公开仓库；此清单随Beta候选冻结，发布结果见[预发布页面](https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1)。稳定版尚未发布。CI运行记录与本地实机证据分别保留，不互相替代。

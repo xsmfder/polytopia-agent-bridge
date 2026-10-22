@@ -15,7 +15,7 @@ WORK = Path(__file__).resolve().parents[1]
 DOCUMENTS = ('README.md', 'CONTRIBUTING.md', 'RELEASE_CHECKLIST.md', 'COMPATIBILITY.md',
              'CHANGELOG.md', 'INSTALL.md', 'USAGE.md', 'SOURCE_PROVENANCE.md')
 TEMPLATES = DOCUMENTS + tuple(name[:-3] + '.en.md' for name in DOCUMENTS) + (
-             '.github/workflows/ci.yml', '.gitignore', 'client.py')
+             '.github/workflows/ci.yml', '.github/workflows/prerelease.yml', '.gitattributes', '.gitignore', 'client.py')
 TOKEN_PATTERNS = (
     ('github-token', re.compile(r'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b')),
     ('api-secret', re.compile(r'\bsk-[A-Za-z0-9_-]{32,}\b')),

@@ -21,11 +21,11 @@ This checklist separates local source preparation, clean installation, upgrade a
 ## External publication steps
 
 - [x] Repository [xsmfder/polytopia-agent-bridge](https://github.com/xsmfder/polytopia-agent-bridge), issue/contribution channels, and final source selection are confirmed; the initial repository's MIT attribution is retained.
-- [ ] Establish the formal release version and tag.
+- [x] Select `0.1.0-beta.1` and target tag `v0.1.0-beta.1` for the first prerelease; the beta does not promise a stable API.
 - [x] Actual [GitHub CI for cfe55d7](https://github.com/xsmfder/polytopia-agent-bridge/actions/runs/39733774017) passed SDK, frozen recovery, tooling, and source inventory checks on Windows with Python 3.10, 3.11, and 3.13. The first run exposed inconsistent Windows short/long path comparisons; verification output boundaries were corrected, and the failed run remains available.
 - [ ] Configure applicable repository permissions and secret/push protection.
 - [x] Public source is pushed to main, preserving the initial MIT commit. Both README languages credit the maintainer, Codex (OpenAI), and DSH agent. The named local source archive includes its exact SHA256 and scope manifest.
-- [ ] Select a formal release version and create its tag/Release. A source push does not constitute a formal release.
+- [ ] Push the frozen candidate tag; the publishing workflow tests, packages, verifies downloaded assets, and creates a prerelease. The actual prerelease page and Actions records are authoritative.
 
 ## Meaning of the evidence
 
@@ -35,4 +35,4 @@ The DSH lifecycle follow-up used an existing installation after files were repla
 
 Fully disconnected first installation, other machines, online operation, complete loader uninstallation, Steam library-button launch, and the new formal hotseat management paths are not established by that report. Preserve exact scope and candidate hashes when describing results.
 
-Project licensing is separate from game and dependency rights; see [GitHub's licensing guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). Source is uploaded to the public repository above; no formal tag or Release has been created. Keep cloud CI and local live-game evidence separate, and update these checks only with actual results.
+Project licensing is separate from game and dependency rights; see [GitHub's licensing guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). Source is uploaded to the public repository above. This checklist is frozen with the beta candidate; see the [prerelease page](https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1) for publication results. No stable release is claimed. Keep cloud CI and local live-game evidence separate.
