@@ -56,6 +56,7 @@ def select(requested, available, label):
 
 
 def output_path(work, requested):
+    work = Path(work).resolve()
     target = Path(requested).resolve() if requested else (
         work / "verification-runs" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     )

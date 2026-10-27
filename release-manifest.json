@@ -24,13 +24,13 @@
     },
     {
       "path": "CHANGELOG.en.md",
-      "sha256": "b3addb5d8dbba99d6fe56375a8b4fcee3e3433b6bec286e0cbfb6b279332de1b",
-      "bytes": 4466
+      "sha256": "f7e14783504ddde80f49c172ae3cf0ae5a73b8d100d6b99258fabd6100ff5a20",
+      "bytes": 4595
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "54fdbc6d380fd898cab54d7086e13952770c287b5a798a05359700840d3c27a2",
-      "bytes": 3695
+      "sha256": "97f8c43891717c842373af771b60adf7cd499571307af6646c8f6f0583b6834d",
+      "bytes": 3823
     },
     {
       "path": "COMPATIBILITY.en.md",
@@ -99,13 +99,13 @@
     },
     {
       "path": "RELEASE_NOTES.en.md",
-      "sha256": "48bc1aad4faaf8a9ec02b8b9e6ea94518294e5ff5cdec2bd7f93b309e2ed246c",
-      "bytes": 1920
+      "sha256": "98a934ff4da3ff75a340908f5e8145e45ae1cffebdf93d13c3900a967e77a8c6",
+      "bytes": 2049
     },
     {
       "path": "RELEASE_NOTES.md",
-      "sha256": "7a078ddd1826a0279efcff9bdb3894e2a0f8ba8a0b8e4b740dfe757e72ca3229",
-      "bytes": 1624
+      "sha256": "18b87954d8b0faacc014c517ed69cf7a6a1d51b8c72c55a64d1de663e90a2c88",
+      "bytes": 1752
     },
     {
       "path": "SOURCE_PROVENANCE.en.md",
@@ -1379,20 +1379,20 @@
     },
     {
       "path": "tools/test_verify_bridge.py",
-      "sha256": "f004f88b916800fc44ba6cb2fbd18ca81b2317b24808ac78ff9a84eb2b4a7dc0",
-      "bytes": 6736
+      "sha256": "b7cbe0584b346d277984d5d5f6d1be160a4d1f6c4e744683ea02556cbcfd18f1",
+      "bytes": 6880
     },
     {
       "path": "tools/verify_bridge.py",
-      "sha256": "47038daf6631d72ed6bf44da81ebf544eb8b98209ff1507868ecb36b19e5307e",
-      "bytes": 14680
+      "sha256": "7a79c21b27e2efb3c5f598e13523b36ced9df67fdc441457e82496ad57ce3666",
+      "bytes": 14712
     }
   ],
   "fileCount": 277,
   "version": "0.4.0",
   "tag": "v0.4.0",
   "prerelease": true,
-  "totalBytes": 3699509,
+  "totalBytes": 3700199,
   "issues": [],
   "licensePresent": true,
   "published": false,

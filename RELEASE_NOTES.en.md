@@ -10,6 +10,8 @@ Encounter acknowledgements tolerate a known auxiliary-text sampling change while
 
 Exida preview separates primary damage from neighboring poison. Island movement adds algae-spawn queue predictions across the path, including its origin. Unexplored terrain stays unknown; previews execute no builds and do not simulate the complete future world.
 
+Verification normalizes Windows long paths and 8.3 aliases before enforcing output-directory protections for src/tests/tools.
+
 Downloads: `agent_bridge-0.4.0.polymod`, source/SDK ZIP, same-source MelonLoader fallback DLL and SHA256 files. Follow the [installation guide](INSTALL.en.md), preserving original saves and unresolved sessions when switching loaders.
 
 Vanilla special-tribe coverage includes historical live samples. New fixes in this final candidate have separate regression and packaging evidence, without claiming a new exhaustive live campaign. Online multiplayer and arbitrary third-party special rules remain outside the support promise. This version is released on GitHub. Submission to the PolyMod website has not been performed.
