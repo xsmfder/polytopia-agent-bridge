@@ -15,7 +15,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any
 
-from sdk_values import integer, coordinates, native_identifier
+from sdk_values import integer, coordinates, native_identifier, native_rule_identifier
 from sdk_candidates import current_rows
 
 VERSION = "polytopia-sdk-1"
@@ -302,7 +302,7 @@ class PolytopiaSDK(GameLifecycleMixin):
             raise SDKError("SESSION_IO_ERROR", "recover the failed state checkpoint before another write",
                            retryAllowed=False, pendingWrites=copy.deepcopy(self._pending_writes))
         resolving = self._resolves_pending_choice(command, args)
-        popup_resolution = command == "popup" and args.get("op") in {"choose", "dismiss_resolved_reward"}
+        popup_resolution = command == "popup" and args.get("op") in {"choose", "dismiss_resolved_reward", "next"}
         uncertain = [row for row in self._pending_writes if row["state"] == "uncertain"]
         child_pending = any(row.get("parentTicket") is not None for row in self._pending_writes)
         if uncertain:
@@ -355,7 +355,7 @@ class PolytopiaSDK(GameLifecycleMixin):
     @staticmethod
     def _popup_callback_completed(response):
         return (any(response.get(key) is True for key in
-                    ("invokedCallback", "invokedOnHide", "invokedHide", "invokedOnRewardButtonClicked"))
+                    ("invokedCallback", "invokedOnHide", "invokedHide", "invokedOnRewardButtonClicked", "queueAdvanceRequested"))
                 or response.get("dismissRequested") is True and response.get("rewardResubmitted") is False)
 
     def _ui_write_status(self, response, completed=False):
@@ -464,7 +464,7 @@ class PolytopiaSDK(GameLifecycleMixin):
     def _request(self, command, *, _intent_binding=None, **args):
         self._ensure_open()
         mutating = (command in {"action", "unit_action", "tile_action", "tribe_action", "setup_action", "handoff_start", "game_lifecycle"}
-                    or command == "popup" and args.get("op") in {"choose", "dismiss_resolved_reward"}
+                    or command == "popup" and args.get("op") in {"choose", "dismiss_resolved_reward", "next"}
                     or command in {"tribe_info", "leaderboard"} and args.get("mode", "read") != "read")
         view_write = command in {"tribe_info", "leaderboard"} and args.get("mode", "read") != "read"
         if view_write and "viewRequestId" in args:
@@ -995,14 +995,29 @@ class PolytopiaSDK(GameLifecycleMixin):
         if "world" in domains:
             sources["research"] = world.get("researchableTechs")
             for row in current_rows(world.get("researchableTechs"), "items"):
-                if native_identifier(row.get("tech")) is not None:
+                if native_rule_identifier(row.get("tech")) is not None:
                     add("action", {"name": "research", "kind": row["tech"]}, row, affordable(row))
             sources["train"] = world.get("trainOptions")
-            for city in current_rows(world.get("trainOptions"), "cities"):
-                for row in current_rows(city, "options"):
-                    if city.get("coords") and native_identifier(row.get("unitType")) is not None:
-                        add("action", {"name": "train", "at": city["coords"], "kind": row["unitType"]},
-                            row, affordable(row) if row.get("trainable") is True else row.get("trainable"))
+            seen_train = set()
+            for source in ("cities", "sites"):
+                for site in current_rows(world.get("trainOptions"), source):
+                    if source == "sites" and (site.get("explored") is not True
+                            or _integer(site.get("owner")) != self.player_id
+                            or site.get("siteKind") not in {"city", "owned-water", "owned-algae"}):
+                        continue
+                    for row in current_rows(site, "options"):
+                        if source == "sites" and row.get("nativeValid") is not True:
+                            continue
+                        if site.get("coords") and native_rule_identifier(row.get("unitType")) is not None:
+                            key = (site["coords"], row["unitType"])
+                            if key in seen_train:
+                                continue
+                            seen_train.add(key)
+                            eligible = affordable(row) if row.get("trainable") is True else row.get("trainable")
+                            if "nativeValid" in row and row["nativeValid"] is not True:
+                                eligible = False if row["nativeValid"] is False else None
+                            add("action", {"name": "train", "at": site["coords"], "kind": row["unitType"]},
+                                row, eligible)
             for key, name in (("legalMoveTargets", "move"), ("legalAttackTargets", "attack")):
                 sources[key] = world.get(key)
                 for actor in current_rows(world.get(key), "units"):
@@ -1375,7 +1390,19 @@ class PolytopiaSDK(GameLifecycleMixin):
                 if p.get("popupType") in {"PopupBase", "BasicPopup", "BasicPopupLegacy"} and button_type:
                     result["popupType"] = button_type
                 return result
-            if current.get("showing") is not True or clean(current) != clean(expected_popup):
+            observed, expected = clean(current), clean(expected_popup)
+            buttons = observed.get("buttons") or {}
+            rows = buttons.get("buttons") or []
+            texts, prior_texts = observed.get("visibleTexts"), expected.get("visibleTexts")
+            if (observed.get("popupType") == expected.get("popupType") == "IconRewardPopup"
+                    and observed.get("title") and observed.get("body")
+                    and acknowledgement_index == 0 and buttons.get("complete") is True
+                    and len(rows) == 1 and _integer(rows[0].get("id")) == 0
+                    and isinstance(texts, list) and isinstance(prior_texts, list)
+                    and (texts == [] or prior_texts == [])):
+                observed.pop("visibleTexts", None)
+                expected.pop("visibleTexts", None)
+            if current.get("showing") is not True or observed != expected:
                 raise SDKError("POPUP_CHANGED", "popup changed; choose from a fresh observation")
         if world.get("myTurn") is not True:
             # A native notification may pause the opponent's pipeline after our
@@ -1417,6 +1444,109 @@ class PolytopiaSDK(GameLifecycleMixin):
             return self._envelope("unknown", None, error=str(exc), retryAllowed=False)
         status = self._ui_write_status(native, self._popup_callback_completed(native))
         return self._envelope(status, native, retryAllowed=False)
+
+    @_logged
+    def advance_pending_popup(self, *, expected_observation):
+        """Request the next native pending display once; never choose a reward."""
+        if not isinstance(expected_observation, dict) or not isinstance(expected_observation.get("binding"), dict):
+            raise SDKError("INVALID_ARGUMENT", "a fresh SDK observation with binding is required")
+        observation = self.observe()
+        world, popup = observation.get("world") or {}, observation.get("popup") or {}
+        if observation.get("binding") != expected_observation["binding"]:
+            raise SDKError("STATE_CHANGED", "pending display context changed; observe again")
+        count = _integer(world.get("pendingTriggerCountMine"))
+        if (observation.get("status") != "observed" or world.get("myTurn") is not True
+                or world.get("matchEnded") is True or popup.get("showing") is not False
+                or count is None or count <= 0):
+            raise SDKError("PENDING_POPUP_NOT_READY", "requires own visible turn, no popup and known pending triggers")
+        binding = observation["binding"]
+        if not binding.get("streamId") or _integer(binding.get("stateVersion")) is None or binding["stateVersion"] <= 0:
+            raise SDKError("VERSION_UNKNOWN", "pending display requires a visible positive state version")
+        try:
+            native = self._request("popup", op="next", expectedEpisodeId=binding["episodeId"],
+                expectedPlayerId=str(self.player_id), expectedStreamId=binding["streamId"],
+                expectedStateVersion=str(binding["stateVersion"]))
+        except (TimeoutError, RuntimeError) as exc:
+            if isinstance(exc, SDKError) and exc.code != "INVALID_RESPONSE":
+                raise
+            return self._envelope("unknown", None, error=str(exc), retryAllowed=False)
+        return self._envelope(self._ui_write_status(native, self._popup_callback_completed(native)),
+                              native, retryAllowed=False)
+
+    @_logged
+    def resolve_pending(self, *, timeout=10.0, interval=0.25, max_steps=24):
+        """Advance known displays and original receipts; return actual choices to caller."""
+        if (not _finite_seconds(timeout) or not _finite_seconds(interval, positive=True)
+                or _integer(max_steps) is None or isinstance(max_steps, bool) or not 1 <= int(max_steps) <= 128):
+            raise SDKError("INVALID_ARGUMENT", "finite timeout, positive interval and max_steps 1..128 required")
+        deadline, steps, attempted = self.clock() + timeout, [], set()
+        for _ in range(int(max_steps)):
+            observation = self.observe()
+            world, popup = observation.get("world") or {}, observation.get("popup") or {}
+            def finish(status, next_step, **extra):
+                return self._envelope(status, None, observation=observation, steps=steps,
+                                      nextStep=next_step, retryAllowed=False, **extra)
+            if not world or observation.get("status") not in {"observed", "needs_resolution"}:
+                return finish(observation.get("status", "unknown"), "observe")
+            if world.get("matchEnded") is True:
+                return finish("ended", "result")
+            if any(row.get("state") == "uncertain" for row in self._pending_writes):
+                return finish("unknown", "reconcile_original_request")
+            if self.clock() > deadline:
+                return finish("timeout", "observe")
+            if popup.get("showing") is True:
+                buttons = popup.get("buttons") or {}
+                rows = buttons.get("buttons") or []
+                display = popup.get("rewardDisplay") or {}
+                typ = popup.get("popupType")
+                if typ == "RewardPopup" and display.get("canDismiss") is True and display.get("selectedReward"):
+                    identity = {k: v for k, v in popup.items() if k not in {"reqId", "visibleTexts"}}
+                    key = ("dismiss", _hash(identity), _hash(observation["binding"]))
+                    operation = lambda: self.dismiss_resolved_reward(display["selectedReward"], expected_popup=popup)
+                elif (buttons.get("complete") is True and len(rows) == 1
+                        and ((typ == "IconRewardPopup" and _integer(rows[0].get("id")) == 0)
+                             or (typ in {"BasicPopup", "BasicPopupLegacy", "DiplomacyPopup"}
+                                 and _integer(rows[0].get("id")) == -1 and rows[0].get("closesPopup") in (True, "True")))):
+                    choice = _integer(rows[0]["id"])
+                    # reqId is transport-only, including in the no-replay key.
+                    identity = {k: v for k, v in popup.items() if k not in {"reqId", "visibleTexts"}}
+                    key = ("acknowledge", _hash(identity), _hash(observation["binding"]))
+                    operation = lambda: self.choose_popup(choice, expected_popup=popup)
+                else:
+                    return finish("needs_resolution", "choose_city_reward" if typ == "RewardPopup" else "choose_popup")
+            elif popup.get("showing") is False and world.get("myTurn") is True and (_integer(world.get("pendingTriggerCountMine")) or 0) > 0:
+                key = ("next", _hash(observation["binding"]), world["pendingTriggerCountMine"])
+                operation = lambda: self.advance_pending_popup(expected_observation=observation)
+            elif self.unresolved is not None or self._pending_writes:
+                wait = min(interval, max(0.0, deadline - self.clock()))
+                if self._session_store is not None:
+                    receipt = self.resume_pending(timeout=wait)
+                elif self.unresolved is not None and _integer(self.unresolved.get("ticket")) is not None:
+                    receipt = self.wait_result(self.unresolved["ticket"], timeout=wait)
+                else:
+                    return finish("unknown", "reconcile_original_request")
+                steps.append({"operation": "resume", "result": receipt})
+                if receipt.get("status") in {"unknown", "not_confirmed", "timeout", "rejected"}:
+                    return finish(receipt["status"], "query_original_receipt")
+                if receipt.get("status") == "needs_resolution":
+                    return finish("needs_resolution", "observe")
+                continue
+            elif world.get("canAct") is True:
+                return finish("ready", "list_actions")
+            else:
+                return finish("needs_resolution", "observe")
+            if key in attempted:
+                return finish("needs_resolution", "observe")
+            attempted.add(key)
+            response = operation()
+            steps.append({"operation": key[0], "result": response})
+            if response.get("status") != "submitted":
+                return finish(response.get("status", "unknown"), "observe")
+            remaining = deadline - self.clock()
+            if remaining > 0:
+                self.sleep(min(interval, remaining))
+        return self._envelope("needs_resolution", None, steps=steps, nextStep="observe",
+                              retryAllowed=False, reason="resolution step limit reached")
 
     @_logged
     def handoff_status(self):

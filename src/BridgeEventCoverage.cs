@@ -1,4 +1,4 @@
-﻿// Installation is process-scoped; visible journal evidence is scoped to its stream.
+// Installation is process-scoped; visible journal evidence is scoped to its stream.
 using System;
 using System.Collections.Generic;
 
@@ -7,7 +7,7 @@ namespace PolytopiaAgent
     public partial class BridgeMod
     {
         // Audited hook targets, not a catalog of available player actions.
-        private static readonly string[] CombatHookTypes = { "AttackAction", "MoveAction", "KillUnitAction", "TrainAction", "EmbarkAction", "DisembarkAction", "InfiltrateAction", "InfiltrationRewardAction", "CaptureCityAction", "RecoverAction", "HealAction", "HealOthersAction", "BoostAction", "BoostOthersAction", "PromoteAction", "ConvertAction", "EstablishEmbassyAction", "DestroyEmbassyAction", "BreakPeaceAction", "PeaceTreatyAction", "PeaceRequestResponseAction", "ReceiveDiplomacyMessageAction", "ExamineRuinsAction", "IncreaseCurrencyAction", "ResearchAction", "CityRewardAction", "IncreasePopulationAction", "ScoutMoveAction", "ExploreAction" };
+        private static readonly string[] CombatHookTypes = { "AttackAction", "MoveAction", "KillUnitAction", "TrainAction", "EmbarkAction", "DisembarkAction", "InfiltrateAction", "InfiltrationRewardAction", "CaptureCityAction", "RecoverAction", "HealAction", "HealOthersAction", "BoostAction", "BoostOthersAction", "PromoteAction", "ConvertAction", "EstablishEmbassyAction", "DestroyEmbassyAction", "BreakPeaceAction", "PeaceTreatyAction", "PeaceRequestResponseAction", "ReceiveDiplomacyMessageAction", "ExamineRuinsAction", "IncreaseCurrencyAction", "ResearchAction", "CityRewardAction", "IncreasePopulationAction", "ScoutMoveAction", "ExploreAction", "BuildAction", "FloodTileAction", "BubbleAction", "ClearTileEffectAction", "CreateResourceAction", "FreezeAreaAction", "FreezeTileAction", "FreezeUnitAction", "BreakIceAreaAction", "BreakIceAction", "SwarmCommand", "ExplodeUnitAction", "PoisonUnitAction", "EatAction", "DecomposeAction" };
         private sealed class VisibleHookEvidence
         {
             internal long FirstEventId, LastEventId, EventCount;
@@ -63,7 +63,7 @@ namespace PolytopiaAgent
             }
             string state = _combatHookInstalled == CombatHookTypes.Length && _combatHookFailed == 0 ? "complete"
                 : _combatHookInstalled > 0 ? "partial" : _combatInstallationAttempted ? "unavailable" : "not_attempted";
-            return "{\"schema\":\"visible-native-hook-evidence-1\",\"scope\":\"combat-action-execute\",\"streamId\":" + CRQ(_combatStream)
+            return "{\"schema\":\"visible-native-hook-evidence-1\",\"scope\":\"audited-native-action-and-command-execute\",\"streamId\":" + CRQ(_combatStream)
                 + ",\"installationStatus\":" + CRQ(state) + ",\"expectedTypeCount\":" + CombatHookTypes.Length
                 + ",\"installedTypeCount\":" + _combatHookInstalled + ",\"installation\":[" + string.Join(",", installation.ToArray())
                 + "],\"observedVisibleTypes\":[" + string.Join(",", observed.ToArray()) + "],\"unobservedTypes\":[" + string.Join(",", unobserved.ToArray())

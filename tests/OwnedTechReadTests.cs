@@ -63,6 +63,11 @@ internal static class OwnedTechReadTests
             "a later explicit query can establish the actual empty set");
         Read(new object(), out names);
         Check(names == null, "absent owned-tech metadata is unknown");
+        Check(BridgeMod.ReadOwnedTechNames(new object[]{"1000"})==null
+            && BridgeMod.ReadOwnedTechNames(new object[]{(CurrentOwnedTech)1000})==null,
+            "unregistered raw numeric owned technology stays unknown");
+        Check(BridgeMod.OwnedTechFingerprint(new HashSet<string>{"Basic","1000"})=="1000,Basic",
+            "already certified owned rule IDs survive settlement fingerprinting");
         Check(BridgeMod.IsDecisionWorldKey("ownedTechsStatus"), "world schema declares technology completeness");
         Console.WriteLine("passed=" + passed + " failed=" + failed);
         return failed == 0 ? 0 : 1;

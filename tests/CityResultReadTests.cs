@@ -116,7 +116,7 @@ internal static class CityResultReadTests
     }
     public static int Main()
     {
-        foreach (object raw in new object[] { null, new object[] { null }, new object[] { new UnreadableRewardTrigger() } })
+        foreach (object raw in new object[] { new object[] { null }, new object[] { new UnreadableRewardTrigger() } })
         {
             var state = new GameState { pendingCommandTriggers = raw as object[] };
             var pendingArgs = new object[] { state, (byte)1, null, null, null, null, new List<string>() };
@@ -125,6 +125,11 @@ internal static class CityResultReadTests
             Check((string)pending["status"] == "unavailable" && pending["city"] == null,
                 "unreadable reward trigger collection cannot prove no pending choice");
         }
+        var freshState = new GameState { pendingCommandTriggers = null };
+        string freshJson = (string)typeof(CityOptionsSnapshot).GetMethod("PendingCityRewardJson",F).Invoke(null,
+            new object[] { freshState, (byte)1, null, null, null, null, new List<string>() });
+        Check((string)J.Deserialize<Dictionary<string,object>>(freshJson)["status"] == "none",
+            "known native null trigger collection uses the verified empty convention");
         var catalog = RewardCatalog(new object[] { "Workshop", null, "FutureNativeReward" });
         Check((string)catalog["status"] == "partial", "null reward definition cannot claim complete catalog");
         Check(Convert.ToInt32(catalog["rewardCount"]) == ((IList)catalog["rewards"]).Count

@@ -195,17 +195,22 @@ namespace PolytopiaBattlePreview
             // Native dispatch at 4D90A2 and 49FE98 selects Default only from Version 121.
             // Older versions use a different rounding and are not silently substituted.
             if (!version.HasValue || version.Value < 121) return AreaUnavailable("native-area-version-not-supported");
+            bool poisonOnly = false;
             if (!moving)
             {
                 bool? poison = Ability(attacker, "Poison");
-                if (poison == null || poison.Value) return AreaUnavailable("poison-splash-requires-separate-native-preview");
+                if (poison == null) return AreaUnavailable("native-poison-ability-unreadable");
+                // AttackCommand.ExecuteDefault 4D3DF8 branches on Poison (26):
+                // neighbors receive PoisonUnitAction, NOT half-damage AttackAction.
+                // Never borrow the ordinary Splash damage formula for Exida.
+                poisonOnly = poison.Value;
                 var range = BridgeMod.FindStaticUnique(BridgeMod.FindGameType("UnitDataExtensions"), "GetRange", new[] { "UnitState", "GameState" }, "Int32");
                 if (range == null) return AreaUnavailable("native-range-unreadable");
                 try { if ((int)range.Invoke(null, new[] { attacker, gs }) <= 1) return "{\"status\":\"not-applicable\",\"affectedUnits\":[]}"; } catch { return AreaUnavailable("native-range-read-failed"); }
             }
             var neighbors = BridgeMod.FindStaticUnique(BridgeMod.FindGameType("MapDataExtensions"), "GetTileNeighbors", new[] { "MapData", "WorldCoordinates" }, null);
             var battle = BridgeMod.FindStaticUnique(BridgeMod.FindGameType("BattleHelpers"), "GetBattleResults", new[] { "GameState", "UnitState", "UnitState", "Boolean", "Boolean" }, "BattleResults");
-            if (neighbors == null || battle == null) return AreaUnavailable("native-area-helpers-unbound");
+            if (neighbors == null || (!poisonOnly && battle == null)) return AreaUnavailable("native-area-helpers-unbound");
             object raw;
             try { raw = neighbors.Invoke(null, new[] { M(gs, "Map"), targetCoordinates }); } catch { return AreaUnavailable("native-neighbors-failed"); }
             var tiles = AsList(raw); if (tiles == null) return AreaUnavailable("native-neighbors-unreadable");
@@ -225,15 +230,18 @@ namespace PolytopiaBattlePreview
                 catch { }
                 if (peace == null) { partial = true; continue; }
                 if (peace.Value) continue;
-                int? damage = null; object br = null;
+                int? damage = poisonOnly ? (int?)0 : null; object br = null;
                 try
                 {
-                    br = battle.Invoke(null, new object[] { gs, attacker, defender, true, false });
-                    if (moving && tentacles == true) damage = MI(br, "attackDamage");
-                    else
+                    if (!poisonOnly)
                     {
-                        var half = br == null ? null : br.GetType().GetMethod("GetFlooredHalfAttackDamage", Type.EmptyTypes);
-                        if (half != null) damage = BridgeMod.NativeInt32(half.Invoke(br, null));
+                        br = battle.Invoke(null, new object[] { gs, attacker, defender, true, false });
+                        if (moving && tentacles == true) damage = MI(br, "attackDamage");
+                        else
+                        {
+                            var half = br == null ? null : br.GetType().GetMethod("GetFlooredHalfAttackDamage", Type.EmptyTypes);
+                            if (half != null) damage = BridgeMod.NativeInt32(half.Invoke(br, null));
+                        }
                     }
                 }
                 catch { }
@@ -244,12 +252,65 @@ namespace PolytopiaBattlePreview
                     + ",\"healthBefore\":" + (hp.HasValue ? hp.Value.ToString(CultureInfo.InvariantCulture) : "null")
                     + ",\"damage\":" + (damage.HasValue ? damage.Value.ToString(CultureInfo.InvariantCulture) : "null")
                     + ",\"wouldDefeat\":" + (hp.HasValue && damage.HasValue ? damage.Value >= hp.Value ? "true" : "false" : "null")
+                    + (poisonOnly ? ",\"wouldApplyPoison\":true,\"newlyPoisoned\":null,\"poisonAuthority\":\"native PoisonUnitAction branch; no private enemy effects read\"" : "")
                     + ",\"retaliation\":false,\"wouldMoveToVictim\":false}");
             }
-            return "{\"status\":" + Q(partial || moving ? "partial" : "ok") + ",\"nativeGameVersion\":" + version.Value
-                + ",\"effect\":" + Q(moving ? "Stomp-or-Tentacles-at-destination" : "Splash") + ",\"coverage\":\"visible-units-only\",\"authority\":\"native neighbors, peace, BattleResults and native half-damage helper; Default dispatch verified in GameAssembly\""
-                + (moving ? ",\"conditional\":\"uses copied actor at destination; terrain effects, damage and identity conversion during movement are not simulated\"" : "")
+            return "{\"status\":" + Q(partial || moving || poisonOnly ? "partial" : "ok") + ",\"nativeGameVersion\":" + version.Value
+                + ",\"effect\":" + Q(moving ? "Stomp-or-Tentacles-at-destination" : poisonOnly ? "PoisonSplash" : "Splash") + ",\"coverage\":\"visible-units-only\",\"authority\":\"native neighbors and peace; native AttackCommand Poison branch or BattleResults/half-damage helper; Default dispatch verified in GameAssembly\""
+                + (moving ? ",\"conditional\":\"uses copied actor at destination; terrain effects, damage and identity conversion during movement are not simulated\""
+                    : poisonOnly ? ",\"conditional\":\"current visible targets only; no command executed, private effects and passenger changes are not inspected\"" : "")
                 + ",\"affectedUnits\":[" + string.Join(",", effects.ToArray()) + "]}";
+        }
+
+        // Native MoveAction.ExecuteDefault 4CA12D..4CA298: Algae ability queues
+        // BuildAction(AlgaeSpawn=55) on every water path tile without Algae.
+        // The native path includes the origin. Publish queue predictions only;
+        // never execute BuildAction or promise its complete population/growth effects.
+        private static string MoveTerrainEffects(object gs, object actor, List<object> path, byte me)
+        {
+            bool? algae = Ability(actor, "Algae");
+            if (algae == false) return "{\"status\":\"not-applicable\",\"tiles\":[]}";
+            int? version = MI(gs, "Version");
+            if (algae == null || !version.HasValue || version.Value < 121)
+                return "{\"status\":\"unavailable\",\"reason\":\"native-algae-rule-unavailable\",\"tiles\":[]}";
+            var map = M(gs, "Map");
+            var all = AsList(M(map, "Tiles"));
+            if (all == null) return "{\"status\":\"unavailable\",\"tiles\":[]}";
+            var rows = new List<string>();
+            foreach (object coordinate in path)
+            {
+                string coords = S(coordinate);
+                object tile = null;
+                foreach (object candidate in all) if (S(M(candidate, "coordinates")) == coords) { tile = candidate; break; }
+                bool? water = null, hasAlgae = null, spawn = null;
+                // A legal move coordinate is not permission to inspect hidden terrain.
+                bool disclosed = Revealed(tile, me);
+                if (disclosed)
+                {
+                    water = MB(tile, "IsWater");
+                    if (water == false) spawn = false;
+                    if (water == true)
+                    {
+                        var has = BridgeMod.FindUniqueNativeMethod(tile.GetType(), "HasEffect", new[] { "EffectType" }, "Boolean", false);
+                        try
+                        {
+                            if (has != null && Enum.IsDefined(has.GetParameters()[0].ParameterType, "Algae"))
+                            {
+                                hasAlgae = (bool)has.Invoke(tile, new[] { Enum.Parse(has.GetParameters()[0].ParameterType, "Algae") });
+                                spawn = !hasAlgae.Value;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                rows.Add(new PolytopiaAgent.JsonObj().Str("coords", coords).Bool("explored", disclosed)
+                    .NullableBool("water", water).NullableBool("hasAlgae", hasAlgae)
+                    .NullableBool("wouldQueueAlgaeSpawn", spawn).Close());
+            }
+            return "{\"status\":\"partial\",\"effect\":\"AlgaeSpawn\",\"includesOrigin\":true,"
+                + "\"authority\":\"native MoveAction Algae branch, IsWater and HasEffect(Algae) on explored path tiles\","
+                + "\"conditional\":\"queue prediction only; no future BuildAction, growth, population or hidden terrain simulated\","
+                + "\"tiles\":[" + string.Join(",", rows.ToArray()) + "]}";
         }
 
         /// <summary>Explicit read-only move/Stomp preview. All native movement legality uses MY unit.</summary>
@@ -323,6 +384,7 @@ namespace PolytopiaBattlePreview
                 outputs.Add("{\"pathStep\":" + i + ",\"coords\":" + Q(S(steps[i])) + ",\"effects\":" + AreaEffects(gs, lp, copy, steps[i], (byte)me.Value, "move") + "}");
             }
             return "{\"schema\":\"move-composite-preview-1\",\"status\":\"partial\",\"unitId\":" + Q(unitId) + ",\"destination\":" + Q(targetCoord)
+                + ",\"terrainEffects\":" + MoveTerrainEffects(gs, actor, steps, (byte)me.Value)
                 + ",\"authority\":\"native PathFinder legal options and path; copied UnitState and area damage at destination\",\"steps\":[" + string.Join(",", outputs.ToArray()) + "]}";
         }
 

@@ -8,10 +8,10 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using MelonLoader;
 
-[assembly: MelonInfo(typeof(PolytopiaAgent.BridgeMod), "PolytopiaAgentBridge", "0.3.0", "local-agent")]
-[assembly: MelonGame(null, null)]
+
+
+
 
 namespace PolytopiaAgent
 {
@@ -26,7 +26,7 @@ namespace PolytopiaAgent
     ///
     /// No entitlement or licence logic is touched anywhere in this file.
     /// </summary>
-    public partial class BridgeMod : MelonMod
+    public partial class BridgeMod
     {
         internal static readonly string WorkDir =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".offline-work", "agent-bridge");
@@ -58,15 +58,17 @@ namespace PolytopiaAgent
         private bool GameActive;
         private PolytopiaPublicMarkers.PublicMarkerHooks _publicMarkerHooks;
 
-        public override void OnInitializeMelon()
+        public void InitializeRuntime(string loader,string loaderVersion)
         {
             try
             {
+                BeginRuntimeHost(loader,loaderVersion);
                 Directory.CreateDirectory(WorkDir);
-                Log("OnInitializeMelon: MelonLoader " + typeof(MelonMod).Assembly.GetName().Version
+                Log("InitializeRuntime: " + loader + " " + loaderVersion
                     + " runtime=" + System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription);
                 ResolveTypes();
                 LoadControlledSeat();
+                _fixedControlledSeat=PreserveProcessSeat(_fixedControlledSeat);
                 _controlledSeatLoaded = true;
                 InitializePublicMarkers();
                 StartFileTransport();
@@ -76,6 +78,8 @@ namespace PolytopiaAgent
             catch (Exception ex)
             {
                 Log("FATAL on init: " + ex);
+                StopRuntime(true);
+                throw;
             }
         }
 
@@ -152,7 +156,7 @@ namespace PolytopiaAgent
             // The value must be the REAL TechData.Type enum - not any other enum in the process.
             var techEnum = FindType("Il2CppPolytopia.Data.TechData+Type")
                 ?? FindGameType("TechData+Type");
-            return EnumNameOfExpected(v, techEnum, out why);
+            return EnumRuleIdentityOfExpected(v, techEnum, out why);
         }
 
 
@@ -215,7 +219,7 @@ namespace PolytopiaAgent
                 foreach (var t in types)
                 {
                     if (t == null || t.Name != simpleName) { continue; }
-                    if (an.IndexOf("Il2CppPolytopia", StringComparison.Ordinal) >= 0) { return t; }
+                    if (IsGameInteropAssemblyName(an)) { return t; }
                     if (fallback == null) { fallback = t; }
                 }
             }
@@ -230,6 +234,12 @@ namespace PolytopiaAgent
         /// </summary>
         internal static Type FindGameType(string simpleName)
         { return CachedFindGameType(simpleName); }
+
+        internal static bool IsGameInteropAssemblyName(string name)
+        {
+            return name=="Il2CppPolytopiaAssembly" || name=="Il2CppGameLogicAssembly" || name=="Il2CppPolytopiaBackendBase"
+                || name=="PolytopiaAssembly" || name=="GameLogicAssembly" || name=="PolytopiaBackendBase";
+        }
 
         internal static Type UncachedFindGameType(string simpleName)
         {
@@ -247,7 +257,7 @@ namespace PolytopiaAgent
                     if (t == null || t.FullName == null) { continue; }
                     if (t.FullName != simpleName
                         && !t.FullName.EndsWith("." + simpleName, StringComparison.Ordinal)) { continue; }
-                    if (an.IndexOf("Il2CppPolytopia", StringComparison.Ordinal) >= 0) { game.Add(t); }
+                    if (IsGameInteropAssemblyName(an)) { game.Add(t); }
                     else { other.Add(t); }
                 }
             }
@@ -295,6 +305,10 @@ namespace PolytopiaAgent
         /// beyond them and no native object/pointer/signature ever reaches the planner projection.
         /// </summary>
         private string TrainOptions(object gs, object ps, List<object> myCityTiles)
+        { return TrainOptionsForSites(gs, ps, myCityTiles, null); }
+
+        private string TrainOptionsForSites(object gs, object ps, List<object> myCityTiles,
+            List<OwnedWaterTrainSite> waterSites)
         {
             var o = new JsonObj();
             var codes = new JsonArr();
@@ -345,20 +359,22 @@ namespace PolytopiaAgent
                                                              : "getunitdata-ambiguous")); }
 
             var cities = new JsonArr();
-            int citiesTried = 0, citiesOk = 0, badItems = 0, options = 0, validOptions = 0;
+            var sites = new JsonArr();
+            int citiesTried = 0, sitesTried = 0, sitesOk = 0, badItems = 0, options = 0, validOptions = 0;
             bool infrastructure = (cu != null && gl != null && ps != null && unitEnum != null
                                    && trainHits == 1 && gudHits == 1);
-            foreach (var tile in myCityTiles)
+            foreach (var site in TrainingSites(myCityTiles, waterSites))
             {
-                if (tile == null) { continue; }
-                string cityCoords = SafeScalar(MemberWithAccessor(tile, "coordinates"));
-                citiesTried++;
+                object tile = site.Tile;
+                string cityCoords = site.Coordinates;
+                sitesTried++;
+                if (site.Kind == "city") citiesTried++;
                 if (!infrastructure || string.IsNullOrEmpty(cityCoords) || cityCoords == "null")
                 {
                     var bad = new JsonObj();
                     bad.NullOrStr("coords", cityCoords);
                     bad.Str("status", "unknown");
-                    cities.Raw(bad.Close());
+                    AddTrainingSiteRow(cities, sites, site, bad.Str("siteKind", site.Kind).Bool("explored", true).NullOrStr("owner", SafeScalar(MemberWithAccessor(ps, "Id"))).Close());
                     continue;
                 }
                 object list;
@@ -369,7 +385,7 @@ namespace PolytopiaAgent
                     var bad = new JsonObj();
                     bad.Str("coords", cityCoords);
                     bad.Str("status", "failed");
-                    cities.Raw(bad.Close());
+                    AddTrainingSiteRow(cities, sites, site, bad.Str("siteKind", site.Kind).Bool("explored", true).NullOrStr("owner", SafeScalar(MemberWithAccessor(ps, "Id"))).Close());
                     continue;
                 }
                 var items = ReadNativeList(list);
@@ -380,14 +396,16 @@ namespace PolytopiaAgent
                     var bad = new JsonObj();
                     bad.Str("coords", cityCoords);
                     bad.Str("status", "failed");
-                    cities.Raw(bad.Close());
+                    AddTrainingSiteRow(cities, sites, site, bad.Str("siteKind", site.Kind).Bool("explored", true).NullOrStr("owner", SafeScalar(MemberWithAccessor(ps, "Id"))).Close());
                     continue;
                 }
                 var arr = new JsonArr();
                 bool cityOk = true;
                 int cityOptions = 0;
-                foreach (var cmd in items)
+                var seenTypes = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var rawCommand in items)
                 {
+                    object cmd = rawCommand == null ? null : URConcreteCommand(rawCommand, "Train");
                     if (cmd == null)
                     {
                         codes.Raw(Quote("null-command"));
@@ -416,7 +434,7 @@ namespace PolytopiaAgent
                     }
                     else
                     {
-                        uname = EnumNameOfExpected(MemberWithAccessor(cmd, "Type"), unitEnum, out why);
+                        uname = EnumRuleIdentityOfExpected(MemberWithAccessor(cmd, "Type"), unitEnum, out why);
                     }
                     // itemOk is per ITEM: one bad entry must not poison the following good ones.
                     bool itemOk = identityOk && typeOk;
@@ -450,32 +468,39 @@ namespace PolytopiaAgent
                         catch (Exception ex)
                         { codes.Raw(Quote("unitdata-threw:" + ex.GetType().Name)); itemOk = false; }
                     }
+                    if (uname != null && itemOk && !seenTypes.Add(uname)) continue;
+                    bool? nativeValid = itemOk ? URValid(cmd, gs) : null;
+                    if (itemOk && !nativeValid.HasValue)
+                    { codes.Raw(Quote("train-validity-unavailable")); itemOk = false; }
                     var eo = new JsonObj();
-                    eo.NullOrStr("unitType", uname);
+                    eo.NullOrStr("unitType", uname).NullableBool("nativeValid", nativeValid);
                     eo.Raw("cost", cost.HasValue ? cost.Value.ToString(CultureInfo.InvariantCulture) : "null");
                     // true only when this call really returned it AND its identity/city/cost all checked
-                    eo.Bool("trainable", uname != null && cost.HasValue && itemOk);
-                    if (uname != null && cost.HasValue && itemOk) validOptions++;
+                    eo.Bool("trainable", uname != null && cost.HasValue && itemOk && nativeValid == true);
+                    if (uname != null && cost.HasValue && itemOk && nativeValid == true) validOptions++;
                     if (uname == null || !cost.HasValue || !itemOk) { badItems++; cityOk = false; }
                     arr.Raw(eo.Close());
                     options++;
                 }
                 var co = new JsonObj();
-                co.Str("coords", cityCoords);
+                co.Str("coords", cityCoords).Str("siteKind", site.Kind).Bool("explored", true)
+                    .NullOrStr("owner", SafeScalar(MemberWithAccessor(ps, "Id")));
                 co.Str("status", cityOk ? "ok" : "partial");
                 co.Raw("options", arr.Close());
-                cities.Raw(co.Close());
-                if (cityOk) { citiesOk++; }
+                AddTrainingSiteRow(cities, sites, site, co.Close());
+                if (cityOk) { sitesOk++; }
             }
             string status;
             if (!infrastructure) { status = "unavailable"; }
-            else if (citiesTried == 0) { status = "ok"; }        // legal scan completed, no own city
-            else if (citiesOk == citiesTried && badItems == 0) { status = "ok"; }
-            else if (citiesOk == 0 && validOptions == 0) { status = "unavailable"; }
+            else if (sitesTried == 0) { status = "ok"; }        // legal scan completed, no own city
+            else if (sitesOk == sitesTried && badItems == 0) { status = "ok"; }
+            else if (sitesOk == 0 && validOptions == 0) { status = "unavailable"; }
             else { status = "partial"; }
-            o.Str("authority", "CommandUtils.GetTrainableUnits(gs, ps, tile, false) + GameLogicData.GetUnitData(Type).cost");
+            o.Str("authority", "CommandUtils.GetTrainableUnits(gs, ps, tile, false), actual TrainCommand.IsValid and GameLogicData.GetUnitData(Type).cost; existing own cities plus explored owned water/algae sites");
             o.Str("status", status);
             o.Raw("cities", cities.Close());
+            o.Raw("sites", sites.Close());
+            o.Raw("siteCount", sitesTried.ToString(CultureInfo.InvariantCulture));
             o.Raw("cityCount", citiesTried.ToString(CultureInfo.InvariantCulture));
             o.Raw("optionCount", options.ToString(CultureInfo.InvariantCulture));
             o.Raw("reasonCodes", codes.Close());   // stable tokens only: no native type/signature text
@@ -1159,8 +1184,8 @@ namespace PolytopiaAgent
             {
                 int pid = TransportReadyPidValue();
                 return PublishStartupReady(WorkDir,
-                    StartupReadyJson(CmdPath, OutPath, pid, _startupStarted,
-                        _fixedControlledSeat, _controlledSeatLoaded, _startupUiPhase), pid, requireOwner);
+                    HostReadyDocument(StartupReadyJson(CmdPath, OutPath, pid, _startupStarted,
+                        _fixedControlledSeat, _controlledSeatLoaded, _startupUiPhase)), pid, requireOwner);
             }
             catch (Exception ex) { Log("ready-file failed: " + ex.Message); return false; }
         }
@@ -1192,8 +1217,9 @@ namespace PolytopiaAgent
         private bool _publicRuntimeHooksAttempted;
         private bool _combatRuntimeHooksAttempted;
 
-        public override void OnUpdate()
+        public void TickRuntime()
         {
+            if(!_runtimeRunning)return;
             long frameStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             _tick++;
             try
@@ -4178,7 +4204,7 @@ namespace PolytopiaAgent
         /// `tree`: living inside the popup command does not make a raw object dump safe.
         /// </summary>
         internal static readonly string[] AdapterPopupOps = new string[] {
-            "state", "buttons", "buttonlist", "resolve", "choose", "click", "next",
+            "state", "buttons", "buttonlist", "resolve", "choose", "click", "next", "dismiss_resolved_reward",
         };
 
         /// <summary>
@@ -4245,7 +4271,7 @@ namespace PolytopiaAgent
             "popupShowing", "popupNeedsChoice", "unknownFields", "schema", "currentState", "matchEnded",
             "state", "visibilitySemantics", "myImprovementCount", "neutralVillages", "neutralVillageCount",
             "visibilityFilters", "resourceVisibilityAuthority", "hiddenEntityPolicy",
-            "resourceCategoryPermissions", "researchableTechs", "trainOptions", "trainLimits", "legalMoveTargets", "legalAttackTargets",
+            "resourceCategoryPermissions", "researchableTechs", "tribeCatalog", "trainOptions", "trainLimits", "legalMoveTargets", "legalAttackTargets",
             "publicSiegeMarkers", "publicRuinRainbowMarkers",
             "width", "tilesScanned", "tilesExplored", "tilesInSight", "myCityTiles",
             "units", "improvements", "resources", "stars", "ownedTechs", "ownedTechsStatus", "availableTechs",
@@ -4750,15 +4776,15 @@ namespace PolytopiaAgent
                 }
                 case "train":
                 {
-                    if (string.IsNullOrEmpty(arg) || at == null) { basis = "needs unit kind and city"; return "unknown"; }
+                    if (string.IsNullOrEmpty(arg) || at == null) { basis = "needs unit kind and training tile"; return "unknown"; }
                     var now = FpUnitAt(aUnits, at);
                     var then = FpUnitAt(bUnits, at);
-                    if (now == null) { basis = "no unit is observable on the city afterwards"; return "not_confirmed"; }
+                    if (now == null) { basis = "no unit is observable on the training tile afterwards"; return "not_confirmed"; }
                     string nowType = FpFieldAt(now, 2), nowOwner = FpFieldAt(now, 1);
                     string thenType = FpFieldAt(then, 2);
                     if (nowType == null || nowOwner == null)
                     { basis = "unit type/owner unreadable afterwards"; return "unknown"; }
-                    basis = "named kind now on the named city: " + (nowOwner == playerId && nowType == arg && thenType != arg);
+                    basis = "named kind now on the named training tile: " + (nowOwner == playerId && nowType == arg && thenType != arg);
                     return (nowOwner == playerId && nowType == arg && thenType != arg)
                         ? "confirmed" : "not_confirmed";
                 }
@@ -5124,6 +5150,9 @@ namespace PolytopiaAgent
         // ------------------------------------------- live probes feeding those rules
 
         private IEnumerable PendingTriggerList(object gs)
+        { return ReadPendingCommandTriggers(gs); }
+
+        internal static List<object> ReadPendingCommandTriggers(object gs)
         {
             try
             {
@@ -5860,7 +5889,10 @@ namespace PolytopiaAgent
             int scanned = 0, mine = 0, ownedCityCount = 0, exploredCount = 0, inSightCount = 0;
             var meStr = me.ToString(CultureInfo.InvariantCulture);
             var myCityTilesList = new List<object>();
+            var myWaterTrainSites = new List<OwnedWaterTrainSite>();
             var myUnitTilesList = new List<object>();
+            var observedOwnedUnitData = new List<object>();
+            var ownUnitCoordinates = new HashSet<string>(StringComparer.Ordinal);
             var visibleEnemyTilesList = new List<object>();
             var cityLevels = new Dictionary<string, int>(StringComparer.Ordinal);
             var exploredCoords = new HashSet<string>(StringComparer.Ordinal);
@@ -5879,6 +5911,8 @@ namespace PolytopiaAgent
                     var coord = SafeScalar(MemberWithAccessor(tile, "coordinates"));
                     var owner = SafeScalar(MemberWithAccessor(tile, "owner"));
                     bool ownTile = owner == meStr;
+                    var waterTrainSite = OwnWaterTrainSite(tile, me, explored);
+                    if (waterTrainSite != null) myWaterTrainSites.Add(waterTrainSite);
                     if (!string.IsNullOrEmpty(coord) && coord != "null") { exploredCoords.Add(coord); }
 
                     // units: mine are always on my map; anyone else's only while in sight
@@ -5888,7 +5922,12 @@ namespace PolytopiaAgent
                     if (unit != null)
                     {
                         var ownerOfUnit = SafeScalar(MemberWithAccessor(unit, "owner")) ?? owner;
-                        if (unitFiltered && SafeScalar(MemberWithAccessor(unit, "owner")) == meStr) { myUnitTilesList.Add(tile); }
+                        if (unitFiltered && SafeScalar(MemberWithAccessor(unit, "owner")) == meStr)
+                        {
+                            myUnitTilesList.Add(tile);
+                            observedOwnedUnitData.Add(URPanelData(unit,gs));
+                            if (!string.IsNullOrEmpty(coord) && coord != "null") ownUnitCoordinates.Add(coord);
+                        }
                         // a filtered, currently VISIBLE enemy is the only thing an attack may target
                         if (unitFiltered && ownerOfUnit != null && ownerOfUnit != "null" && ownerOfUnit != meStr) { visibleEnemyTilesList.Add(tile); }
                         if (ownerOfUnit == meStr || inSight)
@@ -5954,6 +5993,10 @@ namespace PolytopiaAgent
                         co.NullOrStr("owner", owner);
                         co.Bool("isMine", ownTile);
                         co.NullOrStr("improvementType", impType);
+                        if(ownTile)
+                        {
+                            co.Raw("ownedBuildingState",CymantiOwnedBuildingState(tile)??"null");
+                        }
                         co.Bool("inSight", inSight);
                         if (ownTile || inSight)
                         {
@@ -6029,9 +6072,10 @@ namespace PolytopiaAgent
             o.Raw("resourceCategoryPermissions", ResourceCategoryPermissions(gs, me));
             // Player-visible researchable set with the game's own prices (never computed here).
             o.Raw("researchableTechs", ResearchableTechs(gs, controlledPlayer, ownedNames));
+            o.Raw("tribeCatalog", ProjectTribeCatalog(GameLogicDataOf(gs), controlledPlayer, gs, observedOwnedUnitData));
             // My own visible cities only: the city entries already produced by the standard
             // observation (explored + improvement City + owner == mine) are reused, never a scan.
-            o.Raw("trainOptions", TrainOptions(gs, PlayerStateOf(gs, me), myCityTilesList));
+            o.Raw("trainOptions", TrainOptionsForSites(gs, PlayerStateOf(gs, me), myCityTilesList, myWaterTrainSites));
             o.Raw("trainLimits", TrainLimits(gs, myCityTilesList, cityLevels));
             if (canAct == "true")
             { o.Raw("legalMoveTargets", LegalMoveTargets(gs, PlayerStateOf(gs, me), me, myUnitTilesList, exploredCoords)); }
@@ -6101,7 +6145,19 @@ namespace PolytopiaAgent
                     to.Raw("currentlyVisible", "null");
                     to.Raw("lastObservedRevision", observedRevision.ToString(CultureInfo.InvariantCulture));
                     to.Raw("lastObservedTurn", Num(observedTurnValue));
-                    to.NullOrStr("terrain", SafeScalar(MemberWithAccessor(tile, "terrain")));
+                    string publicTerrain=SafeScalar(MemberWithAccessor(tile,"terrain"));
+                    to.NullOrStr("terrain", publicTerrain);
+                    to.NullableBool("ice",publicTerrain==null?(bool?)null:publicTerrain=="Ice");
+                    bool ownTileEffects = SafeScalar(MemberWithAccessor(tile, "owner")) == me.ToString(CultureInfo.InvariantCulture);
+                    to.Raw("terrainEffects", ownTileEffects ? URScalars(MemberWithAccessor(tile, "effects")) : "null");
+                    to.Str("terrainEffectsScope", ownTileEffects ? "owned-explored-tile" : "withheld");
+                    bool ownUnitFloodTile = ownUnitCoordinates.Contains(SafeScalar(MemberWithAccessor(tile, "coordinates")) ?? "");
+                    bool publicFloodVisible = ownTileEffects || ownUnitFloodTile || (gate.HasVisible && gate.Visible(tile));
+                    var publicFlood = publicFloodVisible ? PublicFloodState(tile) : null;
+                    to.NullableBool("flooded", publicFlood == null ? (bool?)null : publicFlood.Flooded);
+                    to.Str("floodedScope", ownTileEffects ? "owned-explored-tile" : ownUnitFloodTile ? "own-unit-tile" : publicFloodVisible ? "visible-explored-tile" : "withheld");
+                    to.NullableBool("algae",CymantiPublicAlgae(tile,publicFloodVisible));
+                    to.Str("algaeScope",ownTileEffects ? "owned-explored-tile" : ownUnitFloodTile ? "own-unit-tile" : publicFloodVisible ? "visible-explored-tile" : "withheld");
                     to.Raw("visualStyle", visibleStyles.Read(tile, true));
                     to.NullOrStr("owner", SafeScalar(MemberWithAccessor(tile, "owner")));
                     tileArr.Raw(to.Close());
@@ -6109,33 +6165,8 @@ namespace PolytopiaAgent
             }
             o.Raw("tiles", tileArr.Close());
 
-            // live enum names so the demo can name a unit/resource without guessing
-            var enums = new JsonObj();
-            foreach (var pair in new[] {
-                new[] { "UnitType", "UnitData" }, new[] { "ResourceType", "ResourceData" },
-                new[] { "ImprovementType", "ImprovementData" }, new[] { "CityReward", "CityReward" },
-                new[] { "TerrainType", "TileData" } })
-            {
-                var vals = new JsonArr();
-                var names = new JsonArr();
-                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    Type host = null;
-                    try { host = asm.GetType(pair[1], false) ?? asm.GetType("Il2Cpp." + pair[1], false); } catch { }
-                    if (host == null) { continue; }
-                    foreach (var nested in host.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic))
-                    {
-                        if (!nested.IsEnum) { continue; }
-                        names.Raw("\"" + Esc(nested.FullName) + "\"");
-                        if (nested.Name.IndexOf("Type", StringComparison.OrdinalIgnoreCase) < 0) { continue; }
-                        try { foreach (var v in Enum.GetNames(nested)) { vals.Raw("\"" + Esc(v) + "\""); } }
-                        catch { }
-                    }
-                }
-                enums.Raw(pair[0], vals.Close());
-                enums.Raw(pair[0] + "_candidates", names.Close());
-            }
-            o.Raw("enums", enums.Close());
+            // Exact native data enums, including special tribes and tile effects.
+            o.Raw("enums", NativeEnumCatalog());
             return o.Close();
         }
 
@@ -6312,7 +6343,7 @@ namespace PolytopiaAgent
                 if (!p.CanWrite) { return "property " + p.Name + " is read-only"; }
                 if (!p.PropertyType.IsEnum) { return "property " + p.Name + " is not an enum"; }
                 object v;
-                try { v = Enum.Parse(p.PropertyType, value, true); if (!Enum.IsDefined(p.PropertyType,v)) return "undefined enum value"; }
+                try { v = Enum.Parse(p.PropertyType, value, true); if (!KnownRuleEnumValue(p.PropertyType,v)) return "undefined enum value"; }
                 catch (Exception ex) { return "bad value '" + value + "': " + ex.Message; }
                 try { p.SetValue(target, v, null); return "property " + p.Name + " -> " + v; }
                 catch (Exception ex) { return "set failed: " + ex.Message; }
@@ -6325,7 +6356,7 @@ namespace PolytopiaAgent
                 try
                 {
                     object enumValue=Enum.Parse(fps[0].ParameterType,value,true);
-                    if (!Enum.IsDefined(fps[0].ParameterType,enumValue)) return "undefined enum value";
+                    if (!KnownRuleEnumValue(fps[0].ParameterType,enumValue)) return "undefined enum value";
                     m.Invoke(target, new object[] { enumValue });
                     return "setter set_" + name + " -> " + value;
                 }
@@ -6337,7 +6368,7 @@ namespace PolytopiaAgent
                 try
                 {
                     object enumValue=Enum.Parse(field.FieldType,value,true);
-                    if (!Enum.IsDefined(field.FieldType,enumValue)) return "undefined enum value";
+                    if (!KnownRuleEnumValue(field.FieldType,enumValue)) return "undefined enum value";
                     field.SetValue(target,enumValue); return "field " + field.Name + " -> " + enumValue;
                 }
                 catch(Exception ex) {return "field set failed: " + ex.Message;}
@@ -7826,25 +7857,49 @@ namespace PolytopiaAgent
         /// callbacks end with), so the popup is dismissed by the game itself after a real choice
         /// has been executed - never by force-closing or by fabricating event data.
         /// </summary>
+        private string _pendingPopupAdvanceKey;
+
+        internal static bool PendingPopupAdvanceAllowed(bool privateVisible, bool verified,
+            bool ownTurn, bool? showing, bool currentReadable, bool currentPresent, int? pending)
+        {
+            return privateVisible && verified && ownTurn && showing == false
+                && currentReadable && !currentPresent && pending.HasValue && pending.Value > 0;
+        }
+
         private string StepCommandTrigger()
         {
-            var t = FindType("CommandTriggerUIUtils") ?? FindType("Il2Cpp.CommandTriggerUIUtils");
-            if (t == null) { return "{\"ok\":false,\"error\":\"CommandTriggerUIUtils not found\"}"; }
-            var m = t.GetMethod("TryShowNextCommandTrigger", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-            if (m == null) { return "{\"ok\":false,\"error\":\"TryShowNextCommandTrigger not found\"}"; }
+            var gs = GameStateInstance();
+            bool visible = gs != null && PrivateSamplingAllowed(gs);
+            var identity = ResolveControlledIdentity(gs);
+            object current;
+            bool readable = TryReadCurrentPopup(out current);
+            int? pending = visible && identity.Verified ? PendingTriggerCountFor(gs, identity.Id, new JsonArr()) : null;
+            if (!PendingPopupAdvanceAllowed(visible, identity.Verified,
+                gs != null && CurrentPlayerId(gs) == identity.Id, PopupIsOpen(), readable, current != null, pending))
+                return UiPreparationError("PENDING_POPUP_NOT_READY", "requires an owned visible turn, no popup and known pending triggers");
+            var frame = _combatFrame;
+            if (frame == null || !frame.Complete || string.IsNullOrEmpty(_combatStream))
+                return UiPreparationError("ACTION_CONTEXT_UNAVAILABLE", "visible state version unavailable");
+            string key = frame.Episode + ":" + identity.Id + ":" + _combatStream + ":" + _combatVersion + ":" + pending;
+            if (_pendingPopupAdvanceKey == key)
+                return UiPreparationError("PENDING_POPUP_ALREADY_ADVANCED", "queue callback already attempted for this state; reobserve without replay");
+            var t = FindGameType("CommandTriggerUIUtils");
+            var method = UniqueInvocableMethod(t, "TryShowNextCommandTrigger", null, true);
+            if (method == null || (method.ReturnType != typeof(void) && method.ReturnType != typeof(bool)))
+                return UiPreparationError("PENDING_POPUP_CALLBACK_UNAVAILABLE", "native zero-argument queue callback unavailable");
+            _pendingPopupAdvanceKey = key;
             try
             {
-                var r = m.Invoke(null, null);
-                Log("popup: TryShowNextCommandTrigger() -> " + (r == null ? "null" : r.ToString()));
-                return "{\"ok\":true,\"invoked\":\"CommandTriggerUIUtils.TryShowNextCommandTrigger()\",\"returns\":\""
-                    + Esc(r == null ? "null" : r.ToString()) + "\"}";
+                LogUiCallback("dispatch", "CommandTriggerUIUtils.TryShowNextCommandTrigger");
+                method.Invoke(null, null);
+                LogUiCallback("returned", "CommandTriggerUIUtils.TryShowNextCommandTrigger");
+                return new JsonObj().Bool("ok", true).Bool("callbackAttempted", true)
+                    .Bool("queueAdvanceRequested", true).Str("outcome", "invoked")
+                    .Str("invoked", "CommandTriggerUIUtils.TryShowNextCommandTrigger()")
+                    .Str("reobserve", "required").Close();
             }
-            catch (Exception ex)
-            {
-                var inner = ex.InnerException ?? ex;
-                Log("popup: TryShowNextCommandTrigger failed " + inner.Message);
-                return "{\"ok\":false,\"error\":\"" + Esc(inner.GetType().Name + ": " + inner.Message) + "\"}";
-            }
+            catch (Exception error)
+            { return UiCallbackFailure(new JsonObj(), "PENDING_POPUP_CALLBACK_FAILED", "queue", error); }
         }
 
         private string InvokePopupAction(Type t, string method)

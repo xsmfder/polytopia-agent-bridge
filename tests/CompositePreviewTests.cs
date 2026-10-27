@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Web.Script.Serialization;
 public struct WorldCoordinates { public int x, y; public WorldCoordinates(int a, int b) { x = a; y = b; } }
-public static class Abilities { public enum Type { Splash, Stomp, Tentacles, Poison } }
+public static class Abilities { public enum Type { Splash, Stomp, Tentacles, Poison, Algae } }
 public class PlayerState { public byte Id = 1; }
 public class GameState { public int Version = 121; public MapData Map = new MapData(); }
 public class MapData { public List<TileData> Tiles = new List<TileData>(); }
@@ -24,7 +24,12 @@ public class UnitState
 public class UnitData { }
 public class TileData
 {
+    public enum EffectType { Algae }
     public WorldCoordinates coordinates; public UnitState unit; public bool revealed = true, hidden;
+    public bool water, algae;
+    public int TerrainReads;
+    public bool IsWater { get { TerrainReads++; if(!revealed)throw new Exception("hidden terrain"); return water; } }
+    public bool HasEffect(EffectType effect) { TerrainReads++; if(!revealed)throw new Exception("hidden effects"); return algae; }
     public bool GetExplored(byte player) { return revealed; }
     public UnitState GetUnit(GameState gs, byte player, bool includeHidden) { return revealed && (!hidden || includeHidden) ? unit : null; }
 }
@@ -32,7 +37,11 @@ public static class UnitDataExtensions
 {
     public static readonly List<uint> OptionQueries = new List<uint>();
     public static bool HasAbility(UnitState u, Abilities.Type ability)
-    { if (u.UnitData == null) throw new Exception("native UnitData absent"); return ability == Abilities.Type.Splash && u.type == "Bombership" || ability == Abilities.Type.Stomp && u.type == "Juggernaut"; }
+    { if (u.UnitData == null) throw new Exception("native UnitData absent");
+      return ability == Abilities.Type.Splash && (u.type == "Bombership" || u.type == "Exida")
+          || ability == Abilities.Type.Poison && (u.type == "Exida" || u.type == "Island")
+          || ability == Abilities.Type.Stomp && (u.type == "Juggernaut" || u.type == "Island")
+          || ability == Abilities.Type.Algae && u.type == "Island"; }
     public static int GetRange(UnitState u, GameState gs) { return 3; }
     public static int GetMovement(UnitState u, GameState gs) { return 2; }
     public static List<WorldCoordinates> GetAttackOptions(UnitState u, GameState gs, int range, bool ignore)
@@ -99,7 +108,22 @@ internal static class CompositePreviewTests
         root = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("Snapshot").Invoke(null, null));
         preview = (Dictionary<string, object>)((IList)((Dictionary<string, object>)((IList)root["attackers"])[0])["targets"])[0];
         Check(((Dictionary<string, object>)preview["compositeEffects"])["status"].ToString() == "unavailable", "older native rounding dispatch is not silently replaced");
-        gs.Version = 121; ship.unit.type = "Juggernaut";
+        gs.Version = 121; ship.unit.type = "Exida";
+        int beforePoison = BattleHelpers.Calls;
+        root = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("Query").Invoke(null, new object[] {"1","(3,3)"}));
+        preview = (Dictionary<string, object>)((IList)((Dictionary<string, object>)((IList)root["attackers"])[0])["targets"])[0];
+        var poison = (Dictionary<string, object>)preview["compositeEffects"];
+        var poisoned = (IList)poison["affectedUnits"];
+        Check(poison["effect"].ToString() == "PoisonSplash" && poison["status"].ToString() == "partial"
+            && poisoned.Count == 1 && ((Dictionary<string, object>)poisoned[0])["unitId"].ToString() == "3",
+            "Exida poison splash exposes only visible hostile neighbors");
+        var poisonTarget = (Dictionary<string, object>)poisoned[0];
+        Check(Convert.ToInt32(poisonTarget["damage"]) == 0 && (bool)poisonTarget["wouldApplyPoison"]
+            && poisonTarget["newlyPoisoned"] == null && !(bool)poisonTarget["wouldDefeat"],
+            "native PoisonUnitAction branch is poison-only, not fabricated half damage or private effect confirmation");
+        Check(BattleHelpers.Calls == beforePoison + 1 && visible.unit.health == 100 && hidden.unit.health == 100,
+            "only primary attack invokes battle helper; poison preview mutates no unit");
+        ship.unit.type = "Juggernaut";
         ship.unit.health = 400; ship.unit.xp = 3; ship.unit.promotionLevel = 1;
         var move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
         Check(move["status"].ToString() == "partial" && ((IList)move["steps"]).Count == 1, "Stomp exposes conditional destination preview rather than exact whole-action prediction");
@@ -135,6 +159,36 @@ internal static class CompositePreviewTests
         PathFinder.OverridePath = new List<WorldCoordinates> { new WorldCoordinates(9, 9), new WorldCoordinates(2, 2) };
         move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
         Check(move["status"].ToString() == "unavailable", "malformed native path endpoints are rejected");
+        ship.unit.type = "Island"; ship.water = true;
+        var waterDestination = gs.Map.Tiles[gs.Map.Tiles.Count - 1]; waterDestination.water = true;
+        PathFinder.OverridePath = null;
+        move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
+        var terrain = (Dictionary<string, object>)move["terrainEffects"];
+        var changes = (IList)terrain["tiles"];
+        Check(terrain["status"].ToString() == "partial" && (bool)terrain["includesOrigin"] && changes.Count == 2
+            && ((Dictionary<string, object>)changes[0])["coords"].ToString() == "(1,1)"
+            && (bool)((Dictionary<string, object>)changes[0])["wouldQueueAlgaeSpawn"]
+            && (bool)((Dictionary<string, object>)changes[1])["wouldQueueAlgaeSpawn"],
+            "Island predicts native water-path AlgaeSpawn queue including origin, not just destination");
+        waterDestination.algae = true;
+        move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
+        changes = (IList)((Dictionary<string, object>)move["terrainEffects"])["tiles"];
+        Check(!(bool)((Dictionary<string, object>)changes[1])["wouldQueueAlgaeSpawn"],
+            "existing native Algae does not advertise duplicate spawn");
+        waterDestination.water = false;
+        move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
+        changes = (IList)((Dictionary<string, object>)move["terrainEffects"])["tiles"];
+        Check(!(bool)((Dictionary<string, object>)changes[1])["wouldQueueAlgaeSpawn"], "land does not queue algae");
+        int reads = waterDestination.TerrainReads;
+        waterDestination.revealed = false;
+        move = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(2,2)", "move" }));
+        changes = (IList)((Dictionary<string, object>)move["terrainEffects"])["tiles"];
+        Check(((Dictionary<string, object>)changes[1])["wouldQueueAlgaeSpawn"] == null
+            && ((Dictionary<string, object>)changes[1])["water"] == null && reads == waterDestination.TerrainReads,
+            "legal hidden destination discloses coordinate only, never hidden terrain or effect values");
+        Check(ship.unit.coordinates.x == 1 && !ship.algae && !ship.unit.moved,
+            "move terrain preview leaves live actor and terrain unchanged");
+        waterDestination.revealed = true; ship.unit.type = "Juggernaut";
         PathFinder.OverridePath = null;
         var refused = j.Deserialize<Dictionary<string, object>>((string)t.GetMethod("CompositeSnapshot").Invoke(null, new object[] { "1", "(3,3)", "move" }));
         Check(refused["status"].ToString() == "unavailable", "destination absent from native move menu is not advertised as a legal skill");

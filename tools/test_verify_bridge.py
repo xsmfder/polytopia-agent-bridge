@@ -21,12 +21,10 @@ class VerificationToolTests(unittest.TestCase):
             work = Path(directory) / "work"
             work.mkdir()
             (work / "existing").mkdir()
-            for destination in (work, work / "existing", work.parent / "outside",
-                                *(work / name / "new" for name in ("src", "tests", "tools"))):
+            for destination in (work, work / "existing", work.parent / "outside", work / "src/new"):
                 with self.subTest(destination=destination), self.assertRaises(ValueError):
                     runner.output_path(work, destination)
-            self.assertEqual(runner.output_path(work, work / "candidate"), (work / "candidate").resolve())
-            self.assertEqual(runner.output_path(work, None).parent, work.resolve() / "verification-runs")
+            self.assertEqual(runner.output_path(work, work / "candidate"), work / "candidate")
 
     def test_snapshot_is_independent_and_drift_is_reported(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -104,6 +104,8 @@ internal static class RewardOfferReadTests
 
         int reads = PopupManager.Reads;
         state.pendingCommandTriggers = null;
+        Check((string)Read(state)["status"] == "none" && PopupManager.Reads == reads, "known native null queue is empty without inspecting UI");
+        state.pendingCommandTriggers = new object();
         Check((string)Read(state)["status"] == "unavailable" && PopupManager.Reads == reads, "unreadable trigger list does not inspect UI");
         state.pendingCommandTriggers = new object[0];
         Check((string)Read(state)["status"] == "none" && PopupManager.Reads == reads, "known no triggers is distinct from unreadable");

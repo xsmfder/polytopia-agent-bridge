@@ -29,7 +29,7 @@ namespace PolytopiaAgent
             foreach (string candidate in Enum.GetNames(type))
                 if (string.Equals(candidate, name, StringComparison.OrdinalIgnoreCase))
                 { value = Enum.Parse(type, candidate); return true; }
-            return false;
+            return TryRegisteredRuleValue(type,name,out value);
         }
 
         private static bool TryActionBoolean(string text, bool defaultValue, out bool value)

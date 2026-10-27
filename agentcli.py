@@ -106,6 +106,11 @@ def main(argv=None, sdk_factory=PolytopiaSDK):
     dismiss = sub.add_parser("dismiss_resolved_reward")
     dismiss.add_argument("file", help="fresh observe JSON containing resolved RewardPopup")
     dismiss.add_argument("reward")
+    advance = sub.add_parser("advance_pending_popup", help="show the next owned native pending display once")
+    advance.add_argument("file", help="fresh observe JSON with binding")
+    resolve = sub.add_parser("resolve_pending", help="advance displays and original receipts; stop at reward choices")
+    resolve.add_argument("--timeout", type=float, default=10)
+    resolve.add_argument("--max-steps", type=int, default=24)
     sub.add_parser("handoff_status")
     handoff = sub.add_parser("watch_handoff")
     handoff.add_argument("--timeout", type=float, default=30)
@@ -178,6 +183,10 @@ def main(argv=None, sdk_factory=PolytopiaSDK):
                 response = sdk.leaderboard(args.mode)
             elif args.command == "notifications":
                 response = sdk.notifications(args.after, stream_id=args.stream, limit=args.limit)
+            elif args.command == "advance_pending_popup":
+                response = sdk.advance_pending_popup(expected_observation=_load(args.file))
+            elif args.command == "resolve_pending":
+                response = sdk.resolve_pending(timeout=args.timeout, max_steps=args.max_steps)
             elif args.command == "choose_popup":
                 response = sdk.choose_popup(args.index, expected_popup=_load(args.file)["popup"])
             elif args.command == "dismiss_resolved_reward":

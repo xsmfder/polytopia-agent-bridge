@@ -16,8 +16,8 @@ NAME = 'polytopia-agent-bridge-source'
 
 def source_bytes(work, tag):
     work = Path(work).resolve()
-    if not re.fullmatch(r'v\d+\.\d+\.\d+-beta\.[1-9]\d*', tag):
-        raise ValueError('Expected an explicit beta version tag')
+    if not re.fullmatch(r'v\d+\.\d+\.\d+(?:-beta\.[1-9]\d*)?', tag):
+        raise ValueError('Expected an explicit numeric or beta version tag')
     manifest_bytes = (work / 'release-manifest.json').read_bytes()
     manifest = json.loads(manifest_bytes.decode('utf-8'))
     if manifest.get('version') != tag[1:] or manifest.get('prerelease') is not True:
@@ -37,12 +37,12 @@ def source_bytes(work, tag):
 
 def release_notes(files, tag):
     base = 'https://github.com/xsmfder/polytopia-agent-bridge'
-    parts = [f'# {tag} — First public beta / 首个公开测试版\n',
+    parts = [f'# {tag} — Polytopia Agent Bridge\n',
              f'[中文安装说明]({base}/blob/{tag}/INSTALL.md) | '
              f'[English installation]({base}/blob/{tag}/INSTALL.en.md)\n',
-             'Download `polytopia-agent-bridge-source.zip` and its `.sha256` file. '
-             'This is a source distribution: install the official loader and build locally.\n',
-             '下载同名源码ZIP及SHA256文件；本包为源码发行，需要自行安装官方加载器并在本机构建。\n']
+             'Download `polytopia-agent-bridge-source.zip` and its `.sha256` file for the SDK/source. '
+             'The separately built `agent_bridge-'+tag[1:]+'.polymod` is the PolyMod runtime package.\n',
+             '源码ZIP含SDK与构建工具；PolyMod运行包为单独构建的同版本 `.polymod` 文件。安装官方加载器后按对应说明使用。\n']
     for name in ('CHANGELOG.md', 'CHANGELOG.en.md'):
         text = files[name].decode('utf-8')
         text = re.sub(r'\]\(([^)]+)\)', lambda m: '](' + (

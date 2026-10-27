@@ -43,7 +43,8 @@ namespace PolytopiaAgent
         {
             CombatUnitView original;
             return ticket != null && ticket.Before != null && ticket.Before.Complete && ticket.FinalFrame == null
-                && ticket.Accepted != false && (ticket.Action == "attack" || ticket.Action == "move" || ticket.Action == "disembark")
+                && ticket.Accepted != false && (ticket.Action == "attack" || ticket.Action == "move" || ticket.Action == "disembark"
+                    || ticket.Action == "explode" && ticket.Cymanti.ExplodeRootBound)
                 && owner == ticket.Before.Me && center == ticket.Coord && !string.IsNullOrEmpty(unitId)
                 && ticket.Before.Units.TryGetValue(ticket.UnitId ?? "", out original) && original.Owner == owner
                 && (unitId == original.Id || unitId == original.PassengerId);
@@ -94,6 +95,23 @@ namespace PolytopiaAgent
             catch { }
         }
 
+        internal static bool CRExplosionRootAttackChild(CombatTicket ticket,object action)
+        {
+            List<object> children;
+            return ticket!=null && ticket.Action=="explode" && ticket.Cymanti.ExplodeRootBound
+                && ticket.Cymanti.Children.TryGetValue("AttackAction",out children) && CRContainsNative(children,action);
+        }
+
+        internal static CombatUnitView CRKnownExplosionActor(CombatTicket ticket,object action,CombatUnitView projected)
+        {
+            if(ticket==null || ticket.Before==null || !ticket.Before.Complete || ticket.Accepted==false
+                || ticket.FinalFrame!=null || ticket.Action!="explode" || !ticket.Cymanti.ExplodeRootBound
+                || !(CRContainsNative(ticket.NativeAreaActions,action) || CRExplosionRootAttackChild(ticket,action)))return projected;
+            if(projected!=null && projected.Id==ticket.UnitId && projected.Owner==ticket.Before.Me)return projected;
+            CombatUnitView original;
+            return ticket.Before.Units.TryGetValue(ticket.UnitId??"",out original) && original.Owner==ticket.Before.Me ? original : projected;
+        }
+
         internal static bool CRAreaAttackMatches(CombatTicket ticket, object action, CombatUnitView actor,
             CombatUnitView target, string player, string coord)
         {
@@ -112,6 +130,8 @@ namespace PolytopiaAgent
                 || before.Me != ticket.Before.Me || after.Me != ticket.Before.Me) return false;
             CombatUnitView actor, victim, damaged;
             before.Units.TryGetValue(cause.ActorId ?? "", out actor);
+            if(actor==null && ticket.Action=="explode" && ticket.Cymanti.ExplodeRootBound
+                && CRContainsNative(ticket.NativeAreaActions,action))ticket.Before.Units.TryGetValue(ticket.UnitId??"",out actor);
             before.Units.TryGetValue(cause.TargetId ?? "", out victim);
             if (!CRAreaAttackMatches(ticket, action, actor, victim, cause.ActorOwner, coord)
                 || !after.Units.TryGetValue(victim.Id, out damaged) || damaged.Owner != victim.Owner || damaged.Coord != victim.Coord

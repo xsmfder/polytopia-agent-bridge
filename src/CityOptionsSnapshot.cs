@@ -549,7 +549,7 @@ namespace PolytopiaCityOps
                                 {
                                     if (u3 == null) { growthStatus = "partial"; continue; }
                                     string why;
-                                    string upgradeType = BridgeMod.EnumNameOfExpected(M(u3, "type"), unitEnum, out why);
+                                    string upgradeType = BridgeMod.EnumRuleIdentityOfExpected(M(u3, "type"), unitEnum, out why);
                                     if (upgradeType == null) { growthStatus = "partial"; continue; }
                                     int? cost = MI(u3, "cost");
                                     if (!cost.HasValue || cost.Value < 0) { cost = null; growthStatus = "partial"; }
@@ -1959,10 +1959,7 @@ namespace PolytopiaCityOps
         private static string PendingCityRewardJson(object gs, byte me, MethodInfo prodMod,
             int? parkScore, int? populationReward, int? resourceReward, List<string> reasons)
         {
-            object raw = null;
-            try { raw = M(gs, "pendingCommandTriggers"); }
-            catch (Exception) { raw = null; }
-            var list = raw == null ? null : AsList(raw);
+            var list = BridgeMod.ReadPendingCommandTriggers(gs);
             if (list == null)
             {
                 reasons.Add("pendingcommandtriggers-not-enumerable");

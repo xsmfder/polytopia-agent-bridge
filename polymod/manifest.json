@@ -1,0 +1,11 @@
+{
+  "id": "agent_bridge",
+  "name": "Polytopia Agent Bridge",
+  "description": "Local player-visible observation and native-action interface for AI agents. No game rules changed. / 面向 AI 代理的本地观察和原生动作接口，维护原版规则。",
+  "version": "0.4.0",
+  "authors": ["xsmfder", "Codex (OpenAI)", "DSH agent"],
+  "dependencies": [
+    {"id": "polytopia", "min": "2.17.3.16375", "max": "2.17.3.16375", "required": true}
+  ],
+  "client": true
+}

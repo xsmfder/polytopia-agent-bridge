@@ -17,7 +17,12 @@ namespace PolytopiaAgent
             internal string Id, Owner, Type, Coord, PassengerId, Effects, PublicInfo;
             internal int? Health, Promotion, Xp;
             internal bool? Moved, Attacked, CanMove, CanAttack;
-            internal string Signature() { return Id + ":" + Owner + ":" + Type + ":" + Coord + ":" + Health + ":" + Promotion + ":" + Xp + ":" + Moved + ":" + Attacked + ":" + CanMove + ":" + CanAttack + ":" + PassengerId + ":" + Effects + ":" + PublicInfo; }
+            internal bool? Frozen, AutoFreeze, FreezeArea, FreezeAttack;
+            internal bool? Infiltrate, DoubleAttack, Swarm, Explode, Eat, PoisonAttack;
+            internal bool? Poisoned, Swift;
+            internal string PoisonedAuthority, SwiftAuthority, Links;
+            internal string FrozenAuthority;
+            internal string Signature() { return Id + ":" + Owner + ":" + Type + ":" + Coord + ":" + Health + ":" + Promotion + ":" + Xp + ":" + Moved + ":" + Attacked + ":" + CanMove + ":" + CanAttack + ":" + PassengerId + ":" + Effects + ":" + PublicInfo + ":" + Frozen + ":" + Poisoned + ":" + Swift + ":" + Links; }
             internal string Json()
             {
                 return "{\"unitId\":" + CRQ(Id) + ",\"owner\":" + CRQ(Owner) + ",\"type\":" + CRQ(Type)
@@ -25,6 +30,10 @@ namespace PolytopiaAgent
                     + ",\"xp\":" + CRN(Xp) + ",\"moved\":" + CRB(Moved) + ",\"attacked\":" + CRB(Attacked)
                     + ",\"canMove\":" + CRB(CanMove) + ",\"canAttack\":" + CRB(CanAttack)
                     + ",\"passengerId\":" + CRQ(PassengerId) + ",\"effects\":" + (Effects ?? "null")
+                    + ",\"frozen\":" + CRB(Frozen) + ",\"frozenAuthority\":" + CRQ(FrozenAuthority)
+                     + ",\"poisoned\":" + CRB(Poisoned) + ",\"poisonedAuthority\":" + CRQ(PoisonedAuthority)
+                    + ",\"swift\":" + CRB(Swift) + ",\"swiftAuthority\":" + CRQ(SwiftAuthority)
+                    + ",\"relations\":" + (Links ?? "null")
                     + ",\"publicInfo\":" + (PublicInfo ?? "null") + "}";
             }
         }
@@ -35,6 +44,12 @@ namespace PolytopiaAgent
             internal bool Complete;
             internal readonly Dictionary<string, CombatUnitView> Units = new Dictionary<string, CombatUnitView>(StringComparer.Ordinal);
             // Own improvements only: an explored enemy city does not grant its later hidden owner.
+            internal readonly Dictionary<string, string> OwnTileStates = new Dictionary<string, string>(StringComparer.Ordinal);
+            internal readonly Dictionary<string, string> OwnBuildingStates = new Dictionary<string, string>(StringComparer.Ordinal);
+            internal readonly Dictionary<string, string> OwnResources = new Dictionary<string, string>(StringComparer.Ordinal);
+            // Same revealed public terrain roster as world.tiles; no map-wide ice counts.
+            internal readonly Dictionary<string, string> PublicTerrains = new Dictionary<string, string>(StringComparer.Ordinal);
+            internal readonly Dictionary<string, PublicFloodView> PublicFloodTiles = new Dictionary<string, PublicFloodView>(StringComparer.Ordinal);
             internal readonly Dictionary<string, string> OwnImprovements = new Dictionary<string, string>(StringComparer.Ordinal);
             // The own unit's public warning, never the hidden unit causing it.
             internal readonly Dictionary<string, string> OwnInvisibleThreatHints = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -45,6 +60,11 @@ namespace PolytopiaAgent
                 var p = new List<string>();
                 foreach (var u in Units.Values) p.Add("U=" + u.Signature());
                 foreach (var x in OwnImprovements) p.Add("I=" + x.Key + ":" + x.Value);
+                foreach (var x in OwnTileStates) p.Add("T=" + x.Key + ":" + x.Value);
+                foreach (var x in OwnBuildingStates) p.Add("B=" + x.Key + ":" + x.Value);
+                foreach (var x in OwnResources) p.Add("V=" + x.Key + ":" + x.Value);
+                foreach (var x in PublicTerrains) p.Add("P=" + x.Key + ":" + x.Value);
+                foreach (var x in PublicFloodTiles) p.Add("F=" + x.Key + ":" + x.Value.Json());
                 foreach (var x in OwnInvisibleThreatHints)
                 {
                     CombatUnitView own;
@@ -60,11 +80,12 @@ namespace PolytopiaAgent
         internal sealed class CombatCause
         {
             internal string ActionType, ActorId, ActorOwner, TargetCoord, TargetId, AppliedTrainType;
-            internal bool VisibleNativeAction;
+            internal bool VisibleNativeAction, NativeAttract;
         }
 
         internal sealed class CombatTicket
         {
+            internal readonly CymantiAlgaeBuildProof CymantiAlgaeBuild=new CymantiAlgaeBuildProof();
             internal long Id, RequestId, BeforeVersion, StartEvent;
             internal string Stream, Action, UnitId, Coord, Arg, BeforeFingerprint;
             internal CombatFrame Before;
@@ -96,6 +117,18 @@ namespace PolytopiaAgent
             internal readonly List<object> NativeBoostActions = new List<object>();
             internal readonly HashSet<string> NativeBoostTargets = new HashSet<string>(StringComparer.Ordinal);
             internal bool NativeRecoverObserved;
+            internal string NativeFloodBefore, NativeFloodAfter;
+            internal string NativeClearFloodBefore, NativeClearFloodAfter;
+            internal object NativeClearFloodAction;
+            internal string NativeCanalBefore, NativeCanalAfter;
+            internal bool NativeCanalBuildObserved;
+            internal readonly List<object> NativeCanalFloodActions = new List<object>();
+            internal bool NativeEnchantBuildObserved;
+            internal readonly List<object> NativeEnchantTrains = new List<object>();
+            internal CombatUnitView NativeEnchantedUnit;
+            internal readonly PolarisProof Polaris = new PolarisProof();
+            internal readonly CymantiProof Cymanti = new CymantiProof();
+            internal readonly CymantiDecomposeProof CymantiDecompose = new CymantiDecomposeProof();
             internal readonly List<object> NativeHealActions = new List<object>();
             internal readonly HashSet<string> NativeHealTargets = new HashSet<string>(StringComparer.Ordinal);
             internal RuinsObservation NativeRuins;
@@ -152,7 +185,7 @@ namespace PolytopiaAgent
             foreach (var name in CombatHookTypes)
             {
                 var type = FindGameType(name);
-                if (type == null || !actionBase.IsAssignableFrom(type)) { CRRegisterHookInstallation(name, "missing_type"); Log("combat hook: missing " + name); continue; }
+                if (!CRHookTargetAllowed(type,actionBase,FindGameType("CommandBase"))) { CRRegisterHookInstallation(name, "missing_type"); Log("combat hook: missing " + name); continue; }
                 var method = CRFindExecuteHook(type);
                 if (method != null)
                 {
@@ -325,9 +358,15 @@ namespace PolytopiaAgent
                         }
                     }
                     if (kind == "TrainAction") bound = CRContainsNative(t.NativeInfiltrationTrains, action)
-                        || CRRuinsEffectChildMatches(t, action, kind);
+                        || CRRuinsEffectChildMatches(t, action, kind) || CRContainsNative(t.NativeEnchantTrains, action);
                     if (kind == "ConvertAction") bound = CRConvertActorMatches(t, actor, target,
                         ownActor ? SafeScalar(MemberWithAccessor(action, "PlayerId")) : null, coord);
+                    if(kind=="AttackAction")
+                    {
+                        var explosionActor=CRKnownExplosionActor(t,action,actor);
+                        if(!object.ReferenceEquals(actor,explosionActor))
+                        {actor=explosionActor;c.ActorId=actor.Id;c.ActorOwner=actor.Owner;c.VisibleNativeAction=true;c.ActionType=kind;}
+                    }
                     if (kind == "AttackAction") bound = CRVisibleAttackActorMatches(t, actor, target,
                         ownActor ? SafeScalar(MemberWithAccessor(action, "PlayerId")) : null, coord)
                         || CRRetaliationMatches(t, actor, target, coord)
@@ -356,19 +395,61 @@ namespace PolytopiaAgent
                             c.VisibleNativeAction = true; c.ActionType = kind; c.TargetCoord = t.Coord;
                         }
                     }
+                    if (kind == "FloodTileAction") bound = CRFloodActionMatches(t, h._combatFrame, action)
+                        || CRCanalFloodActionMatches(t, h._combatFrame, action);
+                    if (kind == "BuildAction") bound = CRCanalActionMatches(t, h._combatFrame, action)
+                        || CREnchantBuildMatches(t, h._combatFrame, action);
+                    if (kind == "ClearTileEffectAction")
+                    {
+                        bound=CRBindClearFloodAction(t,h._combatFrame,action);
+                        if (bound)
+                        {
+                            c.ActorId=t.UnitId; c.ActorOwner=t.Before.Me;
+                            c.VisibleNativeAction=true; c.ActionType=kind; c.TargetCoord=t.Coord;
+                        }
+                    }
                     if (kind == "BoostOthersAction") bound = t.Action == "boost" && ownActor;
                     if (kind == "BoostAction") bound = t.Action == "boost" && (ownActor || CRContainsNative(t.NativeBoostActions, action));
                     if (kind == "HealOthersAction") bound = t.Action == "heal_others" && ownActor;
                     if (kind == "RecoverAction") bound = (t.Action == "recover" || t.Action == "heal_self") && ownActor;
                     if (kind == "HealAction") bound = ((t.Action == "recover" || t.Action == "heal_self") && ownActor)
                         || CRContainsNative(t.NativeHealActions, action);
+                    if (kind=="MoveAction" || kind=="FreezeAreaAction" || kind=="FreezeTileAction"
+                        || kind=="FreezeUnitAction" || kind=="BreakIceAreaAction" || kind=="BreakIceAction")
+                    {
+                        bound=h.PolarisBind(t,h._combatFrame,action,kind);
+                        if(bound && kind!="MoveAction")
+                        {
+                            c.ActorId=t.UnitId;c.ActorOwner=t.Before.Me;c.ActionType=kind;c.VisibleNativeAction=true;
+                            c.TargetCoord=kind=="FreezeUnitAction"?SafeScalar(MemberWithAccessor(action,"Target"))
+                                :SafeScalar(MemberWithAccessor(action,"Coordinates"));
+                        }
+                    }
+                    if(h.CymantiBind(t,h._combatFrame,action,kind))
+                    {
+                        bound=true;
+                        if(kind!="AttackAction" || t.Action=="explode")
+                        {
+                            c.ActorId=t.UnitId;c.ActorOwner=t.Before.Me;c.VisibleNativeAction=true;c.ActionType=kind;
+                            string knownTarget=kind=="PoisonUnitAction"?SafeScalar(MemberWithAccessor(action,"Target")):coord;
+                            if(knownTarget!=null && h._combatFrame.PublicTerrains.ContainsKey(knownTarget))c.TargetCoord=knownTarget;
+                        }
+                    }
+                    if(CymantiDecomposeBind(t,h._combatFrame,action,kind))
+                    {bound=true;c.ActorId=null;c.ActorOwner=t.Before.Me;c.ActionType=kind;c.VisibleNativeAction=true;c.TargetCoord=t.Coord;}
+                    if(CymantiAlgaeBuildBind(t,h._combatFrame,action,kind))
+                    {bound=true;c.ActorId=null;c.ActorOwner=t.Before.Me;c.ActionType=kind;c.VisibleNativeAction=true;c.TargetCoord=t.Coord;}
                     if (bound || rewardBound) __state.ProofTickets.Add(t);
                 }
                 bool rewardProof = false;
                 foreach (var ticket in __state.ProofTickets)
                     if (ticket.Action == "city_reward" || ticket.Action == "reward") rewardProof = true;
-                if (__state.ProofTickets.Count > 0 && (rewardProof || kind == "InfiltrateAction" || kind == "InfiltrationRewardAction" || kind == "BoostOthersAction" || kind == "HealOthersAction" || kind == "ExamineRuinsAction" || kind == "ScoutMoveAction"))
+                if (__state.ProofTickets.Count > 0 && (rewardProof || kind == "MoveAction" || kind == "FreezeAreaAction" || kind == "BreakIceAreaAction" || kind == "BuildAction" || kind == "InfiltrateAction" || kind == "InfiltrationRewardAction" || kind == "BoostOthersAction" || kind == "HealOthersAction" || kind == "ExamineRuinsAction" || kind == "ScoutMoveAction"))
                     __state.BeforeStackCount = CRStackCount(__0);
+                if(__state.ProofTickets.Count>0 && CymantiIsRoot(kind))
+                { __state.BeforeStackCount=CRStackCount(__0);h._cymantiActivePasses.Add(__state); }
+                if(__state.ProofTickets.Count>0 && (kind=="MoveAction" || kind=="FreezeAreaAction" || kind=="BreakIceAreaAction"))
+                    h._polarisActivePasses.Add(__state);
                 if (kind == "ResearchAction" && __state.ProofTickets.Count > 0)
                     __state.RuinsTechsBefore = h.CRReadRuinsOwnTechs(__0, h._combatFrame);
                 if (kind == "ExploreAction" && __state.ProofTickets.Count > 0)
@@ -392,6 +473,8 @@ namespace PolytopiaAgent
             pass.Closed = true;
             var h = _combatHookHost;
             if (h == null) return;
+            h._polarisActivePasses.Remove(pass);
+            h._cymantiActivePasses.Remove(pass);
             h._combatHookDepth = Math.Max(0, h._combatHookDepth - 1);
             if (h._combatCauseStack.Count > 0) h._combatCauseStack.RemoveAt(h._combatCauseStack.Count - 1);
             // A hook can enter in live play and close after a seek or seat transition.
@@ -428,6 +511,17 @@ namespace PolytopiaAgent
                         pass.Cause.AppliedTrainType = nativeType;
                     }
                 }
+                if (!failed && pass.CandidateKind == "CreateResourceAction"
+                    && CRAttractObserved(pass.Before, next, pass.Action))
+                {
+                    pass.Cause.ActionType = "CreateResourceAction";
+                    pass.Cause.TargetCoord = SafeScalar(MemberWithAccessor(pass.Action, "Coordinates"));
+                    pass.Cause.VisibleNativeAction = true;
+                    pass.Cause.NativeAttract = true;
+                    // Attract identifies the native reason, not an initiating unit or exact sanctuary.
+                    pass.Cause.ActorId = pass.Cause.ActorOwner = pass.Cause.TargetId = null;
+                }
+                if(!failed && next!=null && next.Complete)h.CymantiReconcileEatBoundary(pass,next);
                 h.CRObserve(next, failed ? null : pass.Cause);
                 if (!failed && next != null && next.Complete) h.CRRecordNativeProof(pass, next);
                 if (!failed) { try { h.PublicNativeActionComplete(pass.State, pass.Action, pass.CandidateKind); } catch { } }
@@ -497,12 +591,17 @@ namespace PolytopiaAgent
             var ruinsTechsAfter = pass.CandidateKind == "ResearchAction" ? CRReadRuinsOwnTechs(pass.State, after) : null;
             bool? ruinsExploredAfter = pass.CandidateKind == "ExploreAction" ? CRReadRuinsExplorerTile(pass.State, after, pass.Action) : null;
             List<object> appended = null;
+            if (pass.CandidateKind == "BuildAction") appended = CRAppendedActions(pass.State, pass.BeforeStackCount, "FloodTileAction");
             if (pass.CandidateKind == "InfiltrateAction") appended = CRAppendedActions(pass.State, pass.BeforeStackCount, "InfiltrationRewardAction");
             if (pass.CandidateKind == "InfiltrationRewardAction") appended = CRAppendedActions(pass.State, pass.BeforeStackCount, "TrainAction");
             if (pass.CandidateKind == "BoostOthersAction") appended = CRAppendedActions(pass.State, pass.BeforeStackCount, "BoostAction");
             if (pass.CandidateKind == "HealOthersAction") appended = CRAppendedActions(pass.State, pass.BeforeStackCount, "HealAction");
             foreach (var t in pass.ProofTickets)
             {
+                PolarisRecord(pass,after,t);
+                CymantiRecord(pass,after,t);
+                if(pass.CandidateKind=="DecomposeAction")CymantiDecomposeRecord(t,pass.Before,after,pass.Action);
+                if(pass.CandidateKind=="BuildAction")CymantiAlgaeBuildRecord(t,pass.Before,pass.Action);
                 CRRecordCityReward(pass, after, t);
                 if (t.Stream == _combatStream && pass.CandidateKind == "ExamineRuinsAction"
                     && CRRecordRuins(t, pass.Action, pass.Before, after, pass.Cause))
@@ -537,7 +636,10 @@ namespace PolytopiaAgent
                 if (t.Stream == _combatStream && pass.CandidateKind == "IncreasePopulationAction")
                     CRRecordRuinsPopulation(t, pass.Action, pass.Before, after);
                 if (t.Stream == _combatStream && pass.CandidateKind == "TrainAction")
+                {
                     CRRecordRuinsUnit(t, pass.Action, pass.Before, after);
+                    CRRecordEnchantedUnit(t, pass.Action, pass.Before, after);
+                }
                 if (t.Stream == _combatStream && pass.CandidateKind == "ScoutMoveAction")
                     CRRecordRuinsScout(t, pass.Action, pass.Before, after, pass.State, pass.BeforeStackCount);
                 if (t.Stream == _combatStream && pass.CandidateKind == "ExploreAction")
@@ -548,6 +650,23 @@ namespace PolytopiaAgent
                 if (pass.CandidateKind == "BoostOthersAction") t.NativeBoostActions.AddRange(appended);
                 if (pass.CandidateKind == "HealOthersAction") t.NativeHealActions.AddRange(appended);
                 if (pass.CandidateKind == "RecoverAction") t.NativeRecoverObserved = true;
+                if (t.Stream == _combatStream && pass.CandidateKind == "FloodTileAction")
+                {
+                    CRRecordFlood(t, pass.Action, pass.Before, after);
+                    CRRecordCanalFlood(t, pass.Action, pass.Before, after);
+                }
+                if (t.Stream == _combatStream && pass.CandidateKind == "BuildAction")
+                {
+                    CRRecordCanalChildren(t, pass.Action, pass.Before, after, appended);
+                    CRRecordCanal(t, pass.Action, pass.Before, after);
+                    if (CREnchantBuildMatches(t, pass.Before, pass.Action))
+                    {
+                        t.NativeEnchantBuildObserved = true;
+                        t.NativeEnchantTrains.AddRange(CRAppendedActions(pass.State, pass.BeforeStackCount, "TrainAction"));
+                    }
+                }
+                if (t.Stream == _combatStream && pass.CandidateKind == "ClearTileEffectAction")
+                    CRRecordClearFlood(t,pass.Action,pass.Before,after);
                 if (t.Stream == _combatStream && pass.CandidateKind == "AttackAction" && CRContainsNative(t.NativeAreaActions, pass.Action))
                     CRRecordAreaDamage(t, pass.Action, pass.Before, after, pass.Cause, pass.CandidateCoord,
                         SafeScalar(MemberWithAccessor(pass.Action, "Animation")));
@@ -638,8 +757,8 @@ namespace PolytopiaAgent
             if (before == null || after == null || before.Id != after.Id || before.Owner != after.Owner) return false;
             bool hp = before.Health.HasValue && after.Health.HasValue && after.Health > before.Health;
             bool poison = before.Effects != null && after.Effects != null
-                && before.Effects.IndexOf("\"Poison\"", StringComparison.Ordinal) >= 0
-                && after.Effects.IndexOf("\"Poison\"", StringComparison.Ordinal) < 0;
+                && before.Effects.IndexOf("\"Poisoned\"", StringComparison.Ordinal) >= 0
+                && after.Effects.IndexOf("\"Poisoned\"", StringComparison.Ordinal) < 0;
             return hp || poison;
         }
 
@@ -649,7 +768,7 @@ namespace PolytopiaAgent
             if (ticket == null || current == null || ticket.Action != "attack" || ticket.Before == null
                 || current.Episode != ticket.Before.Episode || current.Me != ticket.Before.Me
                 || !ticket.Before.Units.TryGetValue(ticket.UnitId ?? "", out cloak) || cloak.Owner != ticket.Before.Me
-                || !CRInfiltratingType(cloak.Type) || !ticket.NativeInfiltrateObserved || ticket.NativeInfiltrationRewards.Count == 0
+                || cloak.Infiltrate != true || !ticket.NativeInfiltrateObserved || ticket.NativeInfiltrationRewards.Count == 0
                 || ticket.NativeInfiltrationTrains.Count == 0) return false;
             foreach (var id in ticket.NativeInfiltrationSpawnIds)
             {
@@ -660,19 +779,14 @@ namespace PolytopiaAgent
             return false;
         }
 
-        // Both are actual types in this build's UnitData.Type enum (38 and 39).
-        // Boarding changes Cloak to Cloak_Boat; it does not remove the native infiltration role.
-        internal static bool CRInfiltratingType(string type)
-        { return type == "Cloak" || type == "Cloak_Boat"; }
-
         internal static bool CRInfiltrationActorMatches(CombatTicket ticket, CombatUnitView actor, string nativePlayerId, string targetCoord)
         {
             CombatUnitView before;
             return ticket != null && ticket.Action == "attack" && ticket.Accepted != false && ticket.FinalFrame == null
                 && ticket.Before != null && actor != null && actor.Id == ticket.UnitId && actor.Owner == ticket.Before.Me
-                && nativePlayerId == ticket.Before.Me && CRInfiltratingType(actor.Type)
+                && nativePlayerId == ticket.Before.Me && actor.Infiltrate == true
                 && ticket.Before.Units.TryGetValue(ticket.UnitId ?? "", out before) && before.Owner == ticket.Before.Me
-                && CRInfiltratingType(before.Type) && !string.IsNullOrEmpty(targetCoord) && targetCoord == ticket.Coord;
+                && before.Infiltrate == true && !string.IsNullOrEmpty(targetCoord) && targetCoord == ticket.Coord;
         }
 
         internal static bool CRInfiltrationRewardMatches(CombatTicket ticket, object reward, string nativePlayerId, string targetCoord)
@@ -768,7 +882,9 @@ namespace PolytopiaAgent
                 bool retainedAttack = survivor.Attacked == false && survivor.Health > 0
                     && CRPrimaryAttackDamageObserved(ticket, defender) && ticket.NativePrimaryAfter.Health == 0
                     && ticket.NativeAttackKilledIds.Contains(defender.Id) && !current.Units.ContainsKey(defender.Id);
-                return survivor.Owner == current.Me && (survivor.Attacked == true || retainedAttack) ? "survived" : "unknown";
+                bool doubleAttack = CRDoubleAttackConsumed(actor, survivor)
+                    && CRPrimaryAttackDamageObserved(ticket, defender);
+                return survivor.Owner == current.Me && (survivor.Attacked == true || retainedAttack || doubleAttack) ? "survived" : "unknown";
             }
             if (ticket.NativeAttackKilledIds.Contains(actor.Id)) return "died";
             // Both directions use the actual own passenger ID, never same-type/position guesses.
@@ -806,7 +922,9 @@ namespace PolytopiaAgent
             var defender = CRUnitAt(ticket.Before, ticket.Coord);
             if (!CRPrimaryAttackDamageObserved(ticket, defender)) return null;
             basis = "exact own native AttackAction damaged requested visible target; actorOutcome=" + outcome
-                + (survivor != null && survivor.Attacked == false ? "; attack flag remained false after matched primary damage to zero and target KillUnitAction" : "")
+                + (survivor != null && CRDoubleAttackConsumed(ticket.Before.Units[ticket.UnitId],survivor)
+                    ? "; own DoubleAttack consumed DoubleReady with matched primary damage; second attack remains available"
+                    : survivor != null && survivor.Attacked == false ? "; attack flag remained false after matched primary damage to zero and target KillUnitAction" : "")
                 + (outcome == "died" ? "; matched retaliation damage to zero and KillUnitAction observed" : "")
                 + (outcome == "disembarked" ? "; target KillUnitAction and original carrier passenger ID observed at requested destination" : "");
             return "confirmed";
@@ -868,6 +986,9 @@ namespace PolytopiaAgent
             var uf = UnitFilter;
             bool sig = uf.SignatureAvailable;
             int la = uf.LookupAttempted, at = uf.Attempted, sc = uf.Succeeded, fail = uf.Failed;
+            var rf = ResourceFilter;
+            bool rsig = rf.SignatureAvailable;
+            int rla = rf.LookupAttempted, rat = rf.Attempted, rsc = rf.Succeeded, rfail = rf.Failed;
             bool complete = true;
             try
             {
@@ -876,6 +997,8 @@ namespace PolytopiaAgent
                     if (tile == null || !gate.Explored(tile)) continue;
                     var coord = SafeScalar(MemberWithAccessor(tile, "coordinates"));
                     if (coord == null) { complete = false; continue; }
+                    string disclosedTerrain=SafeScalar(MemberWithAccessor(tile,"terrain"));
+                    if(disclosedTerrain!=null)f.PublicTerrains[coord]=disclosedTerrain;
                     bool filtered;
                     var u = TileUnitVisible(tile, gs, me.Id, out filtered);
                     if (!filtered) { complete = false; continue; }
@@ -887,6 +1010,26 @@ namespace PolytopiaAgent
                         v.Health = CRInt(MemberWithAccessor(u, "health"));
                         if (v.Id == null || v.Owner == null || v.Health == null) { complete = false; continue; }
                         v.PublicInfo = URPublicInfo(u, gs, URPanelData(u, gs), URHPCurrentBuildVerified(), null);
+                        bool owned=v.Owner==f.Me;
+                        string publicVisual=owned?null:URVisibleEffects(u,true,URHPCurrentBuildVerified());
+                        v.Frozen=owned?PolarisOwnFrozen(u):PolarisVisibleFrozen(publicVisual);
+                        v.FrozenAuthority=owned?"owned-native-effects":"visible-renderer-Frozen-particle";
+                        v.Poisoned=owned?CymantiOwnEffect(u,"Poisoned"):CymantiVisibleEffect(publicVisual,"Poisoned");
+                        v.Swift=owned?CymantiOwnEffect(u,"Swift"):CymantiVisibleEffect(publicVisual,"Swift");
+                        v.PoisonedAuthority=owned?"owned-native-effects":"visible-renderer-Poisoned-particle";
+                        v.SwiftAuthority=owned?"owned-native-effects":"visible-renderer-Swift-particle";
+                        if(owned)v.Links=CymantiOwnRelations(u);
+                        if(owned)
+                        {
+                            var unitData=URPanelData(u,gs);
+                            v.AutoFreeze=PolarisHasAbility(unitData,"AutoFreeze");
+                            v.FreezeArea=PolarisHasAbility(unitData,"FreezeArea");
+                            v.FreezeAttack=PolarisHasAbility(unitData,"Freeze");
+                            v.Infiltrate=PolarisHasAbility(unitData,"Infiltrate");
+                            v.DoubleAttack=PolarisHasAbility(unitData,"DoubleAttack");
+                            v.Swarm=PolarisHasAbility(unitData,"Swarm");v.Explode=PolarisHasAbility(unitData,"Explode");
+                            v.Eat=PolarisHasAbility(unitData,"Eat");v.PoisonAttack=PolarisHasAbility(unitData,"Poison");
+                        }
                         CRCaptureInvisibleHint(f, v, u, gs);
                         // Turn flags, effect internals, XP and passenger relationship are own-only.
                         if (v.Owner == f.Me)
@@ -913,7 +1056,26 @@ namespace PolytopiaAgent
                         }
                         f.Units[v.Id] = v;
                     }
-                    if (SafeScalar(MemberWithAccessor(tile, "owner")) != f.Me) continue;
+                    bool ownFloodTile = SafeScalar(MemberWithAccessor(tile, "owner")) == f.Me;
+                    bool ownUnitFloodTile = u != null && SafeScalar(MemberWithAccessor(u, "owner")) == f.Me;
+                    if (ownFloodTile || ownUnitFloodTile || (gate.HasVisible && gate.Visible(tile)))
+                    {
+                        var publicFlood = PublicFloodState(tile);
+                        if (publicFlood != null) f.PublicFloodTiles[coord] = publicFlood;
+                    }
+                    if (!ownFloodTile) continue;
+                    bool resourceFiltered;
+                    object visibleResource = TileResourceVisible(tile, gs, me.Id, out resourceFiltered);
+                    if (resourceFiltered)
+                    {
+                        string resourceType = visibleResource == null ? "none"
+                            : SafeScalar(MemberWithAccessor(visibleResource, "type"));
+                        if (resourceType != null) f.OwnResources[coord] = resourceType;
+                    }
+                    string aquaticState = AquaticTileState(tile);
+                    if (aquaticState != null) f.OwnTileStates[coord] = aquaticState;
+                    string buildingState=CymantiOwnedBuildingState(tile);
+                    if(buildingState!=null)f.OwnBuildingStates[coord]=buildingState;
                     var imp = MemberWithAccessor(tile, "improvement");
                     // Roads can be built on owned empty tiles, so their signature is recorded
                     // independently of the presence of a main improvement.
@@ -933,7 +1095,11 @@ namespace PolytopiaAgent
                     if (p != null && SafeScalar(MemberWithAccessor(p, "Id")) == f.Me) { f.Stars = SafeScalar(MemberWithAccessor(p, "Currency")); break; }
                 f.Complete = complete && uf.SignatureAvailable && gate.Errors == 0;
             }
-            finally { uf.SignatureAvailable = sig; uf.LookupAttempted = la; uf.Attempted = at; uf.Succeeded = sc; uf.Failed = fail; }
+            finally
+            {
+                uf.SignatureAvailable = sig; uf.LookupAttempted = la; uf.Attempted = at; uf.Succeeded = sc; uf.Failed = fail;
+                rf.SignatureAvailable = rsig; rf.LookupAttempted = rla; rf.Attempted = rat; rf.Succeeded = rsc; rf.Failed = rfail;
+            }
             return f;
         }
 
@@ -1074,6 +1240,50 @@ namespace PolytopiaAgent
                     result.Add("\"kind\":\"new_visible_unit\",\"generatedByAction\":"
                         + (CRTrainCauseMatchesUnit(cause, after.Units[id]) ? "true" : "null")
                         + ",\"before\":null,\"after\":" + after.Units[id].Json());
+            foreach (var tile in after.PublicFloodTiles)
+            {
+                PublicFloodView oldFlood;
+                if (before.PublicFloodTiles.TryGetValue(tile.Key, out oldFlood) && oldFlood.Json() != tile.Value.Json())
+                    result.Add("\"kind\":\"public_flood_state_changed\",\"coords\":" + CRQ(tile.Key)
+                        + ",\"before\":" + oldFlood.Json() + ",\"after\":" + tile.Value.Json());
+            }
+            foreach(var tile in after.PublicTerrains)
+            {
+                string previous;
+                if(before.PublicTerrains.TryGetValue(tile.Key,out previous) && previous!=tile.Value
+                    && (previous=="Ice" || tile.Value=="Ice"))
+                    result.Add("\"kind\":\"ice_terrain_changed\",\"coords\":"+CRQ(tile.Key)
+                        +",\"beforeTerrain\":"+CRQ(previous)+",\"afterTerrain\":"+CRQ(tile.Value));
+            }
+            foreach (var tile in after.OwnTileStates)
+            {
+                string oldTile;
+                if (before.OwnTileStates.TryGetValue(tile.Key, out oldTile) && oldTile != tile.Value)
+                    result.Add("\"kind\":\"own_tile_state_changed\",\"coords\":" + CRQ(tile.Key) + ",\"before\":" + oldTile + ",\"after\":" + tile.Value);
+            }
+            foreach (var resource in after.OwnResources)
+            {
+                string oldResource;
+                if (before.OwnResources.TryGetValue(resource.Key, out oldResource) && oldResource != resource.Value)
+                {
+                    bool attract = cause != null && cause.NativeAttract && cause.TargetCoord == resource.Key
+                        && oldResource == "none" && resource.Value == "Game";
+                    result.Add("\"kind\":" + CRQ(attract ? "animal_attracted" : "own_resource_changed")
+                        + ",\"coords\":" + CRQ(resource.Key) + ",\"before\":" + CRQ(oldResource)
+                        + ",\"after\":" + CRQ(resource.Value) + ",\"nativeReason\":" + CRQ(attract ? "Attract" : null)
+                        + ",\"exactSanctuaryCoord\":null");
+                }
+            }
+            foreach(var building in after.OwnBuildingStates)
+            {
+                string previous;before.OwnBuildingStates.TryGetValue(building.Key,out previous);
+                if(previous!=building.Value)result.Add("\"kind\":\"own_building_state_changed\",\"coords\":"+CRQ(building.Key)
+                    +",\"before\":"+(previous??"null")+",\"after\":"+building.Value);
+            }
+            foreach(var building in before.OwnBuildingStates)
+                if(!after.OwnBuildingStates.ContainsKey(building.Key) && after.OwnImprovements.ContainsKey(building.Key))
+                    result.Add("\"kind\":\"own_building_state_changed\",\"coords\":"+CRQ(building.Key)
+                        +",\"before\":"+building.Value+",\"after\":null");
             foreach (var imp in after.OwnImprovements)
             {
                 string old; before.OwnImprovements.TryGetValue(imp.Key, out old);
@@ -1427,7 +1637,44 @@ namespace PolytopiaAgent
                 CombatUnitView old, now;
                 t.Before.Units.TryGetValue(t.UnitId ?? "", out old); current.Units.TryGetValue(t.UnitId ?? "", out now);
                 string name = (t.Action ?? "").ToLowerInvariant();
+                if (name == "build" && t.Arg == "EnchantAnimal")
+                {
+                    confirmation = "unknown";
+                    basis = "animal resource consumption alone does not confirm enchantment; exact native TrainAction and newly created own unit required";
+                    if (CREnchantmentSettled(t, current))
+                    {
+                        confirmation = "confirmed";
+                        basis = "matched own EnchantAnimal BuildAction and its exact executed TrainAction; visible Game consumed and new own unit of actual native train type observed";
+                        actualAffected.Add("{\"role\":\"enchanted_animal\",\"before\":null,\"after\":" + t.NativeEnchantedUnit.Json() + "}");
+                    }
+                }
                 actualAffected.AddRange(CRAreaDamageJson(t));
+                string settledFlood;
+                PublicFloodView settledCanal;
+                PublicFloodView settledClear;
+                if (name == "clear_tile_effect" && t.Arg == "Flooded" && t.NativeClearFloodAfter != null
+                    && current.PublicFloodTiles.TryGetValue(t.Coord ?? "",out settledClear)
+                    && !settledClear.Flooded && settledClear.Json() == t.NativeClearFloodAfter)
+                {
+                    confirmation="confirmed"; basis="matched own ClearTileEffectAction for requested Flooded effect and own-unit terrain flooded true->false";
+                    actualAffected.Add("{\"role\":\"tile_terrain_effect\",\"coords\":"+CRQ(t.Coord)
+                        +",\"before\":"+t.NativeClearFloodBefore+",\"after\":"+t.NativeClearFloodAfter+"}");
+                }
+                if (name == "build" && t.Arg == "Canal" && t.NativeCanalAfter != null
+                    && current.PublicFloodTiles.TryGetValue(t.Coord ?? "", out settledCanal)
+                    && settledCanal.Flooded && settledCanal.Json() == t.NativeCanalAfter)
+                {
+                    confirmation = "confirmed"; basis = "matched own Canal native execution and correlated FloodTileAction; requested visible terrain flooded false->true";
+                    actualAffected.Add("{\"role\":\"tile_terrain_effect\",\"coords\":" + CRQ(t.Coord)
+                        + ",\"before\":" + t.NativeCanalBefore + ",\"after\":" + t.NativeCanalAfter + "}");
+                }
+                if (name == "flood" && t.NativeFloodAfter != null
+                    && current.OwnTileStates.TryGetValue(t.Coord ?? "", out settledFlood) && settledFlood == t.NativeFloodAfter)
+                {
+                    confirmation = "confirmed"; basis = "matched own FloodTileAction executed and requested owned tile terrain/effects changed";
+                    actualAffected.Add("{\"role\":\"tile_terrain_effect\",\"coords\":" + CRQ(t.Coord)
+                        + ",\"before\":" + t.NativeFloodBefore + ",\"after\":" + t.NativeFloodAfter + "}");
+                }
                 if ((name == "move" || name == "disembark") && old != null)
                 {
                     foreach (var u in current.Units.Values)
@@ -1470,7 +1717,7 @@ namespace PolytopiaAgent
                         actualAffected.Add("{\"before\":" + old.Json() + ",\"after\":" + now.Json() + "}"); }
                 }
                 if (CRInfiltrationConfirmed(t, current))
-                { confirmation = "confirmed"; basis = "named own native Cloak InfiltrateAction executed; exact appended InfiltrationRewardAction and TrainAction objects executed and their new own visible unit IDs/coordinates observed; no hidden city ownership inference"; }
+                { confirmation = "confirmed"; basis = "named own Infiltrate-capable unit's native InfiltrateAction executed; exact appended InfiltrationRewardAction and TrainAction objects executed and their new own visible unit IDs/coordinates observed; no hidden city ownership inference"; }
                 if (IsRuinsAction(t.Action))
                 {
                     confirmation = CRRuinsConfirmed(t,current) ? "confirmed" : "unknown";
@@ -1484,9 +1731,12 @@ namespace PolytopiaAgent
                     actualAffected.Add("{\"before\":" + convertedBefore.Json() + ",\"after\":" + current.Units[convertedBefore.Id].Json() + "}");
                 }
                 string diplomaticBasis;
+                string polarisBasis;
+                var polarisConfirmation=PolarisConfirmation(t,current,actualAffected,out polarisBasis);
+                if(polarisConfirmation!=null){confirmation=polarisConfirmation;basis=polarisBasis;}
                 var diplomaticConfirmation = PublicSettlementConfirmation(t.Id, gs, out diplomaticBasis);
                 if (diplomaticConfirmation != null) { confirmation = diplomaticConfirmation; basis = diplomaticBasis; }
-                if (name == "heal_others" || name == "boost")
+                if (name == "heal_others" || name == "boost" || name == "swarm")
                 {
                     bool readable = false;
                     foreach (var u in current.Units.Values)
@@ -1496,13 +1746,28 @@ namespace PolytopiaAgent
                         bool effect = false;
                         if (name == "heal_others" && (previous.Health.HasValue && u.Health.HasValue || previous.Effects != null && u.Effects != null))
                         { readable = true; effect = t.NativeHealTargets.Contains(u.Id) && CRHealingChanged(previous, u); }
-                        if (name == "boost" && previous.Effects != null && u.Effects != null && t.NativeVersion.HasValue)
+                        if ((name == "boost" || name == "swarm" && t.Cymanti.SwarmExecuted) && previous.Effects != null && u.Effects != null && t.NativeVersion.HasValue)
                         { readable = true; effect = t.NativeBoostTargets.Contains(u.Id) && CRBoostEffectAdded(previous.Effects, u.Effects, t.NativeVersion); }
                         if (effect) actualAffected.Add("{\"before\":" + previous.Json() + ",\"after\":" + u.Json() + "}");
                     }
                     confirmation = actualAffected.Count > 0 ? "confirmed" : readable ? "not_confirmed" : "unknown";
                     basis = name == "heal_others" ? "all own visible health increases or Poison removal linked to this native HealOthersAction's exact HealAction children"
-                        : "all own visible native effect additions linked to this native Boost/BoostOthers action; version >=115 requires Swift, older requires Boosted";
+                        : "own native effect additions linked to executed Boost/BoostOthers or SwarmCommand exact BoostAction children; current version requires Swift";
+                }
+            }
+            if(status=="complete" && current!=null)
+            {
+                actualAffected.AddRange(CymantiAffected(t,current));
+                string cymantiBasis;var cymantiConfirmation=CymantiConfirmation(t,current,out cymantiBasis);
+                if(cymantiConfirmation!=null){confirmation=cymantiConfirmation;basis=cymantiBasis;}
+                string algaeBasis;var algaeConfirmation=CymantiAlgaeBuildConfirmation(t,current,out algaeBasis);
+                if(algaeConfirmation!=null){confirmation=algaeConfirmation;basis=algaeBasis;}
+                string decomposeBasis;var decomposeConfirmation=CymantiDecomposeConfirmation(t,current,out decomposeBasis);
+                if(decomposeConfirmation!=null)
+                {
+                    confirmation=decomposeConfirmation;basis=decomposeBasis;
+                    if(confirmation=="confirmed")actualAffected.Add(new JsonObj().Str("role","owned_building_effect")
+                        .Str("coords",t.Coord).Raw("before",t.CymantiDecompose.Before).Raw("after",t.CymantiDecompose.After).Close());
                 }
             }
             var changes = current == null ? new List<string>() : CRDiff(t.Before, current, null);
@@ -1537,6 +1802,12 @@ namespace PolytopiaAgent
                 + ",\"nativeAreaHookInstalled\":" + (_combatAreaHookInstalled ? "true" : "false")
                 + ",\"ruinsOutcome\":" + (status == "complete" ? CRRuinsJson(t,current) : "null")
                 + ",\"cityRewardOutcome\":" + (status == "complete" ? CRCityRewardJson(t,current) : "null")
+                + ",\"canalOutcome\":" + (status == "complete" ? CRCanalOutcome(t) : "null")
+                + ",\"clearTileEffectOutcome\":" + (status == "complete" ? CRClearTileEffectOutcome(t) : "null")
+                 + ",\"cymantiOutcome\":" + (status == "complete" ? CymantiOutcome(t,current) : "null")
+                + ",\"cymantiDecomposeOutcome\":" + (status == "complete" ? CymantiDecomposeOutcome(t,current) : "null")
+                + ",\"cymantiAlgaeBuildOutcome\":" + (status == "complete" ? CymantiAlgaeBuildOutcome(t,current) : "null")
+                + ",\"polarisOutcome\":" + (status == "complete" ? PolarisOutcome(t,current) : "null")
                 + ",\"generationAssociation\":\"native TrainAction during tracked interval; inspect actor/target and events; absence is not proof of no spawn\"}";
         }
 

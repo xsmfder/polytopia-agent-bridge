@@ -13,6 +13,13 @@ namespace PolytopiaPublicMarkers
     internal sealed class PublicMarkerHooks
     {
         private static PublicMarkerHooks active;
+        internal void Detach()
+        {
+            installed=false;collector.Invalidate();
+            lastContext=null;lastRenderer=null;completedView=null;
+            if(object.ReferenceEquals(active,this))active=null;
+        }
+
         private readonly Reader.Collector collector;
         private readonly NativeView views;
         private readonly Func<object, string> episodeOf;

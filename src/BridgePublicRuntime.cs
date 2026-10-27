@@ -762,6 +762,7 @@ namespace PolytopiaAgent
             PublicPopupTexts(MemberWithAccessor(go, "transform"), "", 0, texts, ref budget);
             o.Raw("visibleTexts", texts.Close()).Bool("truncated", budget <= 0);
             o.Raw("buttons", PopupButtonsFor(popup));
+            if (popup.GetType().Name == "RewardPopup") o.Raw("rewardDisplay", RewardDisplayPublic(popup));
             o.Str("textAuthority", "current native UI text controls, already localized; no popup callback invoked");
             o.Str("actualRewardsAuthority", "use city_options.pendingCityReward/reward effects and settled action state; notification text alone is not an effect confirmation");
             return o.Close();

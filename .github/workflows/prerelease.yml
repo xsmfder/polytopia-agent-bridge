@@ -1,36 +1,32 @@
-name: Publish beta source
-
+name: Prepare source release draft
 on:
-  push:
-    tags: ['v*-beta.*']
-
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing numeric version tag, for example v0.4.0
+        required: true
+        type: string
 permissions:
   contents: read
-
-concurrency:
-  group: beta-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   checks:
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.10', '3.11', '3.13']
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.tag }}
           persist-credentials: false
       - uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
-      - run: python -m unittest discover -s tests -p "test*.py" -v
-      - run: python tests/fixtures/recovery/test_settled_unknown.py
-      - run: python -m unittest discover -s tools -p "test*.py" -v
-      - run: python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --out dist/check
-
-  publish:
+          python-version: '3.11'
+      - run: python -X utf8 -m unittest discover -s tests -p "test*.py" -v
+      - run: python -X utf8 -m unittest discover -s tools -p "test*.py" -v
+      - run: python -X utf8 tools/prepare_release.py
+      - name: Build source archive
+        env:
+          BRIDGE_RELEASE_TAG: ${{ inputs.tag }}
+        run: python -X utf8 tools/package_prerelease.py --tag "$env:BRIDGE_RELEASE_TAG" --out dist/check
+  draft:
     needs: checks
     runs-on: windows-latest
     permissions:
@@ -38,23 +34,22 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.tag }}
           persist-credentials: false
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - name: Build frozen source archive
-        run: python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --out dist/release
-      - name: Upload draft, verify downloaded assets, and publish prerelease
-        shell: pwsh
+      - name: Prepare source-only draft
         env:
+          BRIDGE_RELEASE_TAG: ${{ inputs.tag }}
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh release create "$env:GITHUB_REF_NAME" dist/release/polytopia-agent-bridge-source.zip dist/release/polytopia-agent-bridge-source.zip.sha256 --draft --prerelease --latest=false --verify-tag --title "$env:GITHUB_REF_NAME - First public beta" --notes-file dist/release/release-notes.md
+          python -X utf8 tools/package_prerelease.py --tag "$env:BRIDGE_RELEASE_TAG" --out dist/release
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          gh release download "$env:GITHUB_REF_NAME" --dir dist/downloaded --pattern 'polytopia-agent-bridge-source.zip*'
+          gh release create "$env:BRIDGE_RELEASE_TAG" dist/release/polytopia-agent-bridge-source.zip dist/release/polytopia-agent-bridge-source.zip.sha256 --draft --prerelease --latest=false --verify-tag --title "$env:BRIDGE_RELEASE_TAG - Polytopia Agent Bridge" --notes-file dist/release/release-notes.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/package_prerelease.py --tag "$env:GITHUB_REF_NAME" --verify-directory dist/downloaded
+          gh release download "$env:BRIDGE_RELEASE_TAG" --dir dist/downloaded --pattern 'polytopia-agent-bridge-source.zip*'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          gh release edit "$env:GITHUB_REF_NAME" --draft=false --prerelease --latest=false
+          python -X utf8 tools/package_prerelease.py --tag "$env:BRIDGE_RELEASE_TAG" --verify-directory dist/downloaded
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

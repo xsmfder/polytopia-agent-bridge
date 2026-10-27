@@ -156,5 +156,19 @@ internal static class AreaSettlementTests
         Check(((IList)reply["actualAffectedUnits"]).Count==2,"final settlement includes both exact executed area actions");
         Check((string)reply["effectConfirmation"]!="confirmed","collateral damage alone cannot confirm main attack");
         Check(((string)reply["actualAffectedUnitsCoverage"]).Contains("partial"),"receipt declares coverage limits");
+        var explosion=Ticket(h,ep);explosion.Action="explode";explosion.Coord="(1,1)";explosion.Cymanti.ExplodeRootBound=true;
+        var explosionAttack=new AttackAction();explosion.NativeAreaActions.Add(explosionAttack);
+        var targetFallback=explosion.Before.Units["9"];
+        var restored=BridgeMod.CRKnownExplosionActor(explosion,explosionAttack,targetFallback);
+        Check(restored.Id=="7" && restored.Owner=="2","exact own explosion child overrides a defender incorrectly projected as actor");
+        Check(ReferenceEquals(BridgeMod.CRKnownExplosionActor(explosion,new AttackAction(),targetFallback),targetFallback),
+            "unrelated attack cannot borrow the consumed own actor");
+        explosion.Cymanti.ExplodeRootBound=false;
+        Check(ReferenceEquals(BridgeMod.CRKnownExplosionActor(explosion,explosionAttack,targetFallback),targetFallback),
+            "unbound explosion root does not replace a real visible actor");explosion.Cymanti.ExplodeRootBound=true;
+        var consumedBefore=Clone(explosion.Before);consumedBefore.Units.Remove("7");
+        var explosionAfter=Clone(consumedBefore);explosionAfter.Units["9"]=Unit("9","3","(3,2)",70);
+        Check(BridgeMod.CRRecordAreaDamage(explosion,explosionAttack,consumedBefore,explosionAfter,Cause(),"(3,2)","Splash"),
+            "known consumed actor and exact native area child prove deferred explosion HP damage");
     }
 }

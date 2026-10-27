@@ -14,8 +14,8 @@
     },
     {
       "path": ".github/workflows/prerelease.yml",
-      "sha256": "8563325f3a13e92c01caa438bfb8f742e510e69dcf6babc232f6898da48e90d2",
-      "bytes": 2286
+      "sha256": "53025cca059c10e2b8a4ba4649c132420c1f9a89d0afdb3d939bb6ad776c9b2d",
+      "bytes": 2339
     },
     {
       "path": ".gitignore",
@@ -24,43 +24,43 @@
     },
     {
       "path": "CHANGELOG.en.md",
-      "sha256": "07d31fc07b76012505d62e0a0b7c76bb8c15e5d73aa6ab61ba228206b894bc89",
-      "bytes": 2506
+      "sha256": "b3addb5d8dbba99d6fe56375a8b4fcee3e3433b6bec286e0cbfb6b279332de1b",
+      "bytes": 4466
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "242a257b615af9d3b4a727181dc165647a62f69764d373738054e8b94687c9b6",
-      "bytes": 2062
+      "sha256": "54fdbc6d380fd898cab54d7086e13952770c287b5a798a05359700840d3c27a2",
+      "bytes": 3695
     },
     {
       "path": "COMPATIBILITY.en.md",
-      "sha256": "ccad8736f2782a7a37766d0817e224b3f16ce4727d57592638bb5faacb53ba6c",
-      "bytes": 17602
+      "sha256": "38bb082df02ef0f3972373735eaee6f65b9e8c3416f3ee0f47273d0172cae94b",
+      "bytes": 3747
     },
     {
       "path": "COMPATIBILITY.md",
-      "sha256": "fea87bb604c09d9e393d74e0be3fa5d60498fb0b4117be16f8562d5707d28476",
-      "bytes": 18041
+      "sha256": "4401a30af796e049ddef21c616cd5a946e6d47889df47fc3b59aced844a6c8fb",
+      "bytes": 3316
     },
     {
       "path": "CONTRIBUTING.en.md",
-      "sha256": "a716e4233af4400655e5edc5b37deb00edb751d5c1d44c5a4202de848606a232",
-      "bytes": 1941
+      "sha256": "504a3a374bf1a70b361f825ad29dd2900b634c1c909218d9346a1208203146d6",
+      "bytes": 2233
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "95ce39284087e4c141ac69ac608ed4685e8a9fa45531fc551b848179e7fad0a7",
-      "bytes": 1654
+      "sha256": "4d752de6a788220657ca8db09a5a535211d3892e1af561e09e65ffabce18914f",
+      "bytes": 1910
     },
     {
       "path": "INSTALL.en.md",
-      "sha256": "5dc625475297e68e2bc77be66dc1cab0f03ffb2dcb55946e2c46a4e7b752bba8",
-      "bytes": 9687
+      "sha256": "bad8008b72edba5df3f1831214febe2cfddf80b3ab1705436615bbb5f1b42e2a",
+      "bytes": 4957
     },
     {
       "path": "INSTALL.md",
-      "sha256": "d6944a588fd87fc42bd05b4f586fec6305043601128890c31b75bee5caca4a48",
-      "bytes": 9022
+      "sha256": "7ac9aed34e80ddacf0a93e6b65bb833b6851098f652251e4f6e766facfe2cb0b",
+      "bytes": 4880
     },
     {
       "path": "LICENSE",
@@ -68,49 +68,74 @@
       "bytes": 1119
     },
     {
+      "path": "POLYMOD_PUBLISH.en.md",
+      "sha256": "c421560d00b91a8aced28b407d155772cdd2b1835d4ce395c28b3fd705c60d25",
+      "bytes": 3731
+    },
+    {
+      "path": "POLYMOD_PUBLISH.md",
+      "sha256": "f9fc93da2fdd8c76c1be6156b09c26d170ce077a7d6fe0f42f92591b56bd7a2b",
+      "bytes": 3473
+    },
+    {
       "path": "README.en.md",
-      "sha256": "aa9b97c9a57a9232b3406b419977dced552406a0fe4536f72b9290ce5b80fc6a",
-      "bytes": 9628
+      "sha256": "6a81fb6f938ff1f8cde7022b6ee59261423c16944a7f440eeb4471d48e0c2e98",
+      "bytes": 4541
     },
     {
       "path": "README.md",
-      "sha256": "c5e56e9a7e379de7d20b14f20e588317f71075ab038fe0e22cb0b00cf3c2b34e",
-      "bytes": 8698
+      "sha256": "ff287e1dabb27d8f6d13f897e68ac6d55fdc050d2cd1bffdcd89b3b52a0f0c4e",
+      "bytes": 4005
     },
     {
       "path": "RELEASE_CHECKLIST.en.md",
-      "sha256": "6cc0f0650ab8d1d286eff9da301da8aee27eda8887b57af6620ba21a86490a78",
-      "bytes": 5219
+      "sha256": "4bd1d40101965353d7e6a810ff0ff4a4d036bcbdd79eff63439b21d254f2e0c9",
+      "bytes": 2179
     },
     {
       "path": "RELEASE_CHECKLIST.md",
-      "sha256": "b61af14659338403ce31a23b6b1090c88b7a37b473603e5883f99e5bb4e9113c",
-      "bytes": 5655
+      "sha256": "b61b6a13e631990f805a0eb668cfa43d4a0d2010f69ab53c011d493a7c0adf8c",
+      "bytes": 2025
+    },
+    {
+      "path": "RELEASE_NOTES.en.md",
+      "sha256": "48bc1aad4faaf8a9ec02b8b9e6ea94518294e5ff5cdec2bd7f93b309e2ed246c",
+      "bytes": 1920
+    },
+    {
+      "path": "RELEASE_NOTES.md",
+      "sha256": "7a078ddd1826a0279efcff9bdb3894e2a0f8ba8a0b8e4b740dfe757e72ca3229",
+      "bytes": 1624
     },
     {
       "path": "SOURCE_PROVENANCE.en.md",
-      "sha256": "0faab82a35b932f3afef220ecd49ed0d918c78559fa29309b813599fab44fe4b",
-      "bytes": 3456
+      "sha256": "d94dfdd501dfc1e20576e9d9f04b2e2b1e08c6b4090792d8ffb2e7897041e960",
+      "bytes": 2052
     },
     {
       "path": "SOURCE_PROVENANCE.md",
-      "sha256": "81be9e9ee9d289bfc9409d339826471489786156b920a59956abaffa506caa11",
-      "bytes": 2903
+      "sha256": "3d6ed9d7e445e0f8c37db07a69bc370ed3826c74fc16309d24257ecb847bc2d4",
+      "bytes": 1811
     },
     {
       "path": "USAGE.en.md",
-      "sha256": "83194957a6a16060d23219026028cae4379d45ef0c5803200b732ad9455e0a3b",
-      "bytes": 9200
+      "sha256": "88dcae27f12a2c9ad4f484c1d08725f5581512d935f08a4c8df3cf2f1294d502",
+      "bytes": 5334
     },
     {
       "path": "USAGE.md",
-      "sha256": "8935daf04e803e2a2dbce46973e6d4c8b0e4c4b2a204c7df0b40488ae43e0867",
-      "bytes": 8703
+      "sha256": "58bcf08de5a0c949f1e167763cd75728d917a9141de612af5d7f23949eafb032",
+      "bytes": 5096
+    },
+    {
+      "path": "VERSION",
+      "sha256": "40b8eb4000a913a7791090535f291d3d369874162a89ef3c9e3d4e887a1b9e79",
+      "bytes": 6
     },
     {
       "path": "agentcli.py",
-      "sha256": "b28e023edf7c85b83fc87c49bc76c0045b393b79d700bc11e072cd4c9b06d462",
-      "bytes": 13085
+      "sha256": "2b2c96093d29472c5bc4ab8d2b236e32ce7a3bfffd1115d8251f2a285938d223",
+      "bytes": 13817
     },
     {
       "path": "bridge_transport.py",
@@ -129,13 +154,18 @@
     },
     {
       "path": "observation.py",
-      "sha256": "aa25d2ed03fd57f6c40f241cc2de0eecfb96da2daa3b5ea348a2254b2ea47dab",
-      "bytes": 49791
+      "sha256": "c94f3b88784bd47b17d2862da83d283a9ea032702bbc7131c763164b8ebba932",
+      "bytes": 69483
+    },
+    {
+      "path": "polymod/manifest.json",
+      "sha256": "0151560fd820202a85abdea6ef3fd04a44518eabae4bfe39506ada86cb492a05",
+      "bytes": 471
     },
     {
       "path": "sdk.py",
-      "sha256": "05aaab400bef322559610a9ca3f74846b1ad4fc8a8c6eb66c402a5fd89e762b8",
-      "bytes": 90835
+      "sha256": "984292a4bbc6f1c5c60ffc663b83a92771956ef61ef3f763c06e84ff53cbecc1",
+      "bytes": 101513
     },
     {
       "path": "sdk_candidates.py",
@@ -159,8 +189,8 @@
     },
     {
       "path": "sdk_values.py",
-      "sha256": "dbe077bf8ca50a2294c6023b7df09e0657205c15173f8bf25f3e8f618bd95b43",
-      "bytes": 1673
+      "sha256": "4a4bd8a201bf0ac68a3e6ab27307a16fcdfece8086b3c29f4c5ee36c5d47c396",
+      "bytes": 2318
     },
     {
       "path": "sightings.py",
@@ -174,8 +204,8 @@
     },
     {
       "path": "src/BattlePreviewSnapshot.cs",
-      "sha256": "950f5c8c24abdad870c1154607766b6e06c417c815f733950cf9108742d0959d",
-      "bytes": 38320
+      "sha256": "2ad3e875f28e95a3b4ed87222b599c048c191f103f5adc03ab2f1804d044a823",
+      "bytes": 42422
     },
     {
       "path": "src/BridgeActionReplyRuntime.cs",
@@ -183,9 +213,14 @@
       "bytes": 3700
     },
     {
+      "path": "src/BridgeAquaticRuntime.cs",
+      "sha256": "37be9d73c97a1d950a1eb7ea16abd9aaf7ce1abfc78e51d73824d7235f0577bc",
+      "bytes": 30694
+    },
+    {
       "path": "src/BridgeAreaSettlementRuntime.cs",
-      "sha256": "c9d3f7cb1775485eb5ad51cc3157f2af5ab3f9bb4937c365447859900993eb05",
-      "bytes": 8461
+      "sha256": "050e64b33f47c016cce22beec7671ccb40ad811bc50a2d221c287a618c3c8934",
+      "bytes": 9916
     },
     {
       "path": "src/BridgeBuildingRuntime.cs",
@@ -199,13 +234,13 @@
     },
     {
       "path": "src/BridgeCollectionRuntime.cs",
-      "sha256": "9f9b1c5b9a2adaffda4cde1c39f08df37dc78427971def7355613f24c5a59946",
-      "bytes": 5341
+      "sha256": "afb4d175a77f9422b268b6c84a804d9c57fa035efab90ea0d5effe64534124ba",
+      "bytes": 5950
     },
     {
       "path": "src/BridgeCombatRuntime.cs",
-      "sha256": "e3bc7275253a467b212cfb9b61534c37fb7c464dbe9c47013ba642a6c8ddd64c",
-      "bytes": 112914
+      "sha256": "fb4899c4c906f06a56b35a6e42126acca0bba6ad6efe71ec3b522e74f7fef1df",
+      "bytes": 133529
     },
     {
       "path": "src/BridgeCommandInvocation.cs",
@@ -216,6 +251,41 @@
       "path": "src/BridgeCoordinateRuntime.cs",
       "sha256": "70540ed6f3f9c7cf25adb1ff07b516e83bc95c27032e6fdd46a34058266fbb9a",
       "bytes": 5033
+    },
+    {
+      "path": "src/BridgeCymantiAlgaeBuildRuntime.cs",
+      "sha256": "d6d6ac61a729c68ff1d1914d9d28853c5a6b841f866e04fdf2531bc3b9bd217d",
+      "bytes": 4755
+    },
+    {
+      "path": "src/BridgeCymantiAlgaeRuntime.cs",
+      "sha256": "0ded0dbead91115777c0079b51c0aed229f40466c5b7ad6789b5c11aa23fbf49",
+      "bytes": 989
+    },
+    {
+      "path": "src/BridgeCymantiDecomposeRuntime.cs",
+      "sha256": "0fb902e379cd6b6721a0901d42836dfb6f263bd2d1cd8a03b39d94eba62996f0",
+      "bytes": 10785
+    },
+    {
+      "path": "src/BridgeCymantiEatRuntime.cs",
+      "sha256": "f2381e8a6d40a05d80fa7dc08d3257671af9950d4345a7713a9760bb17a21aea",
+      "bytes": 4910
+    },
+    {
+      "path": "src/BridgeCymantiProofRuntime.cs",
+      "sha256": "416cae9c9027731a243a665929218466e308c16874e9ed64d8a12865a150cdc8",
+      "bytes": 24496
+    },
+    {
+      "path": "src/BridgeCymantiPublicRuntime.cs",
+      "sha256": "5fce97460efe71ea268781d3f3111ded60b7d191b34eac379cc3454b237dc7cf",
+      "bytes": 6031
+    },
+    {
+      "path": "src/BridgeCymantiRuntime.cs",
+      "sha256": "dd124c5e6e1609e7d2b1db48dfc2a71f5e88d8c1523aa13994b875095999a316",
+      "bytes": 1150
     },
     {
       "path": "src/BridgeDiplomacyDetails.cs",
@@ -233,9 +303,14 @@
       "bytes": 5279
     },
     {
+      "path": "src/BridgeElyrionRuntime.cs",
+      "sha256": "dd69b50d7e729e629e909ce122ef29bdfbbb9820619dce2dd7427945edf91848",
+      "bytes": 4134
+    },
+    {
       "path": "src/BridgeEventCoverage.cs",
-      "sha256": "b830d1eaad3d9fe018d71004c4f62c66ba9224b8b89bffc43df5c0ced63b64cc",
-      "bytes": 5129
+      "sha256": "894f996eb86fb73f064728f6ade6467d3c44cf8b846f69bbf77140a693017ea8",
+      "bytes": 5434
     },
     {
       "path": "src/BridgeFrameTimingRuntime.cs",
@@ -246,6 +321,11 @@
       "path": "src/BridgeGameLifecycleRuntime.cs",
       "sha256": "a180bee5d3dfc7613af1574c9223237d9f81e3af066fdb91f96f1540f4bda47f",
       "bytes": 18048
+    },
+    {
+      "path": "src/BridgeHostRuntime.cs",
+      "sha256": "47897001eee1f3241942c99a047267f9195dbe4c0f996cb663e0bce8c8a69dcc",
+      "bytes": 5005
     },
     {
       "path": "src/BridgeHotseatResumeRuntime.cs",
@@ -268,9 +348,14 @@
       "bytes": 2975
     },
     {
+      "path": "src/BridgeMelonEntry.cs",
+      "sha256": "e78b998b45d1b01f8f0759b8a09313d1fc0405f5b4bf91c927b60e758a61a7cf",
+      "bytes": 739
+    },
+    {
       "path": "src/BridgeMod.cs",
-      "sha256": "aaa84514e91e78e74ba271476520a4831eee126ce00f70fcaf24c532706dab4a",
-      "bytes": 466154
+      "sha256": "28b55a6d13a384b2c33d17032e78ed86cc5ac12a851f14b4aef0c20438933413",
+      "bytes": 471169
     },
     {
       "path": "src/BridgeNativeCastRuntime.cs",
@@ -286,6 +371,16 @@
       "path": "src/BridgePerformanceRuntime.cs",
       "sha256": "3ae85dbc3efb99576599fcda8335fbf1826507e874520c8b936fab8173b7990e",
       "bytes": 19703
+    },
+    {
+      "path": "src/BridgePolarisRuntime.cs",
+      "sha256": "cc6371989c6947a597b4e59824f38268fa2862fd58f974e1eba3455baace8af7",
+      "bytes": 21013
+    },
+    {
+      "path": "src/BridgePolyModEntry.cs",
+      "sha256": "59eeada3dec43c4527a0aca29e1f0cf73f746a8002a03917c6deb970a71934d3",
+      "bytes": 2454
     },
     {
       "path": "src/BridgePopupReadRuntime.cs",
@@ -314,8 +409,8 @@
     },
     {
       "path": "src/BridgePublicRuntime.cs",
-      "sha256": "94902edcb25b48d27018dde48a52d2efd9ac74a2435413e1cbdd5467253f6b31",
-      "bytes": 51958
+      "sha256": "7f5c03458e141dccf5ce36c45a961f20bc3fb18de334b527d1c3c1cf28b53924",
+      "bytes": 52066
     },
     {
       "path": "src/BridgeReadDiagnostics.cs",
@@ -334,13 +429,18 @@
     },
     {
       "path": "src/BridgeReflectionRuntime.cs",
-      "sha256": "9c3e6d3c6c6070feaf7fbfd00cb88cbe316b4d728ffaa4ed3197aca0e6d111e4",
-      "bytes": 33259
+      "sha256": "36f4fa7ca23178d7a13c5d9405614c44b6f5aabb0bd8b6b02aa81ed6495ec297",
+      "bytes": 33992
+    },
+    {
+      "path": "src/BridgeRegisteredRules.cs",
+      "sha256": "b39edad249d63e02eb761bf0f68b462858a8ef68842230b5a99fea85717149ca",
+      "bytes": 4801
     },
     {
       "path": "src/BridgeRequestContext.cs",
-      "sha256": "465f75eddb29543581e933de3127ea19314a7902d73250ba1ebe4f756e92fbd1",
-      "bytes": 7973
+      "sha256": "d992c6b81bd0c78be00065bf8ed2815d1a45b854e1e5eb99de4a20386b0aebcd",
+      "bytes": 8147
     },
     {
       "path": "src/BridgeResolverRuntime.cs",
@@ -354,8 +454,8 @@
     },
     {
       "path": "src/BridgeRewardUiRuntime.cs",
-      "sha256": "337667cb9e1e5f72be849825d39f9fcb40b4fcce6a0b3c30d5e3ca0eee46792c",
-      "bytes": 3925
+      "sha256": "e33ee43a5dfbb79162691f6e4743fd8197468f8987e17c81ebdd718dd5a6acc8",
+      "bytes": 7197
     },
     {
       "path": "src/BridgeRuinsEffects.cs",
@@ -379,8 +479,8 @@
     },
     {
       "path": "src/BridgeSetupAdminRuntime.cs",
-      "sha256": "d0df44977954cf5817f47af7a85b22c143a300b5daec98e69a3ff5a8133014a3",
-      "bytes": 23582
+      "sha256": "ac572c3d0358b7df011f8cc69a937f391efc95d3f86c3c416666252e31ac981c",
+      "bytes": 26472
     },
     {
       "path": "src/BridgeSetupRuntime.cs",
@@ -393,9 +493,19 @@
       "bytes": 4365
     },
     {
+      "path": "src/BridgeTrainingSitesRuntime.cs",
+      "sha256": "e8a9086b28756118895b2131509b980aaf3adf285285758584c9940d33251318",
+      "bytes": 3106
+    },
+    {
       "path": "src/BridgeTransportRuntime.cs",
       "sha256": "7d5df30ada0180ebacbeca9a7127c0c6c34dbf2e0bb4d9b7c9933ee12e598806",
       "bytes": 24814
+    },
+    {
+      "path": "src/BridgeUnitGrowthRuntime.cs",
+      "sha256": "4fe378a509fa6cb68a0ae7bad7f003617a5f1beccf7ab19c8d2c6fa5dee9dafc",
+      "bytes": 3885
     },
     {
       "path": "src/BridgeUnitPanelRuntime.cs",
@@ -404,13 +514,18 @@
     },
     {
       "path": "src/BridgeUnitRuntime.cs",
-      "sha256": "8c181238edfb05601a6a86a47dda122052dacf334279980429d57de16a8d7820",
-      "bytes": 44222
+      "sha256": "d6c4a0e476287826fae41ad752e66b7f18276b62bdda78d1eadd3cd4212e628e",
+      "bytes": 44336
     },
     {
       "path": "src/BridgeUnitVisualRuntime.cs",
       "sha256": "794d272514bd5cc8e376ceabac3761a570462a7973162e0fdbc460283610f5c5",
       "bytes": 11790
+    },
+    {
+      "path": "src/BridgeVersion.cs",
+      "sha256": "6757689195ab2da4d8e3a7738853087e01abc6b8df8fc54e20ae3bd8e028a15d",
+      "bytes": 445
     },
     {
       "path": "src/BridgeVisibilityMetadataRuntime.cs",
@@ -429,13 +544,13 @@
     },
     {
       "path": "src/CityOptionsSnapshot.cs",
-      "sha256": "c2e026c5587f2e1fc53a4de69d182a95fd4ddd1fb1499ac09210bb4b14cba7c7",
-      "bytes": 130043
+      "sha256": "5f284dcaedc5ba350515b9a8f8083fa2122a539a29adaa634f8fb2460c7e6a07",
+      "bytes": 129920
     },
     {
       "path": "src/PublicMarkerHooks.cs",
-      "sha256": "60fa388d8d1b547e6d31e606bf011c6600ecb400fe6690a5a0eee97b2e466000",
-      "bytes": 37137
+      "sha256": "cecc7aca6521d78c5157ce729a94a9be561067a168086833432f0e69723ba555",
+      "bytes": 37941
     },
     {
       "path": "src/PublicMarkerReader.cs",
@@ -458,9 +573,14 @@
       "bytes": 8110
     },
     {
+      "path": "tests/AquarionRuntimeTests.cs",
+      "sha256": "f67c8afc68de58c5d27e26848d2f36508dcb4ebdc107d1df2e29377a40c6e477",
+      "bytes": 19887
+    },
+    {
       "path": "tests/AreaSettlementTests.cs",
-      "sha256": "43d83bac190216e580abc61fcecd9f95b433b9c4e219caa5094eac6c2972ff99",
-      "bytes": 12179
+      "sha256": "06725c963f89d92bfb7fa146fbbb530a6dd273fcd5179c7b71ebd10eb5960e11",
+      "bytes": 13585
     },
     {
       "path": "tests/AssemblyCatalogTests.cs",
@@ -484,8 +604,8 @@
     },
     {
       "path": "tests/CandidateDiscoveryTests.cs",
-      "sha256": "2a136bfe1e4c02b876806e4015b25b4fbbe55a3256108a62c339a036ce394f04",
-      "bytes": 8012
+      "sha256": "e585657f5ac1f982baeaa1de4557279adb57b05366483bea99855b5f052f1d9b",
+      "bytes": 8100
     },
     {
       "path": "tests/CityCandidateSemanticsTests.cs",
@@ -494,8 +614,8 @@
     },
     {
       "path": "tests/CityResultReadTests.cs",
-      "sha256": "0c3719bada93fa0af8d6ecf2b48fda7eb635973dfa99a0a9527c9b628f900316",
-      "bytes": 13648
+      "sha256": "737ba468d068e9b7bce8e7d250378fd3d8af97d1da4d8a6c86a2a4e3b08f302b",
+      "bytes": 14107
     },
     {
       "path": "tests/CityRewardEffectsTests.cs",
@@ -504,8 +624,8 @@
     },
     {
       "path": "tests/CombatRuntimeTests.cs",
-      "sha256": "bfcd58ca7fd235d51d47d19386679c9f506741f9e10932020ad9f340338e3eaa",
-      "bytes": 55002
+      "sha256": "f9c43df1e45dc780e122e1b2ef2e0220bc192a8fea9afbee74b5c8d1c1814169",
+      "bytes": 55748
     },
     {
       "path": "tests/CombatScalarTests.cs",
@@ -519,13 +639,48 @@
     },
     {
       "path": "tests/CompositePreviewTests.cs",
-      "sha256": "20329326ea391503d0fc011393bc0e42a83395f888918ba44c00a295b66649da",
-      "bytes": 15096
+      "sha256": "4922de13f360add1a6a42bb4b36a162ddbe4134e84da39acb55f4755d83e25a5",
+      "bytes": 19672
     },
     {
       "path": "tests/CurrentPlayerIdentityTests.cs",
       "sha256": "846d3d443f182e3264e3739436982cf0f1457992727ffa4c7da6928eeabc5083",
       "bytes": 3670
+    },
+    {
+      "path": "tests/CymantiAlgaeBuildTests.cs",
+      "sha256": "4836995dabd96f1536e92a01100869988fcd09d3a84a087e9e88ae550ad2ef4c",
+      "bytes": 4638
+    },
+    {
+      "path": "tests/CymantiAlgaeTests.cs",
+      "sha256": "a2c8afb28aa8366fad3e7cd5647dc9d5b6d29c7dea8826b20720160318915635",
+      "bytes": 1783
+    },
+    {
+      "path": "tests/CymantiCatalogTests.cs",
+      "sha256": "a06a460b0b51c7dd926fd4b44b217e1f829cf78a032bb1c2c5ed323ea7170bbb",
+      "bytes": 10167
+    },
+    {
+      "path": "tests/CymantiDecomposeTests.cs",
+      "sha256": "77524875b4028f4a91c4ff1948a7f884202c774c95c5a01339653a7e02d406b3",
+      "bytes": 11731
+    },
+    {
+      "path": "tests/CymantiProofTests.cs",
+      "sha256": "0059c5e3b90ee2f095c05934a29f13319694ea457f3fa65c71ad8d2e1bea999e",
+      "bytes": 29265
+    },
+    {
+      "path": "tests/CymantiPublicRuntimeTests.cs",
+      "sha256": "be4a17f6b30ba4b1cf6ff65c908b276a7469231e57ec4fd0fae1464eb6cb29ad",
+      "bytes": 7590
+    },
+    {
+      "path": "tests/CymantiRuntimeTests.cs",
+      "sha256": "a59b6e948f4a9a5b345b203fa358af4fa5165624184dd541cd87d1055cf2f7bd",
+      "bytes": 5755
     },
     {
       "path": "tests/DiplomacyMenuTests.cs",
@@ -536,6 +691,11 @@
       "path": "tests/DiplomacySettlementTests.cs",
       "sha256": "a8306d25977403e5b0441be4e916dec0c18b6de6d1f561b986fd5fc8a8f0bcab",
       "bytes": 8414
+    },
+    {
+      "path": "tests/ElyrionRuntimeTests.cs",
+      "sha256": "3f1f0eeae29ea36ad45ee9179160c84f59e9599485c0895f505d3ee708c85adb",
+      "bytes": 9170
     },
     {
       "path": "tests/ForestActionTests.cs",
@@ -613,6 +773,16 @@
       "bytes": 14733
     },
     {
+      "path": "tests/LoaderHostTests.cs",
+      "sha256": "aa61337a96e76332eaf388b7aa608f5385314a2fc209aad7e0caa1c0eece27d7",
+      "bytes": 2802
+    },
+    {
+      "path": "tests/LoaderTypeResolutionTests.cs",
+      "sha256": "60e334de2fb0bbd0ce558e65433faa954f81096c89137a72e1e320b68adfd0c9",
+      "bytes": 1714
+    },
+    {
       "path": "tests/MenuGrowthReadTests.cs",
       "sha256": "266361aa88a3c89210b330eaefeecddae5bc5ab13dd8d54daab0ebef707f879a",
       "bytes": 8880
@@ -649,13 +819,18 @@
     },
     {
       "path": "tests/OwnedTechReadTests.cs",
-      "sha256": "a0e9cd695c550cf4b5dc61d837e149c0fd25cefa1faf4e286bc3dab621199cfa",
-      "bytes": 3669
+      "sha256": "64fe2a78dd94aa3cf09ca8581cc3a0056a60bf6c0bf7141727a741a0683bcd80",
+      "bytes": 4156
     },
     {
       "path": "tests/PeaceResponseDisplayTests.cs",
       "sha256": "39c186f9f30ba1cbfff4440d2e52ca04372521a036c4da96ddd95b519734ad2d",
       "bytes": 5969
+    },
+    {
+      "path": "tests/PendingRewardReadTests.cs",
+      "sha256": "beb37a5a2035933c21ebf3b2f1c30eb34588edc34cd9c8869f2e8a92cf2b6d45",
+      "bytes": 3816
     },
     {
       "path": "tests/PerformanceRuntimeTests.cs",
@@ -666,6 +841,11 @@
       "path": "tests/PlayerActionStateTests.cs",
       "sha256": "c7cc7b321657c5da65c35bba8594f92513c7964edc027286f0c4f1d9f4d14830",
       "bytes": 4611
+    },
+    {
+      "path": "tests/PolarisRuntimeTests.cs",
+      "sha256": "a6be572f0d656904052f94b5f4caea79e04816e4921820451b9e55d7f4c0a2e9",
+      "bytes": 10364
     },
     {
       "path": "tests/PopupChoiceTests.cs",
@@ -748,9 +928,19 @@
       "bytes": 17705
     },
     {
+      "path": "tests/RegisteredRuleIdentityTests.cs",
+      "sha256": "90ec9d8294f4a4b953ae893ba25addcaf5482c816460e19e7feb8bae1c9e3bf9",
+      "bytes": 3015
+    },
+    {
       "path": "tests/RelationInfoReadTests.cs",
       "sha256": "01bf703c3144c9ca6a2bb5fb10c87512f608e360ca8746184defd6fab030657b",
       "bytes": 5781
+    },
+    {
+      "path": "tests/ReleaseVersionTests.cs",
+      "sha256": "6ecfd7279542d3bebc2c8237b0e08a06158b38dcbb2d1969b1ac6b698ff6de58",
+      "bytes": 1162
     },
     {
       "path": "tests/ReplyDeliveryDiagnosticsTests.cs",
@@ -773,9 +963,14 @@
       "bytes": 28763
     },
     {
+      "path": "tests/RewardDisplayScopeTests.cs",
+      "sha256": "81f16fb9eeb12736533e80f0ab11c618969a8d5f8366441836a7b9cdacf3954e",
+      "bytes": 3240
+    },
+    {
       "path": "tests/RewardOfferReadTests.cs",
-      "sha256": "2dde69f62bf7948d9c0afb4c9800220e626d2fe01fcc9b92d70af8d462968772",
-      "bytes": 7196
+      "sha256": "5de184893a72b74778cb1648d16f17f770c70a828590c0c9bafa1c8ab753ff8f",
+      "bytes": 7394
     },
     {
       "path": "tests/RuinsCurrencyTests.cs",
@@ -804,8 +999,8 @@
     },
     {
       "path": "tests/SetupAdminTests.cs",
-      "sha256": "dd0280dcbf311bf24b1aee34a5146ce1bf67f60e11bcca5aeb924df2d89b3b52",
-      "bytes": 21127
+      "sha256": "7e818988c83a4bc947f65bd2492a35018f93b7ba4aa22dfac6f937294cf32233",
+      "bytes": 27715
     },
     {
       "path": "tests/StartupMetadataTests.cs",
@@ -903,9 +1098,19 @@
       "bytes": 3047
     },
     {
+      "path": "tests/WaterTrainingSitesTests.cs",
+      "sha256": "f548d850bdc853fe32fc051375bf2574c54fc0990e75e77859df2676199d8e2e",
+      "bytes": 9077
+    },
+    {
       "path": "tests/fixtures/attack-settlement-20261011.json",
       "sha256": "fe59644df897ab5b83cd66ecf995fff956a47ed6dcb42d9972695709e3b6cda7",
       "bytes": 24681
+    },
+    {
+      "path": "tests/fixtures/natural-popup-change.json",
+      "sha256": "ca55c396946add31bf801895102b0dab0f7181eaf0eb571b5546f2626b2c4168",
+      "bytes": 6880
     },
     {
       "path": "tests/fixtures/recovery/attacker-disappeared-ticket34.json",
@@ -933,6 +1138,11 @@
       "bytes": 13568
     },
     {
+      "path": "tests/test_aquarion_projection.py",
+      "sha256": "2a66a856c61cd4ccb1cf37f3a1df3ba179e8f33d0c86ab43a00f3f546926de84",
+      "bytes": 6689
+    },
+    {
       "path": "tests/test_bridge_transport.py",
       "sha256": "b585f1636dcf775ade3e71a8f58de06bacd8b1802530904b34eeab0ea5b49803",
       "bytes": 34496
@@ -948,6 +1158,26 @@
       "bytes": 5589
     },
     {
+      "path": "tests/test_cymanti_algae_projection.py",
+      "sha256": "e919217fe01c9836f226f39c05d7f70ae1794193cb683de90a0cdcdabf2f79f4",
+      "bytes": 1980
+    },
+    {
+      "path": "tests/test_cymanti_building_projection.py",
+      "sha256": "b81a744df3029ce68e719093106529ba423365a2c4db957d067c03d261c72796",
+      "bytes": 7298
+    },
+    {
+      "path": "tests/test_cymanti_projection.py",
+      "sha256": "4633fc3a5c8b9423c24d33a7cb4cf3a360e7ae11e2829c4284cec4a7a1ec521c",
+      "bytes": 7155
+    },
+    {
+      "path": "tests/test_elyrion_projection.py",
+      "sha256": "50a3ad335a8c81917126b3dc2e37173d43785240deb855ae69e082ee73803627",
+      "bytes": 2161
+    },
+    {
       "path": "tests/test_enemy_public_info.py",
       "sha256": "2dd99438ca1fa097776417d044685129177d7d2b65ece5ec08c9f9fb4d70a5d5",
       "bytes": 18697
@@ -958,9 +1188,19 @@
       "bytes": 7152
     },
     {
+      "path": "tests/test_polaris_projection.py",
+      "sha256": "5712ab26e9aba11dd69c1926545b3ae915f200559d51179ec5df6c4b22674f6d",
+      "bytes": 2002
+    },
+    {
       "path": "tests/test_public_channel_projection.py",
       "sha256": "88e7e8cc4afb9a06a9b3893d306000824357c482c23dd80a9a6db2cee5c84ea4",
       "bytes": 3255
+    },
+    {
+      "path": "tests/test_registered_rules.py",
+      "sha256": "bdac94f95ea3b0ee78b3c670b5d7f8c86c85a09e067f92f5939cb205f2f59955",
+      "bytes": 2030
     },
     {
       "path": "tests/test_sdk.py",
@@ -996,6 +1236,11 @@
       "path": "tests/test_sdk_modal_settlement.py",
       "sha256": "88e65f66ddb1d0324e2c84aa30669b99e0175c3d9ab3348d8ea2f15bff3cb313",
       "bytes": 4028
+    },
+    {
+      "path": "tests/test_sdk_natural_resolution.py",
+      "sha256": "6e26a31d6c1bfeb2e9143d31cfbc35a6428ebf40731d1554fc1579f0992303bc",
+      "bytes": 14418
     },
     {
       "path": "tests/test_sdk_observation.py",
@@ -1058,9 +1303,19 @@
       "bytes": 9400
     },
     {
+      "path": "tests/test_water_training_sites.py",
+      "sha256": "b2a0e08ffc4fd9dc9ab3a47950246fa609740faaf4c7e9af6f28745d90be5ee3",
+      "bytes": 6283
+    },
+    {
       "path": "tools/archive_bridge.py",
       "sha256": "f746f6bfe8c79aabcb1915712ead43a3047e343491185b861d5dafc42bf3b7de",
       "bytes": 13131
+    },
+    {
+      "path": "tools/build_polymod.ps1",
+      "sha256": "f1fb9fa54ad9a88002e873ff721a93fa75b36230bec685b4cd28835f1417c8f3",
+      "bytes": 4161
     },
     {
       "path": "tools/deploy_bridge.py",
@@ -1068,19 +1323,24 @@
       "bytes": 20103
     },
     {
+      "path": "tools/package_polymod.py",
+      "sha256": "898ba8c2aa1239014962fd44249d25365845ce97c6d40081efb7c97d4618b980",
+      "bytes": 7190
+    },
+    {
       "path": "tools/package_prerelease.py",
-      "sha256": "634f4e7a60442b40f2b40c1b2c3fea2492ef60f993fed1cd5d0525e78fea8020",
-      "bytes": 5469
+      "sha256": "df76945c07c7d6d4559e0f19463cadcf22b058fa346e263c812b080c662aa416",
+      "bytes": 5523
     },
     {
       "path": "tools/prepare_release.py",
-      "sha256": "5dd5813c4d3c8890f1a1a1d0d12be8cee5443011ad9941d779a4fce9a9c38316",
-      "bytes": 6291
+      "sha256": "7ee74231acbb1f28f1f501a6028b4f93db1735e8126f20a6c6469aaaa6f73fce",
+      "bytes": 6600
     },
     {
       "path": "tools/start_bridge.py",
-      "sha256": "fbc511ce4c1d77dd750add80ad4102528c68ab4eac4a0536849e26e1ce7409cc",
-      "bytes": 11884
+      "sha256": "0e585ea1458215d839cf35f106ab55bd74dcdb65b786eb109d32134b695e327e",
+      "bytes": 14763
     },
     {
       "path": "tools/test_archive_bridge.py",
@@ -1091,6 +1351,11 @@
       "path": "tools/test_deploy_bridge.py",
       "sha256": "6702d4f9fc5f8c4ae732caab4a7af1cc60e7c16e85f6149c9c7595fe999ce366",
       "bytes": 21924
+    },
+    {
+      "path": "tools/test_package_polymod.py",
+      "sha256": "0957f7974e8378bf31ead2342f44b880ec27e40318149e4cdc67fc9ba0f315ae",
+      "bytes": 5374
     },
     {
       "path": "tools/test_package_prerelease.py",
@@ -1114,106 +1379,34 @@
     },
     {
       "path": "tools/test_verify_bridge.py",
-      "sha256": "3904ca2bb16b00ef834ff4d0dd4b04302360880356647e3cae5a37487086efc4",
-      "bytes": 6930
+      "sha256": "f004f88b916800fc44ba6cb2fbd18ca81b2317b24808ac78ff9a84eb2b4a7dc0",
+      "bytes": 6736
     },
     {
       "path": "tools/verify_bridge.py",
-      "sha256": "348cd8066d501385be4be72c6698203f09b8597cc502448e798992aba2daa896",
-      "bytes": 14690
+      "sha256": "47038daf6631d72ed6bf44da81ebf544eb8b98209ff1507868ecb36b19e5307e",
+      "bytes": 14680
     }
   ],
-  "fileCount": 224,
-  "totalBytes": 3320366,
+  "fileCount": 277,
+  "version": "0.4.0",
+  "tag": "v0.4.0",
+  "prerelease": true,
+  "totalBytes": 3699509,
   "issues": [],
   "licensePresent": true,
-  "published": true,
+  "published": false,
   "releaseReady": false,
   "remainingGates": [
-    "beta tag and prerelease publication",
-    "applicable repository protection settings"
+    "source provenance and license decision",
+    "clean source-tree regression",
+    "first-install acceptance",
+    "public version and compatibility policy"
   ],
   "excluded": [
     "game binaries/assets and decompiled dumps",
     "runtime queues/logs/saves/configuration",
     "private repairs/campaigns and native dependencies",
     "desktop screenshot/input helpers"
-  ],
-  "license": "MIT",
-  "localValidation": {
-    "counts": {
-      "csharpSuites": 90,
-      "csharpAssertions": 3303,
-      "python": 459,
-      "campaignRecovery": 5,
-      "verificationTool": 114
-    },
-    "verificationSha256": "f977a672a770733648999a11a48a1e6ce485d1fa1f9501af40c2a07349880944",
-    "publicSelectionTests": {
-      "python": 459,
-      "recovery": 5,
-      "tooling": 114
-    },
-    "nativeSourceInputsUnchanged": true,
-    "publicClientShim": "published pure transport compatibility shim; public selection tested",
-    "limitations": [
-      "four conditional ResolverPerformanceTests assertions require an additional loadable framework assembly and were not exercised"
-    ],
-    "supplementalToolingValidation": {
-      "tests": 114,
-      "scope": "Windows short/long path canonicalization in verification output guard; game runtime unchanged"
-    },
-    "betaPackaging": {
-      "toolTests": 117,
-      "scope": "source-only deterministic ZIP, manifest and tag matching, downloaded asset byte verification"
-    }
-  },
-  "acceptance": {
-    "priorDshLifecycleScope": "manual source replacement and upgrade; not a clean installation",
-    "priorReportSha256": "07cd42c4fb365bc1b70afa0a4c976b1ea3909471f7c743929ea7983a9d91889d",
-    "delayedQuitRecovery": "confirmed after original process exit with initial quitScheduled=false; one submission; save confirmed",
-    "candidateDllSha256": "f70a57b4c1e3051b915d5adae618b2d1fa46a002a7c9b71ade7b3629d4ae07ff",
-    "hotseatSaveUnchanged": true
-  },
-  "documentation": {
-    "languages": [
-      "zh-CN",
-      "en"
-    ],
-    "pairs": [
-      "README.md",
-      "CONTRIBUTING.md",
-      "RELEASE_CHECKLIST.md",
-      "COMPATIBILITY.md",
-      "CHANGELOG.md",
-      "INSTALL.md",
-      "USAGE.md",
-      "SOURCE_PROVENANCE.md"
-    ]
-  },
-  "coverageLimitations": [
-    "current candidate not installed again from zero",
-    "new formal hotseat management entry points not live retested",
-    "other machines and fully disconnected first installation not verified",
-    "process exit cause not independently diagnosed"
-  ],
-  "repository": "https://github.com/xsmfder/polytopia-agent-bridge",
-  "githubCi": {
-    "conclusion": "success",
-    "commit": "cfe55d7ad2bb798968a97095018304e4cb8d0441",
-    "runUrl": "https://github.com/xsmfder/polytopia-agent-bridge/actions/runs/39733774017",
-    "pythonVersions": [
-      "3.10",
-      "3.11",
-      "3.13"
-    ],
-    "scope": "SDK, frozen recovery, tooling, source inventory; no game or native build in cloud"
-  },
-  "version": "0.1.0-beta.1",
-  "prerelease": true,
-  "release": {
-    "tag": "v0.1.0-beta.1",
-    "status": "prepared",
-    "url": "https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1"
-  }
+  ]
 }

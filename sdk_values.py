@@ -15,6 +15,21 @@ def native_identifier(value):
     return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value) else None
 
 
+def native_rule_identifier(value):
+    """Rule token from an authoritative native menu; not proof of registration.
+
+    PolyMod rules use canonical numeric strings >=1000. Membership is certified
+    by the server registry and revalidated native legal menus before dispatch.
+    Effects, rewards, visual names and state enums keep native_identifier.
+    """
+    if native_identifier(value) is not None:
+        return value
+    if (isinstance(value, str) and re.fullmatch(r"[1-9][0-9]{3,9}", value)
+            and 1000 <= int(value) <= 2147483647):
+        return value
+    return None
+
+
 def integer(value):
     if isinstance(value, bool) or not isinstance(value, (int, str)):
         raise ValueError("expected an integer")

@@ -13,7 +13,8 @@ from verify_bridge import input_files
 
 WORK = Path(__file__).resolve().parents[1]
 DOCUMENTS = ('README.md', 'CONTRIBUTING.md', 'RELEASE_CHECKLIST.md', 'COMPATIBILITY.md',
-             'CHANGELOG.md', 'INSTALL.md', 'USAGE.md', 'SOURCE_PROVENANCE.md')
+             'CHANGELOG.md', 'INSTALL.md', 'USAGE.md', 'SOURCE_PROVENANCE.md',
+             'POLYMOD_PUBLISH.md', 'RELEASE_NOTES.md')
 TEMPLATES = DOCUMENTS + tuple(name[:-3] + '.en.md' for name in DOCUMENTS) + (
              '.github/workflows/ci.yml', '.github/workflows/prerelease.yml', '.gitattributes', '.gitignore', 'client.py')
 TOKEN_PATTERNS = (
@@ -55,6 +56,10 @@ def source_map(work):
 def inventory(work=WORK):
     selected = source_map(work)
     files, issues = [], []
+    version = None
+    if (Path(work)/'VERSION').is_file():
+        from package_polymod import version as bridge_version
+        version = bridge_version(work)
     for name, path in sorted(selected.items()):
         data = path.read_bytes()
         text = data.decode('utf-8-sig')
@@ -73,6 +78,7 @@ def inventory(work=WORK):
                     if destination not in selected:
                         issues.append({'path': name, 'line': line, 'rule': 'unselected-doc-link'})
     return {'schema': 'bridge-source-review-1', 'ok': not issues, 'files': files, 'fileCount': len(files),
+            'version': version, 'tag': 'v'+version if version else None, 'prerelease': True,
             'totalBytes': sum(row['bytes'] for row in files), 'issues': issues,
             'licensePresent': 'LICENSE' in selected, 'published': False, 'releaseReady': False,
             'remainingGates': ['source provenance and license decision', 'clean source-tree regression',

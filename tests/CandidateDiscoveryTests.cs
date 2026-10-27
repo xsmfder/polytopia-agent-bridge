@@ -38,6 +38,7 @@ public sealed class TrainCommand
     public byte PlayerId = 1;
     public string Coordinates = "(1,1)";
     public UnitData.Type Type = UnitData.Type.FutureUnit;
+    public bool IsValid(GameState state, out string error) { error = ""; return true; }
 }
 public sealed class TileData
 {

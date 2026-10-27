@@ -27,7 +27,7 @@ SEPARATE = {
     "AttackReaderMemberTests",
 }
 SDK_FILES = ("sdk.py", "agentcli.py", "client.py", "bridge_transport.py")
-SDK_DATA_FILES = ()  # Add runtime data here if a production module actually consumes it.
+SDK_DATA_FILES = ("VERSION", "LICENSE", "polymod/manifest.json", "tools/build_polymod.ps1")
 LEGACY_ENTRY_FILES = ("deploy.ps1", "start_ai_match.py")
 CAMPAIGN = Path("tests/fixtures/recovery")  # Small frozen recovery cases, independent of private campaigns.
 
@@ -56,11 +56,10 @@ def select(requested, available, label):
 
 
 def output_path(work, requested):
-    work = Path(work).resolve()
     target = Path(requested).resolve() if requested else (
         work / "verification-runs" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     )
-    if not target.is_relative_to(work) or target == work:
+    if not target.is_relative_to(work.resolve()) or target == work.resolve():
         raise ValueError("Output must be a new directory inside agent-bridge")
     if target.exists():
         raise ValueError("Output already exists; historical evidence is never overwritten")

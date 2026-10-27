@@ -2,7 +2,7 @@
 
 [English](CONTRIBUTING.en.md) | [简体中文](CONTRIBUTING.md)
 
-Beta发行版本写在release-manifest.json。维护者更新双语变更记录及精确文件清单，通过CI后推送对应`v*-beta.*` tag。发布工作流先运行三个Python版本的离线测试，再生成固定文件顺序和时间戳的同名源码ZIP及SHA256，上传草稿后下载逐字节核对，成功才转为公开预发布。不需要个人令牌或游戏依赖。
+当前数字版本记录在 VERSION 和 release-manifest.json 中。维护者同步两份更新记录与加载器元数据，核对源码哈希并通过 CI。GitHub tag 使用 v0.4.0 一类数字版号；手动源码工作流仅创建可下载复核的草稿，不自动公开。完整发布还需附上同版本、已验证的本地运行包，按发布清单复核后执行。
 
 修复具体的玩家信息、原生命令、回执或维护问题。保持unknown与0/false/空列表不同；不要用隐藏数据补齐玩家视野，或用预览替代实际效果。新候选从游戏接口读取，不维护一个硬编码技能全集。
 
@@ -11,3 +11,5 @@ Beta发行版本写在release-manifest.json。维护者更新双语变更记录�
 通过仓库的[Issues](https://github.com/xsmfder/polytopia-agent-bridge/issues)反馈问题，通过[Pull requests](https://github.com/xsmfder/polytopia-agent-bridge/pulls)提交修改。报告可包含字段结构、错误码、经过脱敏的最小回执、游戏/桥接版本及复现步骤；不要附完整存档、认证记录、私人队列或游戏二进制。
 
 项目代码采用[MIT许可证](LICENSE)。提交贡献前应确认自己有权按该许可提供代码；需要第三方代码时保留其来源和许可，不将游戏或加载器的本机依赖放入仓库。安装与验证入口见[INSTALL.md](INSTALL.md)。
+
+维护以原版规则执行为主线，不以逐个第三方模组验收为任务。当前版本 0.4.0；修改版号时同步 VERSION、C#、PolyMod 清单及双语说明，运行发布版号检查。新增能力的列表读取与效果闭环分别说明。

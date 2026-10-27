@@ -343,7 +343,9 @@ namespace PolytopiaAgent
         }
 
         /// <summary>Test seam: drop every plan and reset the counters. Never called in production.</summary>
-        internal static void ResetReflectionCacheForTests()
+        internal static void ResetReflectionCacheForTests(){ClearReflectionPlans();}
+
+        internal static void ClearReflectionPlans()
         {
             MemberPlans.Clear();
             Interlocked.Exchange(ref _reflectionPlanBuilds, 0);

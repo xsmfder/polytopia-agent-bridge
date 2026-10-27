@@ -13,7 +13,7 @@ so it is accepted. Real audit/omniscient payloads and hidden entities are reject
 from __future__ import annotations
 
 import math
-from sdk_values import integer, coordinates, native_identifier
+from sdk_values import integer, coordinates, native_identifier, native_rule_identifier
 
 AUDIT_MARKERS = ("omniscient", "hiddenUnits", "hiddenEntities", "hiddenEntityPolicyTruth",
                  "auditTruth", "playersDump", "rawPlayers")
@@ -219,6 +219,178 @@ def _public_tile_style(value):
     return {"tribe": tribe, "skin": skin, "status": "ok" if tribe is not None and skin is not None and value["status"] == "ok" else "partial"}
 
 
+def _public_tribe_catalog(raw):
+    _require(isinstance(raw, dict) and raw.get("schema") == "tribe-catalog-1", "invalid tribe catalog")
+    status = raw.get("status")
+    _require(status in ("ok", "unavailable"), "invalid tribe catalog status")
+    result = {"schema": "tribe-catalog-1", "status": status}
+    tribe = raw.get("tribe")
+    _require(tribe is None or isinstance(tribe, str), "invalid catalog tribe")
+    result["tribe"] = tribe
+    for domain in ("techs", "units", "improvements"):
+        rows = raw.get(domain)
+        if status == "unavailable":
+            _require(rows is None, "unavailable catalog must not claim a complete list")
+            result[domain] = None
+            continue
+        _require(isinstance(rows, list), "catalog rows unavailable")
+        projected = []
+        for row in rows:
+            _require(isinstance(row, dict), "invalid catalog row")
+            name = row.get("type")
+            _require(isinstance(name, str) and bool(name), "catalog type unavailable")
+            display = row.get("displayName")
+            _require(display is None or isinstance(display, str), "invalid catalog display name")
+            item = {"type": name, "displayName": display,
+                    "baseCost": _opt_int_strict(row.get("baseCost"), "catalog.baseCost")}
+            if domain == "units":
+                abilities = row.get("abilities")
+                _require(abilities is None or isinstance(abilities, list) and all(isinstance(v, str) for v in abilities),
+                         "invalid catalog abilities")
+                item["abilities"] = sorted(set(abilities)) if abilities is not None else None
+                if "hiddenFromTraining" in row:
+                    item["hiddenFromTraining"] = _opt_bool(row["hiddenFromTraining"], "catalog.hiddenFromTraining")
+            if domain == "improvements" and "createsUnits" in row:
+                names = row["createsUnits"]
+                _require(isinstance(names, list) and all(isinstance(v, str) and v for v in names),
+                         "invalid catalog creation units")
+                item["createsUnits"] = sorted(set(names))
+            if domain == "techs" and "unlocks" in row:
+                unlocks = row["unlocks"]
+                _require(isinstance(unlocks, dict), "invalid catalog unlocks")
+                item["unlocks"] = {}
+                for kind in ("units", "improvements"):
+                    names = unlocks.get(kind)
+                    _require(isinstance(names, list) and all(isinstance(v, str) and v for v in names),
+                             "invalid catalog unlock types")
+                    item["unlocks"][kind] = sorted(set(names))
+            projected.append(item)
+        result[domain] = projected
+    return result
+
+
+def own_unit_growth(raw):
+    if raw is None:
+        return None
+    _require(isinstance(raw, dict) and raw.get("schema") == "unit-growth-1", "invalid unit growth schema")
+    status = raw.get("status")
+    _require(status in ("growing", "not_growing", "unavailable"), "invalid own growth status")
+    result = {"schema": "unit-growth-1", "status": status}
+    for key in ("stage", "nextStage"):
+        value = raw.get(key)
+        _require(value is None or isinstance(value, str) and bool(value), "invalid growth stage")
+        result[key] = value
+    for key in ("ageTurns", "growthPeriodTurns", "turnsToNextStage"):
+        value = _opt_int_strict(raw.get(key), "growth." + key)
+        _require(value is None or value >= 0, "negative unit growth field")
+        result[key] = value
+    if status == "growing":
+        _require(result["stage"] and result["nextStage"] and result["stage"] != result["nextStage"], "missing growth target")
+        _require(result["ageTurns"] is not None and result["growthPeriodTurns"] is not None
+                 and result["growthPeriodTurns"] > 0 and result["turnsToNextStage"] is not None
+                 and result["turnsToNextStage"] == max(0, result["growthPeriodTurns"] - result["ageTurns"]) + 1,
+                 "inconsistent native age countdown")
+    else:
+        _require(result["turnsToNextStage"] is None, "unavailable growth must not claim countdown")
+        if status == "not_growing":
+            _require(result["nextStage"] is None, "non-growing unit must not claim next stage")
+    result["countdownUnit"] = "own end_turn completions from the current stable turn"
+    return result
+
+
+def _cymanti_status(entry, properties, own):
+    """Certify nullable status claims against their own or publicly rendered source."""
+    for field, effect in (("poisoned", "Poisoned"), ("swift", "Swift"), ("doubleReady", "DoubleReady")):
+        authority_field = field + "Authority"
+        present = field in properties or authority_field in properties
+        if not own and field == "doubleReady":
+            _require(not present, "enemy mechanical doubleReady is withheld")
+            continue
+        if not present:
+            continue
+        _require(field in properties and authority_field in properties, "incomplete unit status " + field)
+        source = "owned-native-effects" if own else "visible-renderer-" + effect + "-particle"
+        _require(properties[authority_field] == source, "invalid visibility authority for " + field)
+        value = _opt_bool(properties[field], "unit." + field)
+        if value is not None:
+            if own:
+                effects = properties.get("effects")
+                readable = isinstance(effects, list) and all(native_identifier(item) is not None for item in effects)
+            else:
+                visual = (entry.get("publicInfo") or {}).get("visualEffects") or {}
+                particles = visual.get("particles") or {}
+                effects = particles.get("types")
+                readable = visual.get("status") in ("ok", "partial") and particles.get("status") == "ok" and isinstance(effects, list)
+            _require(readable and value == (effect in effects), "status contradicts its readable source: " + field)
+        entry[field] = value
+        entry[authority_field] = source
+
+
+def _cymanti_own_relations(value, own_id):
+    if value is None:
+        return None
+    _require(isinstance(value, dict), "invalid own unit relations")
+    fields = {"hasLeader", "hasFollower", "leaderId", "followerId"}
+    if not fields.intersection(value):
+        return None  # Legacy raw linkage fields do not establish structured links.
+    _require(fields <= value.keys(), "incomplete structured unit relations")
+    _require(value.get("linkAuthority") == "owned-native-HasLeader/HasFollower", "invalid own link authority")
+    result = {"linkAuthority": value["linkAuthority"]}
+    complete = True
+    for label in ("Leader", "Follower"):
+        has = _opt_bool(value["has" + label], "unit.relations.has" + label)
+        raw_id = value[label.lower() + "Id"]
+        if raw_id is None:
+            linked = None
+        else:
+            _require(type(raw_id) in (str, int), "invalid structured link ID")
+            linked_number = _opt_int_strict(raw_id, "unit.relations.linkId")
+            _require(linked_number is not None and 0 < linked_number <= 4294967295, "link ID must be a positive UInt32")
+            linked = str(linked_number)
+            _require(has is True, "link ID requires native presence true")
+            _require(own_id is None or linked != str(own_id), "unit cannot link to itself")
+        if has is None or has is True and linked is None:
+            complete = False
+        result["has" + label] = has
+        result[label.lower() + "Id"] = linked
+    result["status"] = "ok" if complete else "partial"
+    _require(value.get("status") == result["status"], "relations completeness disagrees with native link fields")
+    return result
+
+
+def _cymanti_owned_building_state(value, improvement, me):
+    """Only the controlled player's native improvement status, never enemy effects."""
+    own = improvement.get("owner") == me and improvement.get("isMine") is True
+    if not own:
+        _require(value is None, "enemy or uncertified building effects are withheld")
+        return None
+    if value is None:
+        return None
+    _require(isinstance(value, dict), "invalid owned building state")
+    fields = {"schema", "authority", "owner", "type", "level", "effects", "decomposing"}
+    _require(fields <= value.keys(), "incomplete owned building state")
+    _require(value["schema"] == "cymanti-owned-building-1", "invalid owned building schema")
+    _require(value["authority"] == "owned-TileData.owner+improvement.type/level/effects", "invalid owned building authority")
+    owner = _opt_int_strict(value["owner"], "ownedBuildingState.owner")
+    _require(owner is not None and 0 < owner <= 255 and owner == me, "owned building state belongs to another player")
+    kind = value["type"]
+    _require(native_rule_identifier(kind) is not None and kind == improvement.get("improvementType"), "owned building type disagrees with improvement")
+    level = value["level"]
+    _require(level is None or type(level) is int and 0 <= level <= 65535, "invalid native building level")
+    if level is not None and improvement.get("level") is not None:
+        _require(level == improvement["level"], "owned building level disagrees with improvement")
+    effects = value["effects"]
+    if effects is not None:
+        _require(isinstance(effects, list) and all(native_identifier(item) is not None for item in effects), "invalid native building effects")
+        _require(len(set(effects)) == len(effects), "duplicate native building effects")
+    decomposing = _opt_bool(value["decomposing"], "ownedBuildingState.decomposing")
+    _require((effects is None and decomposing is None) or effects is not None and decomposing is not None
+             and decomposing == ("decomposing" in effects), "decomposing disagrees with native improvement effects")
+    return {"schema": "cymanti-owned-building-1", "authority": value["authority"], "owner": owner,
+            "type": kind, "level": level, "effects": sorted(effects) if effects is not None else None,
+            "decomposing": decomposing}
+
+
 def normalize_world(frame):
     """Return a normalized observation, or raise without side effects.
 
@@ -281,7 +453,18 @@ def normalize_world(frame):
         properties = u.get("properties")
         entry["publicInfo"] = public_unit_info(properties.get("publicInfo")
                                                 if isinstance(properties, dict) else None)
+        if isinstance(properties, dict):
+            _cymanti_status(entry, properties, owner_i == me_i)
+        if isinstance(properties, dict) and "frozen" in properties:
+            source = properties.get("frozenAuthority")
+            _require(source == ("owned-native-effects" if owner_i == me_i else "visible-renderer-Frozen-particle"),
+                     "invalid frozen visibility authority")
+            entry["frozen"] = _opt_bool(properties.get("frozen"), "unit.frozen")
+            entry["frozenAuthority"] = source
         if owner_i == me_i:
+            entry["growth"] = own_unit_growth(properties.get("growth") if isinstance(properties, dict) else None)
+            if isinstance(properties, dict) and "relations" in properties:
+                entry["relations"] = _cymanti_own_relations(properties["relations"], u.get("id"))
             # Own units may carry an execution identity and their own action state: the game itself
             # reports these for the controlled player, and a planner needs them to decide.
             entry["executionId"] = None if u.get("id") is None else str(u.get("id"))
@@ -293,6 +476,14 @@ def normalize_world(frame):
             entry["promotionLevel"] = _opt_int(u.get("promotionLevel"))
             entry["adjacentInvisibleThreat"] = _public_own_invisible_hint(
                 properties.get("adjacentInvisibleThreat") if isinstance(properties, dict) else None)
+            if isinstance(properties, dict):
+                for key in ("abilities", "effects"):
+                    if key in properties:
+                        values = properties[key]
+                        _require(values is None or isinstance(values, list) and
+                                 all(isinstance(v, str) and v for v in values),
+                                 "invalid own unit " + key)
+                        entry[key] = sorted(set(values)) if values is not None else None
             own_units.append(entry)
         else:
             # An enemy's internal id and its remaining-move flags are NOT player knowledge.
@@ -321,6 +512,48 @@ def normalize_world(frame):
                       "lastObservedTurn": _opt_int(t.get("lastObservedTurn")),
                       "lastObservedRevision": _opt_int(t.get("lastObservedRevision")),
                       "visualStyle": _public_tile_style(t.get("visualStyle"))})
+        if "ice" in t:
+            ice = _opt_bool(t.get("ice"), "tile.ice")
+            _require(ice is None or isinstance(t.get("terrain"), str)
+                     and ice == (t["terrain"] == "Ice"), "ice flag disagrees with public terrain")
+            tiles[-1]["ice"] = ice
+        if "terrainEffects" in t:
+            effects = t["terrainEffects"]
+            if effects is not None:
+                _require(tiles[-1]["owner"] == me_i and t.get("explored") is True
+                         and t.get("terrainEffectsScope") == "owned-explored-tile",
+                         "tile effects require owned explored scope")
+                _require(isinstance(effects, list) and all(isinstance(v, str) for v in effects),
+                         "invalid terrain effects")
+            tiles[-1]["terrainEffects"] = sorted(set(effects)) if effects is not None else None
+        if "flooded" in t:
+            flooded = _opt_bool(t["flooded"], "tile.flooded")
+            scope = t.get("floodedScope")
+            _require(scope in ("owned-explored-tile", "own-unit-tile", "visible-explored-tile", "withheld"), "invalid public flood scope")
+            if flooded is not None:
+                _require(t.get("explored") is True and
+                         (scope == "owned-explored-tile" and _opt_int_strict(t.get("owner"), "tile.owner") == me_i or
+                          scope == "own-unit-tile" and any(u["coords"] == tiles[-1]["coords"] for u in own_units) or
+                          scope == "visible-explored-tile" and t.get("inSight") is True),
+                         "public flood state requires owned or currently visible explored terrain")
+            tiles[-1]["flooded"] = flooded
+            tiles[-1]["floodedScope"] = scope
+        if "algae" in t:
+            algae = _opt_bool(t["algae"], "tile.algae")
+            scope = t.get("algaeScope")
+            _require(scope in ("owned-explored-tile", "own-unit-tile", "visible-explored-tile", "withheld"),
+                     "invalid public algae scope")
+            if algae is not None:
+                _require(t.get("explored") is True and
+                         (scope == "owned-explored-tile" and tiles[-1]["owner"] == me_i or
+                          scope == "own-unit-tile" and any(u["coords"] == tiles[-1]["coords"] for u in own_units) or
+                          scope == "visible-explored-tile" and t.get("inSight") is True),
+                         "public algae requires owned or currently visible explored terrain")
+                effects = tiles[-1].get("terrainEffects")
+                _require(effects is None or algae == ("Algae" in effects), "algae disagrees with owned terrain effects")
+            tiles[-1]["algae"] = algae
+            tiles[-1]["algaeScope"] = scope
+
 
     improvements = []
     for c in frame.get("improvements") or []:
@@ -332,6 +565,10 @@ def normalize_world(frame):
                              "inSight": _opt_bool(c.get("inSight"), "improvement.inSight"),
                              "level": _opt_int(c.get("level")),
                              "population": _opt_int(c.get("population"))})
+        if "ownedBuildingState" in c:
+            state = _cymanti_owned_building_state(c["ownedBuildingState"], improvements[-1], me_i)
+            if improvements[-1]["owner"] == me_i and improvements[-1]["isMine"] is True:
+                improvements[-1]["ownedBuildingState"] = state
 
     # A present canonical null is explicit unknown, not permission to substitute
     # an old alias. Legacy alias fallback applies only when the canonical key is absent.
@@ -454,7 +691,7 @@ def normalize_world(frame):
                     reason_codes.append("option-not-a-mapping")
                     continue
                 uname = opt.get("unitType")
-                if native_identifier(uname) is None:
+                if native_rule_identifier(uname) is None:
                     city_bad = True
                     reason_codes.append("unit-type-invalid")
                     continue
@@ -478,7 +715,7 @@ def normalize_world(frame):
                     city_bad = True
                     reason_codes.append("cost-negative")
                     continue
-                if opt.get("trainable") is not True:
+                if opt.get("trainable") is not True or ("nativeValid" in opt and opt["nativeValid"] is not True):
                     city_bad = True
                     reason_codes.append("trainable-not-true")
                     continue
@@ -502,6 +739,79 @@ def normalize_world(frame):
             tstatus = "partial"
             reason_codes.append("all-cities-dropped")
 
+    # New native training sites are additional to the compatible city list. Their
+    # scope must agree with the already filtered tile view; a self-asserted owner
+    # or siteKind alone is not enough to publish a non-city training command.
+    proj_sites = []
+    if isinstance(train, dict) and tstatus_in in ("ok", "partial") and "sites" in train:
+        raw_sites = train["sites"]
+        if not isinstance(raw_sites, list):
+            raw_sites = []
+            tstatus = "partial"
+            reason_codes.append("train-sites-invalid")
+        tile_by_coord = {tuple(t["coords"]): t for t in tiles}
+        seen_sites = set()
+        for site in raw_sites:
+            if not isinstance(site, dict):
+                tstatus = "partial"
+                reason_codes.append("train-site-not-a-mapping")
+                continue
+            try:
+                coords = parse_coords(site.get("coords"))
+                owner = _opt_int_strict(site.get("owner"), "train.site.owner")
+            except ObservationRejected:
+                tstatus = "partial"
+                reason_codes.append("train-site-identity-invalid")
+                continue
+            key = tuple(coords)
+            tile = tile_by_coord.get(key)
+            kind = site.get("siteKind")
+            valid_scope = (tile is not None and tile["owner"] == me_i
+                           and tile.get("explored") is True and owner == me_i
+                           and site.get("explored") is True
+                           and (kind == "city" and key in my_city_coords
+                                or kind == "owned-water" and tile.get("water") is True
+                                or kind == "owned-algae" and "Algae" in (tile.get("terrainEffects") or [])))
+            if not valid_scope:
+                tstatus = "partial"
+                reason_codes.append("train-site-not-owned-explored-water-or-city")
+                continue
+            if key in seen_sites:
+                tstatus = "partial"
+                reason_codes.append("duplicate-train-site")
+                continue
+            seen_sites.add(key)
+            options_out, option_types = [], set()
+            raw_options = site.get("options")
+            site_status = site.get("status")
+            bad_site = site_status != "ok" or not isinstance(raw_options, list)
+            for opt in raw_options if isinstance(raw_options, list) else []:
+                if not isinstance(opt, dict) or native_rule_identifier(opt.get("unitType")) is None:
+                    bad_site = True
+                    continue
+                try:
+                    cost = integer(opt.get("cost"))
+                except ValueError:
+                    bad_site = True
+                    continue
+                if cost < 0 or opt.get("trainable") is not True or opt.get("nativeValid") is not True:
+                    bad_site = True
+                    continue
+                if opt["unitType"] in option_types:
+                    bad_site = True
+                    continue
+                option_types.add(opt["unitType"])
+                options_out.append({"unitType": opt["unitType"], "cost": cost,
+                                    "trainable": True, "nativeValid": True})
+            if site_status not in ("ok", "partial"):
+                options_out = []
+            proj_sites.append({"coords": coords, "owner": owner, "explored": True,
+                               "siteKind": kind, "status": "partial" if bad_site else "ok",
+                               "options": options_out})
+            if bad_site:
+                tstatus = "partial"
+                reason_codes.append("train-site-partial")
+
     # --- research: keep the safe status, never the native diagnostics -------------------
     # research: an unavailable/partial domain must not reject the legal board either. Items with a
     # null/unresolved tech name are withheld rather than published.
@@ -515,7 +825,7 @@ def normalize_world(frame):
             continue
         nm = it.get("tech")
         cost = it.get("cost")
-        if native_identifier(nm) is None:
+        if native_rule_identifier(nm) is None:
             if rstatus == "ok":
                 rstatus = "partial"
             continue
@@ -939,6 +1249,7 @@ def normalize_world(frame):
     phase = frame.get("currentState")
     _require(phase is None or native_identifier(phase) is not None, "currentState must be a native name or null")
     return {
+        **({"tribeCatalog": _public_tribe_catalog(frame["tribeCatalog"])} if "tribeCatalog" in frame else {}),
         "controlledPlayerId": me_i,
         "matchId": match_ctx,                  # opaque local episode token
         "observationRevision": revision,
@@ -956,7 +1267,7 @@ def normalize_world(frame):
         "publicSiegeMarkers": siege_proj,
         "publicRuinRainbowMarkers": rainbow_proj,
         "trainLimits": limits_proj,
-        "trainOptions": {"status": tstatus, "cities": proj_cities,
+        "trainOptions": {"status": tstatus, "cities": proj_cities, "sites": proj_sites,
                          "reasonCodes": sorted(set(reason_codes))},
         "researchableTechs": research_proj,
         "resourceCategories": {

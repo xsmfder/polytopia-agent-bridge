@@ -205,7 +205,7 @@ internal static class CombatRuntimeTests
         Check(!(bool)boostCheck.Invoke(null, new object[] { "[\"Swift\"]", "[\"Swift\"]", 115 }), "existing Swift is not a newly applied Boost");
         Check(!(bool)boostCheck.Invoke(null, new object[] { null, "[\"Swift\"]", 115 }), "unknown previous effects cannot confirm Boost");
         Check(!(bool)boostCheck.Invoke(null, new object[] { "[]", "[\"Swift\"]", null }), "unknown native version cannot confirm effect semantics");
-        var poisoned = Unit("70", "1", "(1,1)", 100, null); Set(poisoned, "Effects", "[\"Poison\"]");
+        var poisoned = Unit("70", "1", "(1,1)", 100, null); Set(poisoned, "Effects", "[\"Poisoned\"]");
         var cured = Unit("70", "1", "(1,1)", 100, null); Set(cured, "Effects", "[]");
         var healCheck = host.GetMethod("CRHealingChanged", F);
         Check((bool)healCheck.Invoke(null, new[] { poisoned, cured }), "pure poison removal with unchanged full HP is healing");
@@ -215,7 +215,7 @@ internal static class CombatRuntimeTests
         Check((bool)healCheck.Invoke(null, new[] { poisoned, cured }), "known HP increase still proves healing");
         Set(cured, "Id", "71");
         Check(!(bool)healCheck.Invoke(null, new[] { poisoned, cured }), "another unit cannot substitute for healed native identity");
-        var cloakStart = Frame("match-c"); var cloak = Unit("80", "1", "(4,4)", 100, null); Set(cloak, "Type", "Cloak"); Add(cloakStart, cloak);
+        var cloakStart = Frame("match-c"); var cloak = Unit("80", "1", "(4,4)", 100, null); Set(cloak, "Type", "Cloak"); Set(cloak,"Infiltrate",true); Add(cloakStart, cloak);
         var cloakEnd = Frame("match-c"); Add(cloakEnd, Unit("81", "1", "(6,4)", 100, null));
         var infiltration = Activator.CreateInstance(ticketType, true); Set(infiltration, "Before", cloakStart); Set(infiltration, "Action", "attack"); Set(infiltration, "UnitId", "80");
         var infiltrateCheck = host.GetMethod("CRInfiltrationConfirmed", F);
@@ -226,9 +226,9 @@ internal static class CombatRuntimeTests
         Check(!(bool)infiltrateCheck.Invoke(null, new[] { infiltration, cloakEnd }), "infiltration reward without matching TrainAction cannot confirm");
         ((IList)Get(infiltration, "NativeInfiltrationTrains")).Add(new object());
         Check((bool)infiltrateCheck.Invoke(null, new[] { infiltration, cloakEnd }), "observed own Cloak exact native reward/train chain with real generated ID confirms");
-        Set(cloak, "Type", "Warrior");
+        Set(cloak, "Type", "Warrior"); Set(cloak,"Infiltrate",false);
         Check(!(bool)infiltrateCheck.Invoke(null, new[] { infiltration, cloakEnd }), "ordinary attacker cannot use Cloak-specific confirmation");
-        Set(cloak, "Type", "Cloak"); Set(cloak, "Owner", "2");
+        Set(cloak, "Type", "Cloak"); Set(cloak,"Infiltrate",true); Set(cloak, "Owner", "2");
         Check(!(bool)infiltrateCheck.Invoke(null, new[] { infiltration, cloakEnd }), "enemy Cloak cannot use own-command confirmation");
         Set(cloak, "Owner", "1");
         Check(!(bool)infiltrateCheck.Invoke(null, new[] { infiltration, Frame("match-c") }), "unobserved generated coordinates cannot be filled as expected values");
@@ -248,7 +248,7 @@ internal static class CombatRuntimeTests
         recordProof.Invoke(instance, new[] { boostPass, boostAfter });
         Check(((HashSet<string>)Get(boostTicket, "NativeBoostTargets")).Contains("90"), "bound native BoostAction records exact own Swift affected ID");
         var healTicket = Activator.CreateInstance(ticketType, true); Set(healTicket, "Before", Frame("proof-match"));
-        var healBefore = Frame("proof-match"); var healOld = Unit("91", "1", "(3,3)", 100, null); Set(healOld, "Effects", "[\"Poison\"]"); Add(healBefore, healOld);
+        var healBefore = Frame("proof-match"); var healOld = Unit("91", "1", "(3,3)", 100, null); Set(healOld, "Effects", "[\"Poisoned\"]"); Add(healBefore, healOld);
         var healAfter = Frame("proof-match"); var healNow = Unit("91", "1", "(3,3)", 100, null); Set(healNow, "Effects", "[]"); Add(healAfter, healNow);
         var healPass = Activator.CreateInstance(proofPassType, true); Set(healPass, "CandidateKind", "HealAction"); Set(healPass, "CandidateCoord", "(3,3)"); Set(healPass, "Before", healBefore);
         ((IList)Get(healPass, "ProofTickets")).Add(healTicket); recordProof.Invoke(instance, new[] { healPass, healAfter });
@@ -257,18 +257,18 @@ internal static class CombatRuntimeTests
         Check(((HashSet<string>)Get(healTicket, "NativeHealTargets")).Count == 0, "native healing proof does not disclose or attribute enemy effects");
         // Reproduce the real ticket43's consumed Cloak_Boat identity. The generated IDs and
         // locations are fixture observations, not a spawn layout predicted by the bridge.
-        var boatStart = Frame("boat-fixture"); var boat = Unit("30", "1", "(7,11)", 50, null); Set(boat, "Type", "Cloak_Boat"); Add(boatStart, boat);
+        var boatStart = Frame("boat-fixture"); var boat = Unit("30", "1", "(7,11)", 50, null); Set(boat, "Type", "Cloak_Boat"); Set(boat,"Infiltrate",true); Add(boatStart, boat);
         var boatTicket = Activator.CreateInstance(ticketType, true); Set(boatTicket, "Before", boatStart); Set(boatTicket, "Action", "attack"); Set(boatTicket, "UnitId", "30"); Set(boatTicket, "Coord", "(6,11)");
         var actorMatch = host.GetMethod("CRInfiltrationActorMatches", F);
         Check((bool)actorMatch.Invoke(null, new object[] { boatTicket, boat, "1", "(6,11)" }), "real Cloak_Boat actor30 binds to its own native infiltration ticket");
         Check(!(bool)actorMatch.Invoke(null, new object[] { boatTicket, boat, "2", "(6,11)" }), "Cloak_Boat requires actual native action PlayerId to match own player");
         Check(!(bool)actorMatch.Invoke(null, new object[] { boatTicket, boat, "1", "(6,12)" }), "Cloak_Boat requires requested target coordinate association");
         Check(!(bool)actorMatch.Invoke(null, new object[] { boatTicket, boat, null, "(6,11)" }), "unreadable native player cannot bind Cloak_Boat proof");
-        var stranger = Unit("31", "1", "(7,11)", 50, null); Set(stranger, "Type", "Cloak_Boat");
+        var stranger = Unit("31", "1", "(7,11)", 50, null); Set(stranger, "Type", "Cloak_Boat"); Set(stranger,"Infiltrate",true);
         Check(!(bool)actorMatch.Invoke(null, new object[] { boatTicket, stranger, "1", "(6,11)" }), "same kind and tile cannot replace named Cloak_Boat ID");
-        Set(boat, "Type", "Transportship");
+        Set(boat, "Type", "Transportship"); Set(boat,"Infiltrate",false);
         Check(!(bool)actorMatch.Invoke(null, new object[] { boatTicket, boat, "1", "(6,11)" }), "ordinary ship cannot acquire Cloak-specific proof");
-        Set(boat, "Type", "Cloak_Boat");
+        Set(boat, "Type", "Cloak_Boat"); Set(boat,"Infiltrate",true);
         var stackState = new CombatActionStackFixture(); stackState.ActionStack.Values.Add(new object());
         var reward = new InfiltrationRewardAction(); stackState.ActionStack.Values.Add(reward);
         var consumed = Frame("boat-fixture");

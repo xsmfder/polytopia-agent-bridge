@@ -17,7 +17,13 @@ namespace PolytopiaAgent
             {
                 if (value == null || (!(value is string) && !value.GetType().IsEnum)) return null;
                 string name = SafeScalar(value);
-                if (string.IsNullOrEmpty(name) || !(char.IsLetter(name[0]) || name[0] == '_')) return null;
+                if (string.IsNullOrEmpty(name)) return null;
+                if (!(char.IsLetter(name[0]) || name[0] == '_'))
+                {
+                    Type type=value.GetType();
+                    if(!type.IsEnum || type.DeclaringType==null || type.DeclaringType.Name!="TechData"
+                        || RegisteredRuleName(value,type)==null)return null;
+                }
                 foreach (char c in name) if (!(char.IsLetterOrDigit(c) || c == '_')) return null;
                 if (!names.Add(name)) return null;
             }
@@ -26,7 +32,11 @@ namespace PolytopiaAgent
 
         internal static string OwnedTechFingerprint(object raw)
         {
-            var names = ReadOwnedTechNames(raw);
+            return OwnedTechFingerprint(ReadOwnedTechNames(raw));
+        }
+        // Already validated owned names must not be re-parsed as untrusted raw strings.
+        internal static string OwnedTechFingerprint(HashSet<string> names)
+        {
             if (names == null) return null;
             var sorted = new List<string>(names);
             sorted.Sort(StringComparer.Ordinal);

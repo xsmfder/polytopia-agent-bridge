@@ -25,6 +25,7 @@ namespace PolytopiaAgent
             internal int Index, Value;
             internal bool? Enabled;
             internal object[] Args;
+            internal object Target;
             internal string Json()
             {
                 return new JsonObj().Str("actionId", Id).NullOrStr("label", Label).NullOrStr("field", Field)
@@ -35,8 +36,8 @@ namespace PolytopiaAgent
         }
         private sealed class SetupView
         {
-            internal string Phase, Error, Episode, SettingsJson, SelectedTribe, SelectedSkin;
-            internal object Screen, Settings;
+            internal string Phase, Error, Episode, SettingsJson, SelectedTribe, SelectedSkin, ConfirmationDiagnostics;
+            internal object Screen, Settings, Context;
             internal bool Ready, Complete = true;
             internal readonly List<SetupOption> Actions = new List<SetupOption>();
         }
@@ -52,7 +53,7 @@ namespace PolytopiaAgent
         private static Dictionary<string,string> SetupSettings(object settings)
         {
             var result = new Dictionary<string,string>(StringComparer.Ordinal);
-            foreach (var name in new[] {"GameType", "BaseGameMode", "OpponentCount", "MapSize", "Difficulty", "mapPreset"})
+            foreach (var name in new[] {"GameType", "BaseGameMode", "RulesGameMode", "OpponentCount", "MapSize", "Difficulty", "mapPreset"})
                 result[name] = SafeScalar(MemberWithAccessor(settings, name));
             return result;
         }
@@ -90,6 +91,7 @@ namespace PolytopiaAgent
                 case "difficulty": dataName="difficultyData"; member="Difficulty"; callback="OnDifficultyChanged"; break;
                 case "map_size": dataName="mapSizeData"; member="MapSize"; callback="OnMapSizeChanged"; break;
                 case "map_preset": dataName="mapTypeData"; member="mapPreset"; callback="OnMapTypeChanged"; break;
+                case "game_mode": dataName="gameModeData"; member="RulesGameMode"; callback="OnGameModeChanged"; break;
                 default: return result;
             }
             try
@@ -199,7 +201,7 @@ namespace PolytopiaAgent
                 if (popup==true && v.Phase=="tribe_menu" && selection!=null
                     && CRSameNative(selection,MemberWithAccessor(v.Screen,"popup")) && ReadActive(selection)=="true"
                     && SafeScalar(MemberWithAccessor(selection,"Mode"))=="Select")
-                { v.Phase="tribe_selected"; SetupButtonForSelection(v,selection); }
+                { v.Phase="tribe_selected"; v.Context=selection; SetupButtonForSelection(v,selection); }
                 else {v.Phase="needs_resolution"; v.Error=popup==null ? "NATIVE_POPUP_STATE_UNKNOWN" : "NATIVE_POPUP_REQUIRES_ATTENTION";}
                 return v;
             }
@@ -208,7 +210,7 @@ namespace PolytopiaAgent
             {
                 SetupButton(v,"dominationButton","mode:Domination","OnDomination");
                 SetupButton(v,"perfectionButton","mode:Perfection","OnPerfection");
-                SetupButton(v,"creativeButton","mode:Creative",null);
+                SetupButton(v,"creativeButton","mode:Creative","OnCustom");
                 SetupButton(v,"tutorialButton","mode:Tutorial",null);
             }
             if (v.Phase=="tribe_menu") ReadSetupTribes(v);
@@ -216,9 +218,9 @@ namespace PolytopiaAgent
             {
                 var view=MemberWithAccessor(v.Screen,"view");
                 var flags=MemberWithAccessor(view,"whatToShow");
-                foreach (var field in new[] {"opponents","difficulty","map_preset","map_size"})
+                foreach (var field in new[] {"game_mode","opponents","difficulty","map_preset","map_size"})
                 {
-                    string flag=field=="opponents" ? "OpponentsList" : field=="difficulty" ? "DifficultyList" : field=="map_preset" ? "MapTypeList" : "MapSizeList";
+                    string flag=field=="game_mode" ? "GameModeList" : field=="opponents" ? "OpponentsList" : field=="difficulty" ? "DifficultyList" : field=="map_preset" ? "MapTypeList" : "MapSizeList";
                     bool? visible=SetupFlag(flags,flag);
                     if(visible==false)continue; // Collapsed native advanced lists are not missing data.
                     if(visible==null){v.Complete=false;continue;}
@@ -255,9 +257,40 @@ namespace PolytopiaAgent
             object button=null;
             try {if(id.HasValue && getter!=null) button=getter.Invoke(selection,new object[] {id.Value});}
             catch {v.Complete=false;}
+            var physical = new JsonArr();
+            var buttons = ReadNativeList(MemberWithAccessor(selection,"Buttons"));
+            if (buttons != null) foreach (var item in buttons)
+                physical.Raw(SetupConfirmationButtonDiagnostic(item));
+            var configured = new JsonArr();
+            var definitions = ReadNativeList(MemberWithAccessor(selection,"buttonData"));
+            if (definitions != null) foreach (var item in definitions)
+                configured.Raw(new JsonObj().NullOrStr("id",SafeScalar(MemberWithAccessor(item,"id")))
+                    .NullOrStr("text",SafeScalar(MemberWithAccessor(item,"text")))
+                    .NullOrStr("state",SafeScalar(MemberWithAccessor(item,"state"))).Close());
+            v.ConfirmationDiagnostics = new JsonObj().Raw("requestedButtonId",id.HasValue ? id.Value.ToString(CultureInfo.InvariantCulture) : "null")
+                .NullableBool("tribeEnabled",ReadBoolMember(selection,"tribeEnabled"))
+                .Raw("matchedButton",SetupConfirmationButtonDiagnostic(button))
+                .Raw("physicalButtons",buttons == null ? "null" : physical.Close())
+                .Raw("configuredButtons",definitions == null ? "null" : configured.Close()).Close();
             v.Actions.Add(new SetupOption {Id="confirm_tribe",Method="OnSelectTribeMainButtonPressed",
                 Enabled=button==null ? (bool?)null : ReadActive(button)=="true" ? ReadBoolPropertyOrGetter(button,"ButtonEnabled") : (bool?)false,
                 Label=SafeScalar(MemberWithAccessor(button,"Text"))});
+            // This is the popup's ordinary tribe availability toggle. It is not
+            // an ownership/purchase operation and is never offered on Purchase mode.
+            var toggle=MemberWithAccessor(selection,"disableButton");
+            if (ReadActive(toggle)=="true")
+                v.Actions.Add(new SetupOption {Id="toggle_tribe_enabled",Method="OnDisableTribe",Target=selection,
+                    Enabled=ReadBoolMember(selection,"tribeEnabled").HasValue ? ReadBoolPropertyOrGetter(toggle,"ButtonEnabled") : (bool?)null,
+                    Label=SafeScalar(MemberWithAccessor(toggle,"Text"))});
+        }
+        // Menu diagnostics only: keep visibility distinct from native enabled state.
+        // These readings never authorize a callback or inspect a game/map snapshot.
+        private string SetupConfirmationButtonDiagnostic(object button)
+        {
+            if (button == null) return "null";
+            return new JsonObj().Str("activeInHierarchy",ReadActive(button))
+                .NullableBool("buttonEnabled",ReadBoolPropertyOrGetter(button,"ButtonEnabled"))
+                .NullOrStr("text",SafeScalar(MemberWithAccessor(button,"Text"))).Close();
         }
         private void ReadSetupTribes(SetupView v)
         {
@@ -305,8 +338,9 @@ namespace PolytopiaAgent
             }
             var a=new List<string>(); foreach(var row in v.Actions) a.Add(row.Json()); a.Sort(StringComparer.Ordinal);
             string fp=v.Phase+"|"+v.Error+"|"+v.SettingsJson+"|"+v.SelectedTribe+"|"+v.SelectedSkin+"|"+v.Episode+"|"+v.Complete+"|"+_setupLastRevision+"|"+_setupLastAction+"|"+string.Join(";",a.ToArray());
-            if (fp!=_setupFingerprint || !CRSameNative(_setupScreen,v.Screen))
-            {_setupRevision++; _setupFingerprint=fp; _setupScreen=v.Screen;}
+            var context=v.Context??v.Screen;
+            if (fp!=_setupFingerprint || !CRSameNative(_setupScreen,context))
+            {_setupRevision++; _setupFingerprint=fp; _setupScreen=context;}
             return v;
         }
         private string SetupStatus()
@@ -318,6 +352,7 @@ namespace PolytopiaAgent
                 .Str("phase",v.Phase).Bool("ready",v.Ready).Bool("optionsComplete",v.Complete).NullOrStr("errorCode",v.Error)
                 .NullOrStr("episodeId",v.Episode).Raw("settings",v.SettingsJson??"null").Raw("actions",actions.Close())
                 .NullOrStr("selectedTribe",v.SelectedTribe).NullOrStr("selectedSkin",v.SelectedSkin)
+                .Raw("confirmationDiagnostics",v.ConfirmationDiagnostics??"null")
                 .Bool("creationSubmitted",_setupCreationSubmitted).Raw("lastAction",_setupLastReply??"null").Close();
         }
         private string SetupAction(string actionId,string session,string revision)
@@ -336,7 +371,8 @@ namespace PolytopiaAgent
             SetupOption selected=null;
             foreach (var row in v.Actions) if (row.Id==actionId) {if(selected!=null)return SetupError("AMBIGUOUS_SETUP_ACTION"); selected=row;}
             if (selected==null || selected.Enabled!=true || selected.Method==null) return SetupError("SETUP_ACTION_UNAVAILABLE");
-            var method=v.Screen.GetType().GetMethod(selected.Method,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
+            var target=selected.Target??v.Screen;
+            var method=target.GetType().GetMethod(selected.Method,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic,
                 null, selected.Args==null ? Type.EmptyTypes : Array.ConvertAll(selected.Args,x=>x.GetType()), null);
             if (method==null || method.ReturnType!=typeof(void)) return SetupError("NATIVE_CALLBACK_UNAVAILABLE");
             _setupLastRevision=expected; _setupLastAction=actionId;
@@ -344,7 +380,7 @@ namespace PolytopiaAgent
             if (actionId=="continue") {_setupCreationSubmitted=true; _setupExpectedSettings=SetupSettings(v.Settings);}
             try
             {
-                method.Invoke(v.Screen,selected.Args);
+                method.Invoke(target,selected.Args);
                 bool verified=selected.Setting!=null && SetupNativeId(MemberWithAccessor(v.Settings,selected.Setting))==selected.Value;
                 _setupLastReply=new JsonObj().Bool("ok",selected.Setting==null || verified).Str("status",selected.Setting==null ? "submitted" : verified ? "configured" : "not_confirmed")
                     .Str("setupSessionId",_setupSession).Raw("menuRevision",expected.ToString(CultureInfo.InvariantCulture)).Str("actionId",actionId)

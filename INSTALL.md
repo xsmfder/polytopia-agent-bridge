@@ -1,118 +1,67 @@
 # 安装、构建与回退
 
-[English](INSTALL.en.md) | [简体中文](INSTALL.md)
+[English](INSTALL.en.md) · [使用指南](USAGE.md)
 
-## 准备游戏和加载器
+当前包版本 **0.4.0**。运行包、源码/SDK包用途不同：`.polymod` 是游戏内运行组件，源码 ZIP 包含 Python SDK 和本机构建入口。游戏与加载器由用户从官方渠道安装，不随本项目分发。
 
-需要Windows x64、自己的正常游戏安装及可用的Steam登录缓存。先用Steam官方离线模式启动原版游戏，确认能进入主菜单，再正常退出。本项目不处理原版启动或平台认证问题，在线启动和其他系统不在当前支持范围。
+## 推荐：PolyMod
 
-**MelonLoader由用户自行安装，本项目不附带、代装或自动下载加载器。** 从[官方项目](https://github.com/LavaGang/MelonLoader)获取当前已核对的[0.7.3 Open-Beta](https://github.com/LavaGang/MelonLoader/releases/tag/v0.7.3)，关闭游戏后按官方安装器或[手动安装说明](https://github.com/LavaGang/MelonLoader#how-to-manually-use-melonloader)操作，目标选游戏的`Polytopia.exe`。
+1. 退出游戏，按 [PolyMod 官方说明](https://github.com/PolyModdingTeam/PolyMod)安装。已核对组合是 PolyMod 1.2.18、BepInEx 6.0.0-be.785、Windows x64 游戏 2.17.3.16375。
+2. 核对 `.sha256` 文件，将 `agent_bridge-0.4.0.polymod` 放入游戏根目录的 `Mods`。该文件本身是 ZIP；无需解压，不要再保留一个同 id 的旧版包或文件夹。
+3. PolyMod/BepInEx 使用根目录 `winhttp.dll` 启动代理。本项目的 MelonLoader 回退使用 `version.dll`；同一时间只启用一条加载链。将停用代理备份到游戏目录之外，保留原有配置以便回退。
+4. 第一次初始化可能需要联网获取依赖。通过 Steam 正常启动并等待主菜单，确认加载器显示 **Polytopia Agent Bridge 0.4.0**，ready 信息含 `bridgeVersion=0.4.0`、`loader=PolyMod`。
 
-IL2CPP运行时按[上游依赖说明](https://github.com/LavaGang/MelonLoader/tree/v0.7.3#requirements)准备，上游列出.NET 6 Desktop Runtime x64。它与下文编译时使用的.NET Framework工具是两项不同依赖。可用`dotnet --list-runtimes`查看现有运行时；本机验收所用0.7.3包的`MelonLoader/net6/MelonLoader.runtimeconfig.json`实际请求`Microsoft.NETCore.App 6.0.0`，允许同一6.0系列的补丁更新，安装6.0.36且没有6.x Desktop Runtime时也启动成功。这是该包与本机的实测条件，不将其扩大为所有加载器版本的最低要求；仅安装.NET 7也不能据此认定满足6.0要求。
+包结构和清单要求见 [PolyMod 发布准备](POLYMOD_PUBLISH.md)。本版本没有修改原版规则；`client=true` 不表示已经验收联网对战。
 
-手动安装应以对应官方Release包内容为准。本次核对的0.7.3 x64包包含`version.dll`和`MelonLoader/`，没有单独的`dobby.dll`；不要为满足通用说明从其他来源另找DLL。
+## SDK 与启动
 
-先启动一次加载器并等到主菜单，完成依赖生成后退出。首次过程可能联网下载依赖，“离线对局”不表示完全断网首装已经可用。
+Python 3.10+，无额外 pip 依赖。将源码 ZIP 内的项目内容放到 `<游戏目录>/.offline-work/agent-bridge/`，使 `sdk.py`、`agentcli.py` 与运行队列在同一目录。只使用预编译运行包时，至少保留 Python 模块；构建、测试、报告和备份可放在其他盘。
 
-确认游戏目录存在：
-
-```text
-Polytopia.exe
-GameAssembly.dll
-MelonLoader/net472/MelonLoader.dll
-MelonLoader/net472/0Harmony.dll
-```
-
-`net472`引用是当前构建入口的要求，游戏运行时另由MelonLoader处理。缺文件时先完成对应加载器安装，不要把本机依赖上传到源码仓库。
-
-## 放置源码并构建
-
-准备Python 3.10或以上，以及Windows .NET Framework编译器；源码目录、输出目录和当前用户的`$env:TEMP`需要可写。受限工具中的Low完整性令牌可能影响程序集加载和临时文件访问，应使用正常用户权限完成构建和启动。
+从该源码目录用普通用户权限的 PowerShell 执行：
 
 ```powershell
 python --version
-Test-Path "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+python tools/start_bridge.py start --player 1 --via steam --timeout 300
+python agentcli.py --player 1 --session sessions/player1.json observe --details
 ```
 
-将源码选集放到以下位置，避免再套一层目录：
+受控席位在启动时固定；不要在同一进程改成另一玩家。Steam 可能因同步或着色器处理延迟启动；超时后先核对原次启动，不重复点击。控制台文字选择可能暂停进程输出，标题若以“选择”开头，按 Esc 退出选择。
 
-```text
-<游戏目录>/
-  Polytopia.exe
-  Mods/
-  .offline-work/agent-bridge/
-    src/
-    tests/
-    tools/
-    sdk.py
-    agentcli.py
+已有游戏时先检查当前 ready 与真实请求，避免再启动。多人热座创建仍由游戏菜单完成，接口可以接管既有席位和交接。一个对局保持一个写入者，勿与手动操作同时发动作。
+
+源码在游戏目录之外时，可显式指定队列路径：
+
+```python
+from bridge_transport import Bridge
+from sdk import PolytopiaSDK
+bridge = Bridge(work=r'C:\Games\Polytopia\.offline-work\agent-bridge')
+with PolytopiaSDK(bridge, player_id=1, session_path='sessions/player1.json') as sdk:
+    print(sdk.observe())
 ```
 
-游戏内队列当前固定在这个相对路径，Python默认连接自身目录中的队列。不要从另一个独立克隆期待自动连接游戏。
+## 从源码构建 PolyMod
+
+使用 PowerShell 7（提供 Roslyn 程序集），先通过同源完整回归，再构建 net6.0。输出目录必须是新的目录，历史证据不会覆盖。
 
 ```powershell
-$gameRoot = 'C:\Games\Polytopia'  # 修改为实际路径
-Set-Location (Join-Path $gameRoot '.offline-work\agent-bridge')
+$gameRoot = 'C:\Games\Polytopia'
 python tools/verify_bridge.py --all --game-root $gameRoot --out v1
+pwsh -File tools/build_polymod.ps1 -GameRoot $gameRoot -OutputDirectory build-polymod
+python tools/package_polymod.py --build build-polymod/build.json --verification v1/verification.json --out dist-polymod
+python tools/package_polymod.py --build build-polymod/build.json --verification v1/verification.json --verify-directory dist-polymod
 ```
 
-验证器编译Bridge并运行C#/Python、冻结恢复和工具测试，生成`v1/verification.json`；不会启动游戏、部署DLL或读取实机对局。必须检查成功状态和输入一致性，再部署。输出目录使用新的短名称，已有v1则改用v2；本机引用和输出不提交。
+构建读取用户本机 `dotnet`、`BepInEx/core`、`BepInEx/interop` 和 `BepInEx/plugins/PolyMod.dll`。这些依赖只用于引用，不放进本项目包。打包器核对完整回归、全部 C# 来源、构建输入和当前输入哈希。
 
-## 安装Bridge并启动
+## MelonLoader 回退
 
-保持游戏关闭，先看计划再安装：
+独立安装 [MelonLoader 0.7.3](https://github.com/LavaGang/MelonLoader/releases/tag/v0.7.3)，完成一次依赖生成。其 IL2CPP 环境使用 .NET 6 Desktop Runtime；C# 回退构建另引用本机 `MelonLoader/net472/MelonLoader.dll` 和 `0Harmony.dll`。退出游戏后停用 PolyMod 的启动代理，启用该加载链的 `version.dll`，并将同版本 `PolytopiaAgentBridge.dll` 放入 `Mods`。
 
 ```powershell
 python tools/deploy_bridge.py plan --evidence v1/verification.json
 python tools/deploy_bridge.py install --evidence v1/verification.json
-python tools/start_bridge.py start --player 1
 ```
 
-部署工具只安装已验证的`Mods/PolytopiaAgentBridge.dll`，不安装加载器、不复制游戏程序集、不修改存档或认证。首次安装无需占位DLL，升级保留回退记录。进程状态不可读或仍有游戏实例时应停止安装，先处理原实例。
+该部署器处理 MelonLoader DLL，不会把它转换成 PolyMod 包。保留部署返回的 `completed.json`，回退按 `python tools/deploy_bridge.py rollback --help` 的参数执行。切换前核对启动代理和实际宿主，不以文件存在当作加载成功。
 
-启动成功须有`ok=true`、`ready=true`、`status=ready`以及配置恢复为`restored/already_restored`。它证明Bridge加载并到达主菜单，对局仍需正常建立或恢复。
-
-已有单人存档可用正式CLI的`load_game --wait`恢复；热座先用`saved_games --wait`打开原生存档列表，再`load_game --mode hotseat --game-id '<列表中的GUID>' --wait`。加载使用新的`--session`文件，后续先`observe`确认当前席位和可操作状态。也可通过游戏界面读档。CLI的`resume`只续查原请求，不是读档。
-
-`save_game --wait`保存当前受控对局，`return_to_menu --wait`保存后回菜单，`quit_game --wait`保存活动对局、回菜单后请求游戏正常退出。使用同一持久会话；先通过`observe`绑定活动对局。`confirmed`保存表示原生回调后对应存档文件出现写入变化；不会读取或公开其他存档内容。退出只有客户端证明原队列所属进程已结束才确认，无法判断退出原因时不声称已经验证为无崩溃正常关闭；超时不自动重发或强制杀进程。
-
-调用原生Quit之前，桥接先将最终进度原子落盘到`lifecycle-receipts/`。即使第一次回执仍停在回菜单阶段，之后也可延迟查询；客户端同时核对operationId、原PID、bridgeStarted和受控席位，并证明原进程已结束。文件缺失、损坏或身份不匹配不表示成功；落盘失败时停止自动退出，不通过虚报第一份回执的quitScheduled解决问题。
-
-`start_bridge.py`仍没有`stop`命令，`restore`只恢复临时启动配置，不会停止游戏。SDK的`close()`只释放会话。部署或回退前正常保存、退出，并等待进程结束，具体命令见[接入指南](USAGE.md)。
-
-热座按实际受控玩家启动，例如`--player 2`。席位只在启动时加载，工具临时配置后还原磁盘文件；运行中不会替换玩家，也不应同时启动第二个游戏实例。
-
-## 回退
-
-保留install输出中`record`指向的`completed.json`，正常保存并退出游戏后运行：
-
-```powershell
-python tools/deploy_bridge.py plan --record '<本次completed.json的实际路径>'
-python tools/deploy_bridge.py rollback --record '<本次completed.json的实际路径>'
-```
-
-首次安装回退只移除本次未被修改的Bridge DLL，升级回退恢复对应旧DLL。不要删除整个Mods或UserData目录。MelonLoader本身的卸载另按上游说明进行。
-
-## 排错
-
-| 现象 | 核对方向 |
-| --- | --- |
-| 原版也不能启动 | 先恢复正常Steam官方离线启动，Bridge不处理认证 |
-| 加载器卡住或下载失败 | 查看MelonLoader日志和上游依赖，首次初始化可能联网 |
-| `0x80131515` / “从网络位置加载程序集” | 分别检查下载文件的`Zone.Identifier`和文件的强制完整性标签；二者不是同一种标记。见下文，不直接修改程序集加载策略 |
-| 临时目录写入被拒 | 检查当前用户对`$env:TEMP`的写权限、进程令牌和具体失败路径；换用正常用户的可写临时目录后重新验证 |
-| 错误1455 | 检查Windows内存/分页文件及提交额度，参考[Microsoft说明](https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--1300-1699-) |
-| Bridge未ready | 检查加载器日志、版本、PID、席位和队列路径；超时后检查原实例，不重复启动 |
-| 游戏更新后字段不可用 | 对照[兼容说明](COMPATIBILITY.md)，保留unknown/partial并重新验证 |
-
-仅在确认下载来源和SHA256后，可检查并解除该压缩包的互联网下载标记，再解压到新的目标目录：
-
-```powershell
-$sourceZip = 'C:\Downloads\polytopia-agent-bridge-source.zip'  # 改为已核验的包
-Get-Item -LiteralPath $sourceZip -Stream Zone.Identifier -ErrorAction SilentlyContinue
-Unblock-File -LiteralPath $sourceZip
-```
-
-[`Unblock-File`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/unblock-file)移除下载标记，不修改Low/Medium完整性标签。若仍失败，用`icacls '<日志中被拒绝的实际文件路径>'`只读检查权限和标签；本机DSH验收遇到Low标签，恢复到正常用户Medium环境后全量验证通过。不要把整个游戏目录递归改权限作为默认安装步骤，也不要为绕过沙箱直接降低系统策略。修正环境后使用新的输出目录重跑验证，保留失败日志。
-
-此前源码选集已在本机独立原版安装目录完成官方离线首装、单人核心动作、人工保存恢复、Bridge回退与重装。后续生命周期验收是手动替换源码后的覆盖升级，不是再次从零安装；不能自动沿用旧候选的完整首装结论。该目录仍共享当前Windows用户的游戏存档；完全断网首装、其他机器和完整卸载加载器未由这些验收证明。
+规则扩展模组的存档可能依赖那些模组；不能因 Bridge 有回退入口就认为卸下其他模组后存档仍可读取。备份原包、代理和设置；不删除存档或未决会话来解锁。卸载先正常退出游戏，再移出 Bridge 包；保留其他用户模组。

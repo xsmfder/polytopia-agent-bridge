@@ -1,0 +1,193 @@
+{
+  "source": "campaigns/20261026-cymanti-special-crazy",
+  "exception": {
+    "time": 1793008118.0763898,
+    "method": "choose_popup",
+    "args": [
+      0
+    ],
+    "kwargs": {
+      "expected_popup": {
+        "reqId": 8582326824410385,
+        "ok": true,
+        "schema": "popup-info-1",
+        "showing": true,
+        "status": "observed",
+        "popupType": "IconRewardPopup",
+        "title": "You meet <size=18><nobr><alpha=#00><link=\"Tribe_2\"><space=14><space=25>∑∫ỹriȱŋ</link><alpha=#FF></nobr><size=100%>",
+        "body": "Their leader ŧoŧoȓȱ salutes you friendly but pays no attention to your tiny realm.\nThe discovery of this sprawling tribe gives you a one time trade boost of 7 stars!",
+        "visibleTexts": [],
+        "truncated": false,
+        "buttons": {
+          "ok": true,
+          "popupType": "IconRewardPopup",
+          "status": "ok",
+          "complete": true,
+          "buttonCount": 1,
+          "observedButtonCount": 1,
+          "buttons": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ],
+          "m_buttonData": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ]
+        },
+        "textAuthority": "current native UI text controls, already localized; no popup callback invoked",
+        "actualRewardsAuthority": "use city_options.pendingCityReward/reward effects and settled action state; notification text alone is not an effect confirmation"
+      }
+    },
+    "exception": {
+      "type": "SDKError",
+      "message": "popup changed; choose from a fresh observation",
+      "errorCode": "POPUP_CHANGED",
+      "details": {}
+    },
+    "unresolved": {
+      "ticket": 68,
+      "binding": {
+        "episodeId": "ep-789a88d1c4e44f2e",
+        "playerId": 1,
+        "streamId": "b42cb82be9184659a99c9c03294f48c6",
+        "stateVersion": 242
+      }
+    },
+    "setupUnresolved": null
+  },
+  "nativeReads": [
+    {
+      "time": 1793008117.429211,
+      "cmd": "popup_info",
+      "args": {
+        "timeout": 20.0
+      },
+      "response": {
+        "reqId": 8582326824410385,
+        "ok": true,
+        "schema": "popup-info-1",
+        "showing": true,
+        "status": "observed",
+        "popupType": "IconRewardPopup",
+        "title": "You meet <size=18><nobr><alpha=#00><link=\"Tribe_2\"><space=14><space=25>∑∫ỹriȱŋ</link><alpha=#FF></nobr><size=100%>",
+        "body": "Their leader ŧoŧoȓȱ salutes you friendly but pays no attention to your tiny realm.\nThe discovery of this sprawling tribe gives you a one time trade boost of 7 stars!",
+        "visibleTexts": [],
+        "truncated": false,
+        "buttons": {
+          "ok": true,
+          "popupType": "IconRewardPopup",
+          "status": "ok",
+          "complete": true,
+          "buttonCount": 1,
+          "observedButtonCount": 1,
+          "buttons": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ],
+          "m_buttonData": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ]
+        },
+        "textAuthority": "current native UI text controls, already localized; no popup callback invoked",
+        "actualRewardsAuthority": "use city_options.pendingCityReward/reward effects and settled action state; notification text alone is not an effect confirmation"
+      }
+    },
+    {
+      "time": 1793008118.0093963,
+      "cmd": "popup_info",
+      "args": {
+        "timeout": 20.0
+      },
+      "response": {
+        "reqId": 8582326824410392,
+        "ok": true,
+        "schema": "popup-info-1",
+        "showing": true,
+        "status": "observed",
+        "popupType": "IconRewardPopup",
+        "title": "You meet <size=18><nobr><alpha=#00><link=\"Tribe_2\"><space=14><space=25>∑∫ỹriȱŋ</link><alpha=#FF></nobr><size=100%>",
+        "body": "Their leader ŧoŧoȓȱ salutes you friendly but pays no attention to your tiny realm.\nThe discovery of this sprawling tribe gives you a one time trade boost of 7 stars!",
+        "visibleTexts": [
+          {
+            "path": "/IconRewardPopup(Clone)/RewardButtonsContainer/RoundButton",
+            "componentType": "UIRoundButton",
+            "text": "7"
+          },
+          {
+            "path": "/IconRewardPopup(Clone)/RewardButtonsContainer/RoundButton/IconAndTextContainer/TextInContainer",
+            "componentType": "TextMeshProUGUI",
+            "text": "7"
+          }
+        ],
+        "truncated": false,
+        "buttons": {
+          "ok": true,
+          "popupType": "IconRewardPopup",
+          "status": "ok",
+          "complete": true,
+          "buttonCount": 1,
+          "observedButtonCount": 1,
+          "buttons": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ],
+          "m_buttonData": [
+            {
+              "index": 0,
+              "id": 0,
+              "text": null,
+              "hasCallback": true,
+              "closesPopup": null,
+              "enabled": true,
+              "source": "native_IconRewardPopup_RewardButton",
+              "handler": "RewardButtonClicked"
+            }
+          ]
+        },
+        "textAuthority": "current native UI text controls, already localized; no popup callback invoked",
+        "actualRewardsAuthority": "use city_options.pendingCityReward/reward effects and settled action state; notification text alone is not an effect confirmation"
+      }
+    }
+  ]
+}

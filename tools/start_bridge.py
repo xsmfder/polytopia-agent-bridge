@@ -61,13 +61,33 @@ def paths(work):
     return work, work.parents[1] / "Polytopia.exe", work / "controlled-seat.json"
 
 
-def plan(work=WORK, player=1, probe=None):
+def launch_command(executable, via):
+    require(via in ("direct", "steam"), "launch via must be direct or steam")
+    if via == "direct":
+        return [str(executable)]
+    # Only use the client belonging to this Steam library's installation.
+    # Do not inject an Overlay DLL or emulate Steam environment variables.
+    steam = next((parent / "steam.exe" for parent in executable.parents
+                  if (parent / "steam.exe").is_file()), None)
+    if steam is None and os.name == "nt":
+        import winreg
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as key:
+                steam = Path(winreg.QueryValueEx(key, "SteamExe")[0])
+        except OSError:
+            pass
+    require(steam is not None and steam.is_file(), "Steam client not found")
+    return [str(steam), "-applaunch", "874390"]
+
+
+def plan(work=WORK, player=1, probe=None, *, via="direct"):
     work, executable, config = paths(work)
     seat_bytes(player)
     pids = (probe or game_processes)()
     require(isinstance(pids, list) and all(type(pid) is int and pid > 0 for pid in pids), "Invalid game process query")
+    arguments = launch_command(executable, via)
     return {"operation": "plan", "executable": str(executable), "cwd": str(executable.parent),
-            "arguments": [str(executable)], "windowMode": "normal", "playerId": player,
+            "arguments": arguments, "launchVia": via, "windowMode": "normal", "playerId": player,
             "readinessContract": "native_start_menu",
             "configuration": str(config), "configurationExists": config.exists(),
             "gamePids": pids, "canStart": executable.is_file() and not pids,
@@ -148,7 +168,7 @@ def restore(work, record_path):
     return record
 
 
-def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sleep=None):
+def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sleep=None, via="direct"):
     require(isinstance(timeout, (int, float)) and not isinstance(timeout, bool)
             and math.isfinite(timeout) and timeout > 0, "timeout must be finite and positive")
     temporary = seat_bytes(player)
@@ -157,7 +177,7 @@ def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sle
     probe, popen = probe or game_processes, popen or subprocess.Popen
     clock, sleep = clock or time.monotonic, sleep or time.sleep
     with closing(SessionStore(work / "launches" / "startup-lock.json")):
-        checked = plan(work, player, probe)
+        checked = plan(work, player, probe, via=via)
         require(checked["canStart"], "Game already running; startup refused")
         directory = work / "launches" / (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex)
         directory.mkdir()
@@ -172,7 +192,7 @@ def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sle
                   "configuration": str(config), "temporaryConfigSha256": digest(temporary),
                   "originalConfigExisted": original is not None,
                   "originalConfigSha256": digest(original) if original is not None else None,
-                  "executable": str(executable), "pid": None, "ready": False,
+                  "executable": str(executable), "pid": None, "ready": False, "launchVia": via,
                   "log": str(directory / "startup.log"), "record": str(record_path),
                   "deployed": False, "gameTerminated": False}
         write_record(record_path, record)
@@ -181,23 +201,40 @@ def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sle
                     "Configuration changed during preparation; startup refused")
             atomic_bytes(config, temporary)
             # Catch a second launcher/manual start between the first query and write.
-            require(plan(work, player, probe)["canStart"], "Game appeared during preparation; startup refused")
+            require(plan(work, player, probe, via=via)["canStart"], "Game appeared during preparation; startup refused")
             record["status"] = "launching"
             write_record(record_path, record)
             with (directory / "startup.log").open("ab") as log:
-                process = popen([str(executable)], cwd=str(executable.parent), stdout=log, stderr=subprocess.STDOUT)
+                process = popen(checked["arguments"], cwd=str(executable.parent), stdout=log, stderr=subprocess.STDOUT)
             require(type(process.pid) is int and process.pid > 0, "Launcher returned invalid process id")
-            record.update(status="waiting_ready", pid=process.pid)
+            # Steam's dispatcher often exits immediately: its PID is not the game PID.
+            record.update(status="waiting_ready", pid=process.pid if via == "direct" else None)
+            if via == "steam":
+                record["dispatcherPid"] = process.pid
             write_record(record_path, record)
             deadline = clock() + timeout
             while True:
-                exit_code = process.poll()
-                if exit_code is not None:
-                    record.update(status="exited_before_ready", exitCode=exit_code)
-                    break
-                ready, reason = ready_status(work, process.pid, player, baseline)
+                if via == "direct":
+                    exit_code = process.poll()
+                    if exit_code is not None:
+                        record.update(status="exited_before_ready", exitCode=exit_code)
+                        break
+                    live = [process.pid]
+                else:
+                    live = probe()
+                    require(isinstance(live, list) and all(type(pid) is int and pid > 0 for pid in live),
+                            "Invalid game process query")
+                    if record["pid"] is None and len(live) == 1:
+                        record["pid"] = live[0]
+                        write_record(record_path, record)
+                    if record["pid"] is not None and record["pid"] not in live:
+                        record.update(status="exited_before_ready")
+                        break
+                ready, reason = (ready_status(work, record["pid"], player, baseline)
+                                 if record["pid"] is not None else (False, "waiting_for_steam_game_process"))
                 record["lastReadyRejection"] = reason
-                if ready and process.poll() is None:
+                if ready and ((via == "direct" and process.poll() is None)
+                              or (via == "steam" and record["pid"] in probe())):
                     record.update(status="ready", ready=True)
                     break
                 remaining = deadline - clock()
@@ -216,6 +253,9 @@ def start(work, player, *, timeout=60.0, probe=None, popen=None, clock=None, sle
                 record["restoreError"] = type(exc).__name__ + ": " + str(exc)
             restored = record["configurationRestoration"] in ("restored", "already_restored")
             record["configurationRestoredBeforeReady"] = not record["ready"] and restored
+            if via == "steam" and record["status"] == "startup_unknown":
+                record["steamRequestMayStillBePending"] = True
+                record["warning"] = "Steam may still launch the game after timeout. Inspect Steam and the game process; do not blindly retry."
             record["ok"] = record["status"] == "ready" and restored
             write_record(record_path, record)
         return record
@@ -226,9 +266,13 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="operation")
     p = sub.add_parser("plan", help="read-only startup plan")
     p.add_argument("--player", type=int, default=1)
+    p.add_argument("--via", choices=("direct", "steam"), default="direct")
     p = sub.add_parser("start", help="explicitly start a visible game window")
     p.add_argument("--player", type=int, required=True)
-    p.add_argument("--timeout", type=float, default=60.0)
+    p.add_argument("--timeout", type=float, default=None,
+                   help="seconds to wait (default: Steam 300, direct 60); timeout never cancels Steam's pending launch")
+    p.add_argument("--via", choices=("direct", "steam"), default="direct",
+                   help="use steam for Steam Online/Overlay; direct preserves the original startup path")
     p = sub.add_parser("restore", help="restore configuration from a recorded interrupted launch")
     p.add_argument("--record", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -236,9 +280,10 @@ def main(argv=None):
         if args.operation == "restore":
             result = restore(WORK, args.record)
         elif args.operation == "start":
-            result = start(WORK, args.player, timeout=args.timeout)
+            timeout = args.timeout if args.timeout is not None else (300.0 if args.via == "steam" else 60.0)
+            result = start(WORK, args.player, timeout=timeout, via=args.via)
         else:
-            result = plan(WORK, getattr(args, "player", 1))
+            result = plan(WORK, getattr(args, "player", 1), via=getattr(args, "via", "direct"))
         print(json.dumps(result, ensure_ascii=False, indent=2))
         if args.operation == "restore":
             return 0 if result.get("configurationRestoration") in ("restored", "already_restored") else 1

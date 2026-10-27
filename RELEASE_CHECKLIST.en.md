@@ -1,38 +1,24 @@
-# Release preparation and acceptance
+# 0.4.0 preparation and publication checklist
 
-[English](RELEASE_CHECKLIST.en.md) | [简体中文](RELEASE_CHECKLIST.md)
+[中文](RELEASE_CHECKLIST.md)
 
-This checklist separates local source preparation, clean installation, upgrade acceptance, and actual publication. A completed feature checklist is not a completed release.
+## Preparation
 
-## Local preparation
+- Reacquire authoritative sources and preserve raw natural-game evidence and the deployed reward fix. Distinguish tactical mistakes from interface defects.
+- Fix auxiliary-text rejection, pending rewards, public queue resolution and conditional area/terrain previews. Run targeted and full same-source regressions.
+- Align `VERSION=0.4.0`, C# metadata, manifest and both loader displays; use GitHub tag `v0.4.0`.
+- Select sources through `tools/prepare_release.py`; check sensitive content, personal paths, missing local documentation links and external dependencies.
+- Include Chinese/English README, installation, usage, compatibility, provenance, contribution, changelog, announcement and PolyMod publication documents.
+- Rerun Python/tool checks in the clean source selection. Match the complete C# source set and hashes across regression and net6 PolyMod builds.
+- Prepare `.polymod`, same-source MelonLoader DLL, source/SDK ZIP and SHA256 files; inspect actual extracted bytes, versions and root layout.
+- Preserve deployment/rollback evidence. Separate historical live samples, frozen replay, offline fixtures and final-candidate live checks.
 
-- [x] README describes project capabilities, scope, and usage; private repair history is excluded.
-- [x] Chinese and English versions of all eight public Markdown documents are included, with language links and matching interface boundaries. LICENSE is the original English MIT text.
-- [x] INSTALL covers user-installed official MelonLoader, build references, Steam offline mode, initial network dependencies, and rollback.
-- [x] Explicit source export excludes game/loader binaries, generated references, personal runtime data, and private history links.
-- [x] The owner selected MIT. LICENSE and source/fixture/dependency provenance boundaries are included.
-- [x] The original source selection passed independent-directory first installation, core solo actions, manual save restoration, bridge rollback, and reinstall on this machine. User-level saves were shared, and reinstall checked startup readiness rather than another match.
-- [x] Lifecycle interfaces passed full local regression and visible solo load/save/menu/quit/restart checks. Hotseat saves remained byte-identical.
-- [x] The independent DSH lifecycle report covers manual source replacement and **upgrade deployment**, not a clean installation. Its successful load/save/menu/quit results remain valid within that scope.
-- [x] Durable delayed-quit recovery passed 90 C# suites/3303 assertions, 459 Python tests, 5 recovery tests, and 114 tooling tests. In the visible solo run, the first receipt was returning_to_menu/quitScheduled=false; querying only after process exit returned confirmed/saved=true/processExited=true, with one quit submission. Bilingual links and Python example syntax were checked.
-- [x] Installation applicability was reviewed: loader, compile references, deployment layout, and install/rollback procedures are unchanged; the new receipt directory uses the already-required writable workspace. Acceptance uses upgrade and functional regression evidence, not a newly claimed clean installation.
-- [ ] New formal hotseat management entry points need live acceptance; earlier low-level hotseat restoration evidence is not automatically a full acceptance of these entry points.
+This lists requirements; only actual delivery-directory verification records establish completion.
 
-## External publication steps
+## Publication
 
-- [x] Repository [xsmfder/polytopia-agent-bridge](https://github.com/xsmfder/polytopia-agent-bridge), issue/contribution channels, and final source selection are confirmed; the initial repository's MIT attribution is retained.
-- [x] Select `0.1.0-beta.1` and target tag `v0.1.0-beta.1` for the first prerelease; the beta does not promise a stable API.
-- [x] Actual [GitHub CI for cfe55d7](https://github.com/xsmfder/polytopia-agent-bridge/actions/runs/39733774017) passed SDK, frozen recovery, tooling, and source inventory checks on Windows with Python 3.10, 3.11, and 3.13. The first run exposed inconsistent Windows short/long path comparisons; verification output boundaries were corrected, and the failed run remains available.
-- [ ] Configure applicable repository permissions and secret/push protection.
-- [x] Public source is pushed to main, preserving the initial MIT commit. Both README languages credit the maintainer, Codex (OpenAI), and DSH agent. The named local source archive includes its exact SHA256 and scope manifest.
-- [ ] Push the frozen candidate tag; the publishing workflow tests, packages, verifies downloaded assets, and creates a prerelease. The actual prerelease page and Actions records are authoritative.
+Preparation alone creates no public tag, main-branch push, public Release or PolyMod submission. Do not relabel the historical 0.1.0-beta.1 release as a new binary.
 
-## Meaning of the evidence
+Before publishing, inspect the intended commit and `release-manifest.json`. Use `v0.4.0` and attach exact checked artifacts. Use bilingual RELEASE_NOTES; the GitHub prerelease flag is separate from the numeric manifest version. The source workflow creates drafts only. Attach locally verified binaries separately and verify downloaded bytes before publishing.
 
-Earlier gameplay evidence includes solo, fixed-seat hotseat, notifications, save restoration, public markers, settled actions, supported ruin rewards, and Cloak hint changes with peace. Ruins creating cities, Cymanti, and ice breaking remain outside the first release's accepted live branches.
-
-The DSH lifecycle follow-up used an existing installation after files were replaced. It found that a delayed query could miss final quit progress after an active-match exit; that is tracked separately from the successful `--wait` cases. A fix must not simply claim that every disappeared process means successful saving.
-
-Fully disconnected first installation, other machines, online operation, complete loader uninstallation, Steam library-button launch, and the new formal hotseat management paths are not established by that report. Preserve exact scope and candidate hashes when describing results.
-
-Project licensing is separate from game and dependency rights; see [GitHub's licensing guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). Source is uploaded to the public repository above. This checklist is frozen with the beta candidate; see the [prerelease page](https://github.com/xsmfder/polytopia-agent-bridge/releases/tag/v0.1.0-beta.1) for publication results. No stable release is claimed. Keep cloud CI and local live-game evidence separate.
+Submit the `.polymod` package using the [publication notes](POLYMOD_PUBLISH.en.md) and current website form requirements. Report publication state, assisted checks and remaining coverage honestly. Individual acceptance of all third-party mods is not a release gate.

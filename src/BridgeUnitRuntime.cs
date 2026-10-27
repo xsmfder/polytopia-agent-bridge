@@ -228,8 +228,13 @@ namespace PolytopiaAgent
             o.NullOrStr("promotesTo", SafeScalar(URMember(URMember(data, "promotesTo"), "type")));
             o.NullOrStr("upgradesFrom", SafeScalar(URMember(URMember(data, "upgradesFrom"), "type")));
             URNumber(o, "growthRate", URMember(data, "growthRate"));
+            o.Raw("growth", UnitGrowthSnapshot(unit, gs, data, own));
             o.Str("authority", "GameState.GameLogicData; UnitState.UnitData; UnitDataExtensions.GetMaxHealth/GetAttack/GetDefence/GetDefenceBonus/GetMovement/GetRange");
-            o.Raw("publicInfo", URPublicInfoCore(unit, gs, data, URHPCurrentBuildVerified(), panelRules, true));
+            string publicInfo=URPublicInfoCore(unit, gs, data, URHPCurrentBuildVerified(), panelRules, true);
+            o.Raw("publicInfo", publicInfo);
+            o.NullableBool("frozen", own ? PolarisOwnFrozen(unit) : PolarisVisibleFrozenFromPublicInfo(publicInfo));
+            o.Str("frozenAuthority", own ? "owned-native-effects" : "visible-renderer-Frozen-particle");
+            CymantiAppendStatus(o, unit, publicInfo, own);
             if (own)
             {
                 o.Raw("adjacentInvisibleThreat", AdjacentInvisibleHint(unit, gs, true));
@@ -242,13 +247,7 @@ namespace PolytopiaAgent
                 o.NullableBool("canAttack", ReadBoolInvoke(unit, "CanAttack"));
                 o.NullableBool("moved", ReadBoolMember(unit, "moved"));
                 o.NullableBool("attacked", ReadBoolMember(unit, "attacked"));
-                var passenger = URMember(unit, "passengerUnit");
-                var carrier = new JsonObj().Str("authority", "UnitState.passengerUnit/leader/follower (owned units only)");
-                URNumber(carrier, "leaderRaw", URMember(unit, "leader"));
-                URNumber(carrier, "followerRaw", URMember(unit, "follower"));
-                carrier.Raw("passenger", passenger == null ? "null" : URPassenger(passenger));
-                carrier.Str("conversionSemantics", "passenger identity is native; leader/follower are raw linkage fields, not assumed carrier IDs");
-                o.Raw("relations", carrier.Close());
+                o.Raw("relations", CymantiOwnRelations(unit));
             }
             else
             {
@@ -536,7 +535,7 @@ namespace PolytopiaAgent
                 case "Disembark": case "Upgrade": case "Promote": case "Recover":
                 case "HealOthers": case "Boost": case "ExamineRuins": case "Build":
                 case "Train": case "Research": case "Destroy": case "BreakIce":
-                case "CityReward": case "EndTurn": return true;
+                case "CityReward": case "EndTurn": case "Flood": case "FreezeArea": case "Swarm": case "Explode": case "Decompose": return true;
                 default: return false;
             }
         }
@@ -546,6 +545,7 @@ namespace PolytopiaAgent
         {
             bool prepared = readable && (type != "Upgrade" || !string.IsNullOrEmpty(kind));
             bool effect = UREffectAdapterSupported(type);
+            if (type == "ClearTileEffect") effect = Json.GetString(parameters,"Effect") == "Flooded";
             string unavailable = !myTurn ? "NOT_YOUR_TURN"
                 : !readable ? "NATIVE_COMMAND_PARAMETERS_UNAVAILABLE"
                 : !prepared ? "UPGRADE_TYPE_UNAVAILABLE"
@@ -699,6 +699,7 @@ namespace PolytopiaAgent
                 if (name == null || (selectedType == "Upgrade" && string.IsNullOrEmpty(selectedKind)))
                     return ActionPreparationError("UNIT_ACTION_TARGET_ADAPTER_UNAVAILABLE", "native unit action could not be prepared");
                 if (selectedType == "Build") selectedKind = SafeScalar(URMember(selected, "Type"));
+                if (selectedType == "ClearTileEffect") selectedKind = SafeScalar(URMember(selected, "Effect"));
                 // Same command object is revalidated/executed through the shared pipeline.
                 // Never call CommandBase.Execute directly (would bypass cost/settlement guards).
                 return ExecuteGameAction(name, "", "", "", "",
